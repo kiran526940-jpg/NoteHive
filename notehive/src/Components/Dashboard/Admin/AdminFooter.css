@@ -1,0 +1,361 @@
+
+/* =========================================================
+   NOTEHIVE - ADMIN MOBILE FOOTER
+   APP STYLE • SOFT GLASS • MOBILE ONLY
+   ========================================================= */
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+.admin-mobile-footer,
+.admin-mobile-footer * {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.admin-mobile-footer {
+  display: none;
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: 72px;
+
+  z-index: 9999;
+
+  padding: 7px 8px max(7px, env(safe-area-inset-bottom));
+
+  background: rgba(255, 255, 255, 0.94);
+
+  border-top: 1px solid rgba(99, 102, 241, 0.12);
+
+  box-shadow:
+    0 -8px 25px rgba(30, 41, 59, 0.08),
+    0 -2px 8px rgba(99, 102, 241, 0.05);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  align-items: center;
+  justify-content: space-around;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* =========================================================
+   FOOTER BUTTON
+   ========================================================= */
+
+.admin-footer-btn {
+  position: relative;
+
+  flex: 1;
+
+  min-width: 0;
+  height: 58px;
+
+  padding: 5px 3px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 3px;
+
+  cursor: pointer;
+
+  color: #64748b;
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+.admin-footer-icon {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+  line-height: 1;
+
+  border-radius: 11px;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.admin-footer-label {
+  display: block;
+
+  max-width: 100%;
+
+  font-size: 10px;
+  line-height: 13px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  transition:
+    color 0.2s ease,
+    font-weight 0.2s ease;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.admin-footer-btn:hover {
+  color: #4f46e5;
+
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.admin-footer-btn:hover .admin-footer-icon {
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   ACTIVE BUTTON
+   ========================================================= */
+
+.admin-footer-btn.active {
+  color: #4f46e5;
+
+  background: rgba(99, 102, 241, 0.09);
+}
+
+.admin-footer-btn.active .admin-footer-icon {
+  transform: translateY(-1px);
+
+  background: rgba(99, 102, 241, 0.12);
+
+  box-shadow:
+    0 4px 12px rgba(99, 102, 241, 0.10);
+}
+
+.admin-footer-btn.active .admin-footer-label {
+  color: #4338ca;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   ACTIVE TOP INDICATOR
+   ========================================================= */
+
+.admin-footer-btn.active::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  width: 22px;
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  border-radius: 0 0 6px 6px;
+
+  background: #6366f1;
+}
+
+
+/* =========================================================
+   PRESS / TOUCH EFFECT
+   ========================================================= */
+
+.admin-footer-btn:active {
+  transform: scale(0.94);
+}
+
+.admin-footer-btn:active .admin-footer-icon {
+  transform: scale(0.92);
+}
+
+
+/* =========================================================
+   MOBILE — SHOW FOOTER
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+
+  .admin-mobile-footer {
+    display: flex;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 420px) {
+
+  .admin-mobile-footer {
+    height: 68px;
+
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .admin-footer-btn {
+    height: 55px;
+
+    border-radius: 14px;
+  }
+
+  .admin-footer-icon {
+    width: 28px;
+    height: 28px;
+
+    font-size: 20px;
+  }
+
+  .admin-footer-label {
+    font-size: 9px;
+    line-height: 12px;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media screen and (max-width: 350px) {
+
+  .admin-mobile-footer {
+    height: 65px;
+
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .admin-footer-btn {
+    height: 52px;
+
+    border-radius: 12px;
+  }
+
+  .admin-footer-icon {
+    width: 26px;
+    height: 26px;
+
+    font-size: 19px;
+  }
+
+  .admin-footer-label {
+    font-size: 8px;
+  }
+
+}
+
+
+/* =========================================================
+   LANDSCAPE MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 768px) and (orientation: landscape) {
+
+  .admin-mobile-footer {
+    height: 62px;
+
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  .admin-footer-btn {
+    height: 50px;
+  }
+
+  .admin-footer-icon {
+    font-size: 19px;
+  }
+
+  .admin-footer-label {
+    font-size: 9px;
+  }
+
+}
+
+
+/* =========================================================
+   DESKTOP — COMPLETELY HIDDEN
+   ========================================================= */
+
+@media screen and (min-width: 769px) {
+
+  .admin-mobile-footer {
+    display: none !important;
+  }
+
+}
+
+
+/* =========================================================
+   SAFE AREA FOR IPHONE
+   ========================================================= */
+
+@supports (padding: max(0px)) {
+
+  .admin-mobile-footer {
+    padding-bottom: max(
+      7px,
+      env(safe-area-inset-bottom)
+    );
+  }
+
+}
+

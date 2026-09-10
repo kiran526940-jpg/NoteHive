@@ -1,0 +1,63 @@
+/* ================================
+   DASHBOARD HEADER
+================================ */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: #ffffff;
+
+  padding: 15px 25px;
+
+  margin-bottom: 30px;
+
+  border-bottom: 1px solid #eeeeee;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+
+  color: #0b4bd6;
+
+  font-size: 25px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+/* ================================
+   LOGOUT BUTTON
+   Same style as Login button
+================================ */
+
+.logout-btn {
+  background: white;
+
+  color: #e5a400;
+
+  border: 2px solid #e5a400;
+
+  padding: 14px 28px;
+
+  border-radius: 8px;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #e5a400;
+
+  color: rgb(13, 2, 25);
+
+  transform: translateY(-2px);
+}

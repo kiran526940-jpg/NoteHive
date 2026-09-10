@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build files
+dist/
+build/
+
+# Uploads
+uploads/
+
+# Old projects
+vite-project/
+server copy/
+
+# Android / Capacitor build files
+android/.gradle/
+android/app/build/
+android/build/
+
+# Editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+# NoteHive duplicate/old project
+notehive/notehive/
+
+# Android project - website deployment ke liye abhi nahi
+notehive/android/
+
+# Frontend build/dependencies
+notehive/node_modules/
+notehive/dist/
+
+# Backend dependencies/uploads
+server/node_modules/
+server/uploads/
+
+# Backend backup files
+server/server-backup*.js
+
+# Old accidental frontend server/model copy
+notehive/server/
+notehive/src/Components/Server/

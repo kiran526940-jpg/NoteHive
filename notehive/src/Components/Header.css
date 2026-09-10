@@ -1,0 +1,833 @@
+/* =========================================================
+   NOTEHIVE - HEADER
+   PREMIUM WHITE + BLUE THEME
+   DESKTOP + MOBILE APP NAVIGATION
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background: rgba(255, 255, 255, 0.94);
+
+  border-bottom: 1px solid #e7ebf1;
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  box-shadow:
+    0 4px 18px rgba(30, 55, 90, 0.04);
+}
+
+/* =========================================================
+   HEADER CONTAINER
+========================================================= */
+
+.header-container {
+  width: 100%;
+  max-width: 1450px;
+
+  min-height: 74px;
+
+  margin: 0 auto;
+
+  padding: 0 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 25px;
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 9px;
+
+  text-decoration: none;
+
+  flex-shrink: 0;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.logo:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.logo-bee {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 12px;
+
+  background: #edf3ff;
+  border: 1px solid #dce7ff;
+
+  font-size: 21px;
+
+  box-shadow:
+    0 5px 14px rgba(79, 124, 255, 0.1);
+}
+
+.logo-text {
+  color: #182235;
+
+  font-size: 19px;
+  font-weight: 850;
+
+  letter-spacing: 1px;
+}
+
+/* =========================================================
+   DESKTOP NAVIGATION
+========================================================= */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  flex: 1;
+}
+
+.nav-link {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border-radius: 11px;
+
+  color: #69768a;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #4f7cff;
+
+  background: #f3f6fb;
+
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  color: #4f7cff;
+
+  background: #edf3ff;
+
+  font-weight: 750;
+}
+
+.nav-link.active::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: 4px;
+
+  width: 18px;
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  border-radius: 20px;
+
+  background: #4f7cff;
+}
+
+/* =========================================================
+   RIGHT SIDE
+========================================================= */
+
+.header-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   NOTIFICATION BUTTON
+========================================================= */
+
+.header-notification-btn {
+  position: relative;
+
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid #e1e7ef;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.header-notification-btn:hover {
+  background: #f3f6fb;
+
+  border-color: #d5dff0;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 7px 18px rgba(30, 55, 90, 0.08);
+}
+
+.header-bell-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* =========================================================
+   DESKTOP NOTIFICATION BADGE
+========================================================= */
+
+.notification-dot {
+  position: absolute !important;
+
+  top: -5px !important;
+  right: -7px !important;
+
+  min-width: 18px !important;
+  height: 18px !important;
+
+  padding: 0 5px !important;
+
+  display: flex !important;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #ef4444 !important;
+
+  color: #ffffff !important;
+
+  border: 2px solid #ffffff !important;
+
+  border-radius: 999px !important;
+
+  font-size: 10px !important;
+  font-weight: 700 !important;
+
+  line-height: 1;
+
+  z-index: 1000 !important;
+
+  box-sizing: border-box !important;
+}
+
+/* =========================================================
+   LOGOUT BUTTON
+========================================================= */
+
+.header-logout-btn {
+  min-height: 42px;
+
+  padding: 0 17px;
+
+  border: 1px solid #e1e7ef;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  color: #657287;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.header-logout-btn:hover {
+  background: #fff5f5;
+
+  border-color: #f0d5d5;
+
+  color: #d45858;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 7px 18px rgba(180, 70, 70, 0.07);
+}
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+.header-login-btn {
+  min-height: 42px;
+
+  padding: 0 16px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #dce4ee;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  color: #526176;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.header-login-btn:hover {
+  background: #f3f6fb;
+
+  border-color: #ccd8e8;
+
+  color: #4f7cff;
+
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+   SIGN UP
+========================================================= */
+
+.header-signup-btn {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #4f7cff;
+
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,
+    #4f7cff,
+    #668aff
+  );
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 750;
+
+  box-shadow:
+    0 7px 18px rgba(79, 124, 255, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.header-signup-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 11px 25px rgba(79, 124, 255, 0.27);
+
+  filter: brightness(1.02);
+}
+
+/* =========================================================
+   MOBILE BOTTOM NAV
+   HIDDEN ON DESKTOP
+========================================================= */
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.logo:focus-visible,
+.nav-link:focus-visible,
+.header-notification-btn:focus-visible,
+.header-logout-btn:focus-visible,
+.header-login-btn:focus-visible,
+.header-signup-btn:focus-visible,
+.mobile-nav-item:focus-visible {
+  outline: 3px solid rgba(79, 124, 255, 0.2);
+
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+  .header-container {
+    padding: 0 25px;
+    gap: 15px;
+  }
+
+  .nav-link {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .logo-text {
+    font-size: 17px;
+  }
+
+  .header-login-btn,
+  .header-signup-btn,
+  .header-logout-btn {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+}
+
+/* =========================================================
+   MOBILE HEADER
+========================================================= */
+
+@media (max-width: 800px) {
+  .header {
+    position: sticky;
+    top: 0;
+
+    z-index: 1000;
+  }
+
+  .header-container {
+    min-height: 64px;
+
+    padding:
+      0 15px;
+
+    gap: 10px;
+  }
+
+  .logo {
+    gap: 7px;
+  }
+
+  .logo-bee {
+    width: 37px;
+    height: 37px;
+
+    border-radius: 11px;
+
+    font-size: 19px;
+  }
+
+  .logo-text {
+    display: none;
+  }
+
+  /* Hide desktop nav on mobile */
+  .nav {
+    display: none;
+  }
+
+  .header-actions {
+    margin-left: auto;
+
+    gap: 7px;
+  }
+
+  .header-notification-btn {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 11px;
+  }
+
+  .header-bell-icon {
+    font-size: 16px;
+  }
+
+  .header-logout-btn {
+    min-height: 38px;
+
+    padding: 0 12px;
+
+    border-radius: 11px;
+
+    font-size: 11px;
+  }
+
+  .header-login-btn,
+  .header-signup-btn {
+    min-height: 38px;
+
+    padding: 0 11px;
+
+    border-radius: 11px;
+
+    font-size: 11px;
+  }
+
+  /* =====================================================
+     BOTTOM NAVIGATION
+  ===================================================== */
+
+  .mobile-bottom-nav {
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 2000;
+
+    min-height: 68px;
+
+    padding:
+      7px 8px
+      calc(7px + env(safe-area-inset-bottom));
+
+    display: grid;
+
+    grid-template-columns:
+      repeat(5, 1fr);
+
+    align-items: center;
+
+    background: rgba(255, 255, 255, 0.97);
+
+    border-top: 1px solid #e3e9f2;
+
+    box-shadow:
+      0 -7px 25px rgba(30, 55, 90, 0.09);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .mobile-nav-item {
+    position: relative;
+
+    min-width: 0;
+
+    min-height: 54px;
+
+    padding: 4px 2px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 3px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    background: transparent;
+
+    color: #7a879a;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+      color 0.2s ease,
+      background 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.94);
+  }
+
+  .mobile-nav-icon {
+    width: 31px;
+    height: 31px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    font-size: 18px;
+
+    line-height: 1;
+  }
+
+  .mobile-nav-label {
+    font-size: 9px;
+
+    font-weight: 700;
+
+    line-height: 1.1;
+
+    white-space: nowrap;
+  }
+
+  /* =====================================================
+     ACTIVE MOBILE ITEM
+  ===================================================== */
+
+  .mobile-nav-item.mobile-nav-active {
+    color: #4f7cff;
+
+    background: #edf3ff;
+  }
+
+  .mobile-nav-item.mobile-nav-active
+    .mobile-nav-icon {
+    background: #dfeaff;
+  }
+
+  .mobile-nav-item.mobile-nav-active
+    .mobile-nav-label {
+    font-weight: 800;
+  }
+
+  /* =====================================================
+     MOBILE NOTIFICATION BADGE
+  ===================================================== */
+
+  .mobile-notification-item {
+    overflow: visible;
+  }
+
+  .mobile-notification-badge {
+    position: absolute;
+
+    top: 3px;
+    left: 50%;
+
+    transform: translateX(7px);
+
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+
+    background: #ef4444;
+
+    border: 2px solid #ffffff;
+
+    color: #ffffff;
+
+    font-size: 8px;
+    font-weight: 800;
+
+    line-height: 1;
+
+    box-shadow:
+      0 3px 8px rgba(239, 68, 68, 0.25);
+  }
+
+  /* =====================================================
+     BODY SPACE FOR BOTTOM NAV
+  ===================================================== */
+
+  body {
+    padding-bottom: 78px;
+  }
+
+  /* Don't add bottom space to admin pages */
+  body:has(.admin-dashboard),
+  body:has(.admin-layout) {
+    padding-bottom: 0;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 550px) {
+  .header-container {
+    min-height: 62px;
+
+    padding: 0 12px;
+  }
+
+  .logo-bee {
+    width: 36px;
+    height: 36px;
+  }
+
+  .header-notification-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .header-logout-btn {
+    min-height: 36px;
+
+    padding: 0 10px;
+
+    font-size: 10px;
+  }
+
+  .mobile-bottom-nav {
+    min-height: 66px;
+
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .mobile-nav-item {
+    min-height: 52px;
+
+    border-radius: 12px;
+  }
+
+  .mobile-nav-icon {
+    width: 29px;
+    height: 29px;
+
+    font-size: 17px;
+  }
+
+  .mobile-nav-label {
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 390px) {
+  .header-container {
+    padding: 0 9px;
+  }
+
+  .header-actions {
+    gap: 5px;
+  }
+
+  .header-logout-btn {
+    padding: 0 8px;
+  }
+
+  .mobile-bottom-nav {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .mobile-nav-item {
+    padding-left: 1px;
+    padding-right: 1px;
+  }
+
+  .mobile-nav-icon {
+    font-size: 16px;
+  }
+
+  .mobile-nav-label {
+    font-size: 7.5px;
+  }
+}
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+  .logo:hover,
+  .nav-link:hover,
+  .header-notification-btn:hover,
+  .header-logout-btn:hover,
+  .header-login-btn:hover,
+  .header-signup-btn:hover {
+    transform: none;
+  }
+
+  .mobile-nav-item {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}

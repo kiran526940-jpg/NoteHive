@@ -1,0 +1,55 @@
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 60px;
+  background: #fff8dc;
+}
+
+.hero-content {
+  max-width: 550px;
+}
+
+.hero h1 {
+  font-size: 50px;
+  color: #222;
+}
+
+.hero h1 span {
+  color: #eab308;
+}
+
+.hero p {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  margin-top: 25px;
+  display: flex;
+  gap: 15px;
+}
+
+.start-btn,
+.learn-btn {
+  padding: 12px 25px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.start-btn {
+  background: #eab308;
+  color: white;
+}
+
+.learn-btn {
+  background: #222;
+  color: white;
+}
+
+.hero-image {
+  font-size: 150px;
+}

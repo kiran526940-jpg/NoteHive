@@ -1,0 +1,188 @@
+/* =========================================
+   Refined Modern Privacy Policy CSS
+========================================= */
+.policy-page {
+  min-height: 100vh;
+  /* Premium soft gradient background */
+  background: linear-gradient(135deg, #eeeee4 0%, #eff6ff 100%);
+  padding: 60px 20px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.policy-card {
+  max-width: 940px;
+  width: 100%;
+  background: #64c455;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 50px;
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+}
+
+/* Header Styling */
+.policy-header {
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto 45px;
+}
+
+.policy-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  background-color: #b6a0b3;
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 30px;
+  margin-bottom: 14px;
+}
+
+.policy-header h1 {
+  font-size: 36px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 12px;
+  letter-spacing: -0.7px;
+}
+
+.policy-header p {
+  font-size: 16px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Grid Cards Styling */
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.policy-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 28px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.policy-box:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1);
+  transform: translateY(-3px);
+}
+
+.policy-icon {
+  font-size: 28px;
+  margin-bottom: 14px;
+}
+
+.policy-box h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 10px;
+  letter-spacing: -0.3px;
+}
+
+.policy-box p {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Footer Support Box */
+.policy-footer-box {
+  background: linear-gradient(135deg, #f0f9ff 100%, #e0f2fe 0%);
+  border: 1px solid #bae6fd;
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.policy-footer-text h4 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0369a1;
+  margin: 0 0 4px;
+}
+
+.policy-footer-text p {
+  font-size: 14px;
+  color: #0284c7;
+  margin: 0;
+}
+
+.policy-contact-btn {
+  background-color: #0284c7;
+  color: #ffffff;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+
+.policy-contact-btn:hover {
+  background-color: #0369a1;
+  transform: translateY(-1px);
+}
+
+/* Back Link */
+.policy-back {
+  text-align: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 22px;
+}
+
+.policy-back a {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0284c7;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.policy-back a:hover {
+  color: #0369a1;
+  text-decoration: underline;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .policy-card {
+    padding: 28px 20px;
+  }
+
+  .policy-header h1 {
+    font-size: 28px;
+  }
+
+  .policy-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .policy-footer-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

@@ -1,0 +1,1502 @@
+/* ============================================================
+   NOTEHIVE - EXPLORE NOTES
+   Clean Blue Dashboard Style
+   ============================================================ */
+
+.explore-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #f6f9fe;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.explore-container {
+  width: 100%;
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.explore-hero {
+  width: 100%;
+  min-height: 210px;
+  border-radius: 22px;
+  margin-bottom: 24px;
+  padding: 35px 42px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+
+  background: linear-gradient(135deg, #eaf3ff 0%, #f7fbff 100%);
+  border: 1px solid #dce9f8;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.explore-hero::after {
+  content: "";
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: rgba(66, 133, 244, 0.08);
+  right: -55px;
+  top: -75px;
+}
+
+.explore-hero::before {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(66, 133, 244, 0.06);
+  right: 140px;
+  bottom: -90px;
+}
+
+.explore-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.explore-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 7px 13px;
+  margin-bottom: 13px;
+
+  border-radius: 30px;
+  background: #ffffff;
+  border: 1px solid #d7e6f7;
+
+  color: #3778c9;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.explore-badge span {
+  color: #4285f4;
+  font-size: 15px;
+}
+
+.explore-hero h1 {
+  margin: 0;
+  color: #183b63;
+  font-size: 36px;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+}
+
+.explore-hero h1 span {
+  color: #4285f4;
+}
+
+.explore-hero p {
+  margin: 9px 0 0;
+  max-width: 650px;
+
+  color: #71839a;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* ============================================================
+   CONTROLS
+   ============================================================ */
+
+.explore-controls {
+  width: 100%;
+  padding: 20px;
+  margin-bottom: 24px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid #e2ebf5;
+  border-radius: 17px;
+
+  box-shadow: 0 4px 15px rgba(35, 75, 120, 0.04);
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+
+.explore-search {
+  width: 100%;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+
+  position: relative;
+
+  background: #f8fbff;
+  border: 1px solid #dce7f3;
+  border-radius: 11px;
+
+  transition: 0.2s ease;
+}
+
+.explore-search:focus-within {
+  background: #ffffff;
+  border-color: #6fa5ed;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.08);
+}
+
+.search-icon {
+  width: 45px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #7d91a8;
+  font-size: 23px;
+}
+
+.explore-search input {
+  flex: 1;
+  height: 100%;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  color: #294765;
+  font-size: 14px;
+}
+
+.explore-search input::placeholder {
+  color: #9aabbd;
+}
+
+.clear-search {
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #eaf1f9;
+  color: #71839a;
+
+  font-size: 19px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-search:hover {
+  background: #dce9f7;
+  color: #31587e;
+}
+
+/* ============================================================
+   CATEGORY ROW
+   ============================================================ */
+
+.category-row {
+  margin-top: 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.category-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  flex-wrap: wrap;
+}
+
+.category-btn {
+  height: 35px;
+  padding: 0 14px;
+
+  border: 1px solid #dce6f1;
+  border-radius: 20px;
+
+  background: #ffffff;
+  color: #657991;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.category-btn:hover {
+  border-color: #9ec3ef;
+  color: #3979c8;
+  background: #f5f9ff;
+}
+
+.category-btn.active {
+  background: #4285f4;
+  border-color: #4285f4;
+  color: #ffffff;
+
+  box-shadow: 0 4px 10px rgba(66, 133, 244, 0.18);
+}
+
+/* ============================================================
+   SORT
+   ============================================================ */
+
+.sort-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  flex-shrink: 0;
+}
+
+.sort-box label {
+  color: #71839a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sort-box select {
+  height: 36px;
+  min-width: 135px;
+
+  padding: 0 11px;
+
+  border: 1px solid #dce6f1;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #405a76;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.sort-box select:focus {
+  border-color: #6fa5ed;
+}
+
+/* ============================================================
+   RESULT HEADER
+   ============================================================ */
+
+.explore-result-header {
+  width: 100%;
+  margin: 0 0 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.explore-result-header h2 {
+  margin: 0;
+  color: #203f61;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.explore-result-header p {
+  margin: 4px 0 0;
+  color: #8a9caf;
+  font-size: 12px;
+}
+
+.refresh-btn {
+  height: 38px;
+  padding: 0 15px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 1px solid #d5e4f5;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #3978c6;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: #eef6ff;
+  border-color: #b8d3f2;
+}
+
+.refresh-btn:active {
+  transform: scale(0.97);
+}
+
+/* ============================================================
+   NOTES GRID
+   ============================================================ */
+
+.notes-grid {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* ============================================================
+   NOTE CARD
+   ============================================================ */
+
+.explore-note-card {
+  min-width: 0;
+  min-height: 360px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 21px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid #e2eaf3;
+  border-radius: 17px;
+
+  box-shadow: 0 5px 17px rgba(38, 76, 116, 0.055);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.explore-note-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #c9dcf3;
+
+  box-shadow: 0 10px 26px rgba(38, 76, 116, 0.10);
+}
+
+/* ============================================================
+   CARD TOP
+   ============================================================ */
+
+.note-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 15px;
+}
+
+.note-category {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 26px;
+  padding: 0 10px;
+
+  border-radius: 7px;
+
+  background: #edf5ff;
+  color: #397bc9;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+}
+
+.save-btn {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e0e8f1;
+  border-radius: 9px;
+
+  background: #f9fbfd;
+  color: #71849a;
+
+  font-size: 18px;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.save-btn:hover {
+  background: #eef6ff;
+  border-color: #bcd6f3;
+  color: #3479ca;
+}
+
+.save-btn.saved {
+  background: #eef6ff;
+  border-color: #bdd8f5;
+  color: #3479ca;
+}
+
+/* ============================================================
+   TITLE
+   ============================================================ */
+
+.note-card-title {
+  margin: 0 0 10px;
+
+  color: #203f61;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+ 
+
+  overflow: hidden;
+}
+
+/* ============================================================
+   PREVIEW
+   ============================================================ */
+
+.note-card-preview {
+  margin: 0;
+
+  color: #71839a;
+  font-size: 13px;
+  line-height: 1.7;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  
+
+  overflow: hidden;
+}
+
+/* ============================================================
+   AUTHOR
+   ============================================================ */
+
+.note-author {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.author-avatar {
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #e9f2ff;
+  border: 1px solid #d4e5f8;
+
+  color: #3978c6;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.note-author div:last-child {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.note-author strong {
+  max-width: 160px;
+
+  color: #405b76;
+  font-size: 12px;
+  font-weight: 650;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-author span {
+  margin-top: 2px;
+
+  color: #9aaabd;
+  font-size: 10px;
+}
+
+/* ============================================================
+   EXPLORE NOTE CARD ACTIONS
+   LIKE • REPOST • SAVE
+   ============================================================ */
+
+.note-card-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  margin-top: 16px;
+  padding-top: 14px;
+
+  border-top: 1px solid #edf2f7;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   ALL ACTION BUTTONS
+   ============================================================ */
+
+.explore-action {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+
+  padding: 0 7px;
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  border: 1px solid #dfe7f0;
+  border-radius: 9px;
+
+  background: #f9fbfe;
+  color: #63778e;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  line-height: 1;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+
+.explore-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #f0f6fd;
+  border-color: #bfd5ed;
+}
+
+/* Click */
+
+.explore-action:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Disabled */
+
+.explore-action:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+/* ============================================================
+   ICON
+   ============================================================ */
+
+.action-icon {
+  width: 17px;
+  height: 17px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ============================================================
+   TEXT
+   ============================================================ */
+
+.action-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   COUNT
+   ============================================================ */
+
+.action-count {
+  min-width: 12px;
+
+  color: #91a0b0;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-align: center;
+}
+
+/* ============================================================
+   ❤️ LIKE BUTTON
+   ============================================================ */
+
+.explore-action.like-action {
+  color: #66798e;
+}
+
+.explore-action.like-action:hover:not(:disabled) {
+  color: #e04458;
+  background: #fff4f5;
+  border-color: #ffd1d7;
+}
+
+/* Already liked */
+
+.explore-action.like-action.liked {
+  background: #fff0f2;
+  border-color: #ffcbd2;
+  color: #e04458;
+}
+
+.explore-action.like-action.liked .action-count {
+  color: #e07d89;
+}
+
+/* Prevent second like */
+
+.explore-action.like-action.liked:disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   🔁 REPOST BUTTON
+   ============================================================ */
+
+.explore-action.repost-action {
+  color: #66798e;
+}
+
+.explore-action.repost-action:hover:not(:disabled) {
+  color: #168a61;
+  background: #effbf6;
+  border-color: #c5eadb;
+}
+
+/* Reposted */
+
+.explore-action.repost-action.reposted {
+  background: #effaf5;
+  border-color: #bfe5d4;
+  color: #168a61;
+}
+
+.explore-action.repost-action.reposted .action-count {
+  color: #6ba990;
+}
+
+/* ============================================================
+   🔖 SAVE BUTTON
+   ============================================================ */
+
+.explore-action.save-action {
+  color: #66798e;
+}
+
+.explore-action.save-action:hover:not(:disabled) {
+  color: #367aca;
+  background: #eff6ff;
+  border-color: #c5dcf5;
+}
+
+/* Saved */
+
+.explore-action.save-action.saved {
+  background: #eef6ff;
+  border-color: #c4daf3;
+  color: #367aca;
+}
+
+.explore-action.save-action.saved .action-count {
+  color: #78a2ca;
+}
+
+/* ============================================================
+   TOP SAVE BUTTON
+   ============================================================ */
+
+.note-card-top .save-btn {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  margin: 0;
+
+  border: 1px solid #dfe7f0;
+  border-radius: 9px;
+
+  background: #f9fbfe;
+  color: #71849a;
+
+  font-size: 18px;
+  line-height: 1;
+
+  cursor: pointer;
+  box-sizing: border-box;
+
+  transition: all 0.2s ease;
+}
+
+.note-card-top .save-btn:hover:not(:disabled) {
+  background: #eef6ff;
+  border-color: #c4daf3;
+  color: #367aca;
+}
+
+.note-card-top .save-btn.saved {
+  background: #eef6ff;
+  border-color: #c4daf3;
+  color: #367aca;
+}
+
+/* ============================================================
+   CARD STATS
+   ============================================================ */
+
+.note-card-stats {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  margin-top: 10px;
+
+  color: #98a7b7;
+
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* ============================================================
+   READ NOTE BUTTON
+   ============================================================ */
+
+.read-note-btn {
+  width: 100%;
+  height: 38px;
+
+  margin-top: 11px;
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #4285f4;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+  box-sizing: border-box;
+
+  transition: all 0.2s ease;
+}
+
+.read-note-btn:hover {
+  background: #3478e5;
+  box-shadow: 0 5px 12px rgba(66, 133, 244, 0.18);
+}
+
+.read-note-btn:active {
+  transform: scale(0.98);
+}
+
+.read-note-btn span {
+  font-size: 15px;
+}
+
+/* ============================================================
+   MODAL ACTION BUTTONS
+   ============================================================ */
+
+.modal-actions {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+
+  padding-top: 17px;
+
+  border-top: 1px solid #edf2f6;
+}
+
+.modal-action {
+  width: 100%;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 0 10px;
+
+  border: 1px solid #dfe7f0;
+  border-radius: 9px;
+
+  background: #f9fbfe;
+  color: #687c92;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+  box-sizing: border-box;
+
+  transition: all 0.2s ease;
+}
+
+.modal-action:hover:not(:disabled) {
+  background: #f0f6fd;
+  border-color: #c3d8ed;
+}
+
+.modal-action:disabled {
+  cursor: default;
+}
+
+/* Modal icon */
+
+.modal-action-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Modal Like */
+
+.modal-action.modal-like.active {
+  background: #fff0f2;
+  border-color: #ffcbd2;
+  color: #e04458;
+}
+
+/* Modal Repost */
+
+.modal-action.modal-repost.active {
+  background: #effaf5;
+  border-color: #c3e7d7;
+  color: #168a61;
+}
+
+/* Modal Save */
+
+.modal-action.modal-save.active {
+  background: #eef6ff;
+  border-color: #c4daf3;
+  color: #367aca;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 500px) {
+
+  .note-card-actions {
+    gap: 5px;
+  }
+
+  .explore-action {
+    height: 36px;
+    padding: 0 4px;
+    gap: 3px;
+
+    font-size: 9px;
+  }
+
+  .action-icon {
+    width: 15px;
+    height: 15px;
+    font-size: 13px;
+  }
+
+  .action-count {
+    font-size: 9px;
+  }
+
+  .modal-actions {
+    gap: 6px;
+  }
+
+  .modal-action {
+    height: 38px;
+    padding: 0 6px;
+    gap: 5px;
+
+    font-size: 10px;
+  }
+}
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.empty-explore {
+  width: 100%;
+  min-height: 330px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px dashed #ccdbea;
+  border-radius: 17px;
+
+  text-align: center;
+}
+
+.empty-icon {
+  width: 65px;
+  height: 65px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 14px;
+
+  border-radius: 50%;
+  background: #eef5fd;
+
+  font-size: 28px;
+}
+
+.empty-explore h3 {
+  margin: 0 0 7px;
+
+  color: #345472;
+  font-size: 18px;
+}
+
+.empty-explore p {
+  max-width: 400px;
+
+  margin: 0;
+
+  color: #93a4b6;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.empty-explore button {
+  height: 36px;
+
+  margin-top: 17px;
+  padding: 0 16px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #4285f4;
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.explore-loading {
+  min-height: 70vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  color: #6d8299;
+}
+
+.explore-loading p {
+  margin-top: 13px;
+
+  font-size: 13px;
+}
+
+.explore-spinner {
+  width: 35px;
+  height: 35px;
+
+  border: 3px solid #dce9f7;
+  border-top-color: #4285f4;
+
+  border-radius: 50%;
+
+  animation: exploreSpin 0.8s linear infinite;
+}
+
+@keyframes exploreSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   MODAL OVERLAY
+   ============================================================ */
+
+.note-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 25px;
+
+  background: rgba(18, 42, 68, 0.45);
+
+  backdrop-filter: blur(4px);
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+
+.note-modal {
+  width: 100%;
+  max-width: 760px;
+  max-height: 88vh;
+
+  position: relative;
+
+  overflow-y: auto;
+
+  padding: 30px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border-radius: 20px;
+
+  box-shadow: 0 25px 70px rgba(15, 45, 80, 0.2);
+
+  scrollbar-width: thin;
+  scrollbar-color: #c8d9eb transparent;
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f1f5f9;
+  color: #71839a;
+
+  font-size: 21px;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.modal-close:hover {
+  background: #e4edf7;
+  color: #345472;
+}
+
+.modal-category {
+  display: inline-flex;
+
+  padding: 6px 11px;
+
+  border-radius: 7px;
+
+  background: #edf5ff;
+  color: #397bc9;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.note-modal h2 {
+  margin: 14px 45px 18px 0;
+
+  color: #1f405f;
+  font-size: 27px;
+  line-height: 1.35;
+}
+
+/* ============================================================
+   MODAL AUTHOR
+   ============================================================ */
+
+.modal-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid #edf1f5;
+}
+
+.author-avatar.large {
+  width: 42px;
+  height: 42px;
+
+  font-size: 15px;
+}
+
+.modal-author div:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-author strong {
+  color: #405b76;
+  font-size: 13px;
+}
+
+.modal-author span {
+  margin-top: 3px;
+
+  color: #97a8b9;
+  font-size: 10px;
+}
+
+/* ============================================================
+   MODAL STATS
+   ============================================================ */
+
+.modal-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  padding: 15px 0;
+
+  color: #8395a8;
+
+  font-size: 11px;
+}
+
+.modal-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================================================
+   MODAL CONTENT
+   ============================================================ */
+
+.modal-content {
+  padding: 5px 0 20px;
+
+  color: #526b84;
+
+  font-size: 14px;
+  line-height: 1.8;
+
+  word-break: break-word;
+}
+
+.modal-content p {
+  margin: 0;
+}
+
+.modal-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.modal-content h1,
+.modal-content h2,
+.modal-content h3 {
+  color: #294b6b;
+}
+
+/* ============================================================
+   MODAL ACTIONS
+   ============================================================ */
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding-top: 17px;
+
+  border-top: 1px solid #edf1f5;
+}
+
+.modal-action {
+  height: 39px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 0 14px;
+
+  border: 1px solid #dfe8f1;
+  border-radius: 9px;
+
+  background: #fafcff;
+  color: #71839a;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.modal-action:hover:not(:disabled) {
+  background: #f0f6fd;
+  border-color: #c4d8ee;
+  color: #3978c9;
+}
+
+.modal-action:disabled {
+  cursor: default;
+}
+
+.modal-action-icon {
+  font-size: 15px;
+}
+
+.modal-action.active.modal-like {
+  background: #fff1f3;
+  border-color: #ffd0d6;
+  color: #e05262;
+}
+
+.modal-action.active.modal-repost {
+  background: #effaf5;
+  border-color: #c9eadb;
+  color: #239268;
+}
+
+.modal-action.active.modal-save {
+  background: #eef6ff;
+  border-color: #c6dcf4;
+  color: #3479ca;
+}
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 1150px) {
+  .notes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .explore-page {
+    padding: 25px;
+  }
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 750px) {
+  .explore-page {
+    padding: 18px;
+  }
+
+  .explore-hero {
+    min-height: 190px;
+    padding: 27px;
+    border-radius: 17px;
+  }
+
+  .explore-hero h1 {
+    font-size: 29px;
+  }
+
+  .explore-hero p {
+    font-size: 13px;
+  }
+
+  .category-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sort-box {
+    width: 100%;
+  }
+
+  .sort-box select {
+    flex: 1;
+  }
+
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .explore-result-header {
+    align-items: flex-start;
+  }
+}
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .explore-page {
+    padding: 12px;
+  }
+
+  .explore-hero {
+    padding: 22px;
+  }
+
+  .explore-hero h1 {
+    font-size: 25px;
+  }
+
+  .explore-controls {
+    padding: 14px;
+  }
+
+  .category-list {
+    gap: 6px;
+  }
+
+  .category-btn {
+    padding: 0 11px;
+    font-size: 10px;
+  }
+
+  .explore-note-card {
+    padding: 17px;
+  }
+
+  .note-card-actions {
+    gap: 5px;
+  }
+
+  .explore-action {
+    font-size: 9px;
+  }
+
+  .action-icon {
+    font-size: 13px;
+  }
+
+  .note-modal-overlay {
+    padding: 12px;
+  }
+
+  .note-modal {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .note-modal h2 {
+    font-size: 22px;
+  }
+
+  .modal-stats {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+  }
+
+  .modal-action {
+    flex: 1;
+    min-width: 85px;
+  }
+}

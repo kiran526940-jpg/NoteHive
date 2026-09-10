@@ -1,0 +1,701 @@
+/* =========================================================
+   NOTEHIVE ADMIN HEADER
+   DESKTOP + TABLET + MOBILE
+   BLUE GLASS APP STYLE
+   ========================================================= */
+
+.admin-header,
+.admin-header * {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.admin-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+
+  z-index: 99999;
+
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  width: 100%;
+  min-height: 76px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(239, 246, 255, 0.97)
+  );
+
+  border-bottom: 1px solid rgba(59, 130, 246, 0.14);
+
+  box-shadow:
+    0 8px 30px rgba(30, 64, 175, 0.08);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* =========================================================
+   INNER
+   ========================================================= */
+
+.admin-header-inner {
+  width: 100%;
+  max-width: 1500px;
+
+  min-height: 76px;
+
+  margin: 0 auto;
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  cursor: pointer;
+  user-select: none;
+
+  flex-shrink: 0;
+}
+
+.admin-logo {
+  width: 48px;
+  height: 48px;
+
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 25px;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #4f46e5
+  );
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.25);
+
+  flex-shrink: 0;
+}
+
+.admin-brand-text {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  line-height: 1;
+
+  min-width: 0;
+}
+
+.admin-brand-text h1 {
+  margin: 0;
+
+  font-size: 21px;
+  font-weight: 800;
+
+  letter-spacing: -0.5px;
+
+  color: #172554;
+}
+
+.admin-brand-text span {
+  margin: 0;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1.3px;
+
+  color: #64748b;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   NOTIFICATION
+   ========================================================= */
+
+.admin-icon-button {
+  position: relative;
+
+  width: 44px;
+  height: 44px;
+
+  padding: 0;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+
+  flex-shrink: 0;
+}
+
+.admin-icon-button:hover {
+  transform: translateY(-2px);
+
+  border-color: #93c5fd;
+
+  background: #f8fbff;
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.12);
+}
+
+/* =========================================================
+   NOTIFICATION DOT
+   ========================================================= */
+
+.admin-notification-dot {
+  position: absolute;
+
+  top: 7px;
+  right: 7px;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #ef4444;
+
+  border: 2px solid #ffffff;
+}
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+
+.admin-profile-button {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 6px 12px 6px 6px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+
+  flex-shrink: 0;
+}
+
+.admin-profile-button:hover {
+  transform: translateY(-1px);
+
+  border-color: #93c5fd;
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.10);
+}
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.admin-avatar {
+  width: 38px;
+  height: 38px;
+
+  border-radius: 11px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 800;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #6366f1
+  );
+
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   PROFILE INFO
+   ========================================================= */
+
+.admin-profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 2px;
+
+  white-space: nowrap;
+}
+
+.admin-profile-info strong {
+  margin: 0;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #172554;
+}
+
+.admin-profile-info span {
+  margin: 0;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  color: #64748b;
+}
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+.admin-logout-button {
+  min-width: 44px;
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 15px;
+
+  border: none;
+  border-radius: 13px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #4f46e5
+  );
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 18px rgba(37, 99, 235, 0.20);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  flex-shrink: 0;
+}
+
+.admin-logout-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(37, 99, 235, 0.28);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) and (min-width: 601px) {
+
+  .admin-header {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    min-height: 68px;
+  }
+
+  .admin-header-inner {
+    min-height: 68px;
+
+    padding: 0 20px;
+
+    gap: 14px;
+  }
+
+  .admin-logo {
+    width: 44px;
+    height: 44px;
+
+    font-size: 23px;
+  }
+
+  .admin-brand-text h1 {
+    font-size: 19px;
+  }
+
+  .admin-brand-text span {
+    font-size: 10px;
+  }
+
+  .admin-header-actions {
+    gap: 8px;
+  }
+
+  .admin-profile-info {
+    display: none;
+  }
+
+  .admin-profile-button {
+    width: 44px;
+    height: 44px;
+
+    padding: 3px;
+
+    justify-content: center;
+  }
+
+  .admin-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logout-text {
+    display: none;
+  }
+
+  .admin-logout-button {
+    width: 44px;
+
+    padding: 0;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .admin-header {
+    position: sticky;
+
+    top: 0;
+    left: 0;
+
+    z-index: 99999;
+
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    width: 100%;
+    min-height: 64px;
+
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.99),
+      rgba(239, 246, 255, 0.98)
+    );
+
+    box-shadow:
+      0 5px 18px rgba(30, 64, 175, 0.09);
+  }
+
+  .admin-header-inner {
+    width: 100%;
+
+    min-height: 64px;
+
+    padding: 8px 10px;
+
+    display: flex;
+
+    gap: 6px;
+  }
+
+  /* BRAND */
+
+  .admin-brand {
+    gap: 7px;
+
+    min-width: 0;
+
+    flex: 1;
+  }
+
+  .admin-logo {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 12px;
+
+    font-size: 21px;
+  }
+
+  .admin-brand-text {
+    min-width: 0;
+  }
+
+  .admin-brand-text h1 {
+    font-size: 17px;
+
+    letter-spacing: -0.3px;
+  }
+
+  .admin-brand-text span {
+    margin-top: 3px;
+
+    font-size: 8px;
+
+    letter-spacing: 0.9px;
+  }
+
+  /* ACTIONS */
+
+  .admin-header-actions {
+    display: flex;
+
+    gap: 5px;
+
+    flex-shrink: 0;
+  }
+
+  /* NOTIFICATION */
+
+  .admin-icon-button {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 11px;
+
+    font-size: 16px;
+  }
+
+  .admin-notification-dot {
+    top: 5px;
+    right: 5px;
+
+    width: 7px;
+    height: 7px;
+  }
+
+  /* PROFILE */
+
+  .admin-profile-button {
+    width: 40px;
+    height: 40px;
+
+    padding: 2px;
+
+    justify-content: center;
+
+    border-radius: 11px;
+  }
+
+  .admin-avatar {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+  }
+
+  .admin-profile-info {
+    display: none;
+  }
+
+  /* LOGOUT */
+
+  .admin-logout-button {
+    width: 38px;
+    height: 38px;
+
+    min-width: 38px;
+    min-height: 38px;
+
+    padding: 0;
+
+    border-radius: 11px;
+
+    font-size: 16px;
+  }
+
+  .logout-text {
+    display: none;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .admin-header-inner {
+    padding-left: 7px;
+    padding-right: 7px;
+
+    gap: 3px;
+  }
+
+  .admin-brand {
+    gap: 5px;
+  }
+
+  .admin-logo {
+    width: 36px;
+    height: 36px;
+
+    font-size: 18px;
+
+    border-radius: 10px;
+  }
+
+  .admin-brand-text h1 {
+    font-size: 15px;
+  }
+
+  .admin-brand-text span {
+    font-size: 7px;
+
+    letter-spacing: 0.7px;
+  }
+
+  .admin-header-actions {
+    gap: 3px;
+  }
+
+  .admin-icon-button {
+    width: 34px;
+    height: 34px;
+
+    font-size: 14px;
+
+    border-radius: 10px;
+  }
+
+  .admin-profile-button {
+    width: 35px;
+    height: 35px;
+
+    border-radius: 10px;
+  }
+
+  .admin-avatar {
+    width: 29px;
+    height: 29px;
+
+    font-size: 12px;
+
+    border-radius: 8px;
+  }
+
+  .admin-logout-button {
+    width: 34px;
+    height: 34px;
+
+    min-width: 34px;
+    min-height: 34px;
+
+    font-size: 14px;
+
+    border-radius: 10px;
+  }
+}
+
+/* =========================================================
+   TOUCH
+   ========================================================= */
+
+@media (hover: none) {
+
+  .admin-icon-button:hover,
+  .admin-profile-button:hover,
+  .admin-logout-button:hover {
+    transform: none;
+  }
+}
+
+/* =========================================================
+   MOBILE OVERFLOW SAFETY
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .admin-header-inner {
+    overflow: hidden;
+  }
+
+  .admin-brand-text {
+    overflow: hidden;
+  }
+
+  .admin-brand-text h1,
+  .admin-brand-text span {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+  }
+}

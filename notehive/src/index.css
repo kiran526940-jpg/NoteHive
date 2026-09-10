@@ -1,0 +1,449 @@
+/* =========================================================
+   NOTEHIVE - GLOBAL INDEX CSS
+   CLEAN GLOBAL RESET
+   ---------------------------------------------------------
+   IMPORTANT:
+   This file does NOT design Admin or Settings pages.
+   Individual page CSS controls its own appearance.
+========================================================= */
+
+
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  background: #ffffff;
+  color: #29251f;
+
+  overflow-x: hidden;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+
+/* =========================================================
+   REMOVE DEFAULT SPACING
+========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-top: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+
+/* =========================================================
+   IMAGES
+========================================================= */
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+a {
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+button {
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   LIGHT THEME
+   ---------------------------------------------------------
+   These variables are available to user-side components.
+   They DO NOT force styling on Admin or Settings pages.
+========================================================= */
+
+:root {
+
+  /* PAGE */
+
+  --nh-page-bg: #ffffff;
+  --nh-page-bg-soft: #f8f9fb;
+
+
+  /* SURFACES */
+
+  --nh-card-bg: #ffffff;
+  --nh-card-bg-soft: #f7f7f5;
+
+  --nh-input-bg: #ffffff;
+
+  --nh-hover-bg: #fff9e5;
+
+
+  /* TEXT */
+
+  --nh-text: #292817;
+  --nh-heading: #302b17;
+
+  --nh-text-secondary: #737373;
+  --nh-text-muted: #999999;
+
+
+  /* BORDERS */
+
+  --nh-border: #e5e5e5;
+  --nh-border-light: #eeeeee;
+
+
+  /* BRAND */
+
+  --nh-brand: #f5d76c;
+  --nh-brand-light: #fff8d9;
+  --nh-brand-soft: #fff4cf;
+
+  --nh-brand-dark: #302b17;
+  --nh-brand-text: #7d661e;
+
+
+  /* STATUS */
+
+  --nh-success-bg: #edf8ef;
+  --nh-success-text: #397348;
+
+  --nh-danger-bg: #fff1f1;
+  --nh-danger-text: #a84a4a;
+
+  --nh-info-bg: #f1f5ff;
+  --nh-info-text: #536da8;
+
+
+  /* SHADOW */
+
+  --nh-shadow-sm:
+    0 4px 16px rgba(54, 48, 24, 0.05);
+
+  --nh-shadow-md:
+    0 8px 25px rgba(54, 48, 24, 0.08);
+
+  --nh-shadow-lg:
+    0 18px 45px rgba(54, 48, 24, 0.12);
+
+
+  /* INPUT */
+
+  --nh-input-border: #ddd9cf;
+
+  --nh-focus: #d9ba4d;
+
+
+  /* SCROLLBAR */
+
+  --nh-scroll-track: #f5f4ef;
+
+  --nh-scroll-thumb: #d6c681;
+}
+
+
+/* =========================================================
+   DARK THEME VARIABLES
+   ---------------------------------------------------------
+   Theme system only.
+   Individual pages decide how these variables are used.
+========================================================= */
+
+html[data-theme="dark"] {
+
+  --nh-page-bg: #151513;
+  --nh-page-bg-soft: #1b1b18;
+
+  --nh-card-bg: #20201c;
+  --nh-card-bg-soft: #25251f;
+
+  --nh-input-bg: #25251f;
+
+  --nh-hover-bg: #302d20;
+
+  --nh-text: #f3f0df;
+  --nh-heading: #fff8d7;
+
+  --nh-text-secondary: #c4c0ae;
+  --nh-text-muted: #969487;
+
+  --nh-border: #3a3930;
+  --nh-border-light: #32322b;
+
+  --nh-brand: #d9b94e;
+  --nh-brand-light: #39331c;
+  --nh-brand-soft: #332f1c;
+
+  --nh-brand-dark: #f4dc78;
+  --nh-brand-text: #e4ca65;
+
+  --nh-success-bg: #1e3224;
+  --nh-success-text: #8ed29e;
+
+  --nh-danger-bg: #382222;
+  --nh-danger-text: #ed9696;
+
+  --nh-info-bg: #202b3d;
+  --nh-info-text: #9fb8ef;
+
+  --nh-shadow-sm:
+    0 4px 18px rgba(0, 0, 0, 0.25);
+
+  --nh-shadow-md:
+    0 9px 28px rgba(0, 0, 0, 0.32);
+
+  --nh-shadow-lg:
+    0 20px 55px rgba(0, 0, 0, 0.45);
+
+  --nh-input-border: #45443a;
+
+  --nh-focus: #d9b94e;
+
+  --nh-scroll-track: #1d1d19;
+  --nh-scroll-thumb: #665a32;
+}
+
+
+/* =========================================================
+   BODY THEME
+   ---------------------------------------------------------
+   Only the basic body background changes.
+   NO page-specific styling here.
+========================================================= */
+
+html[data-theme="light"] body {
+  background: #ffffff;
+  color: #29251f;
+}
+
+html[data-theme="dark"] body {
+  background: #151513;
+  color: #f3f0df;
+}
+
+
+/* =========================================================
+   USER PAGE BASIC THEME SUPPORT
+   ---------------------------------------------------------
+   These rules are intentionally simple.
+   Detailed appearance belongs to each page's CSS.
+========================================================= */
+
+.dashboard-page {
+  color: var(--nh-text);
+}
+
+.mynotes-page {
+  color: var(--nh-text);
+}
+
+.pinned-page {
+  color: var(--nh-text);
+}
+
+
+/* =========================================================
+   USER PAGE DARK BACKGROUND
+========================================================= */
+
+html[data-theme="dark"] .dashboard-page,
+html[data-theme="dark"] .mynotes-page,
+html[data-theme="dark"] .pinned-page {
+  color: var(--nh-text);
+}
+
+
+/* =========================================================
+   USER PAGE FOCUS
+========================================================= */
+
+.dashboard-page button:focus-visible,
+.dashboard-page input:focus-visible,
+.dashboard-page textarea:focus-visible,
+.dashboard-page select:focus-visible,
+
+.mynotes-page button:focus-visible,
+.mynotes-page input:focus-visible,
+.mynotes-page textarea:focus-visible,
+.mynotes-page select:focus-visible,
+
+.pinned-page button:focus-visible,
+.pinned-page input:focus-visible,
+.pinned-page textarea:focus-visible,
+.pinned-page select:focus-visible {
+  outline: 2px solid var(--nh-focus);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   USER CHECKBOX
+========================================================= */
+
+.dashboard-page input[type="checkbox"],
+.mynotes-page input[type="checkbox"],
+.pinned-page input[type="checkbox"] {
+  accent-color: var(--nh-brand-dark);
+}
+
+
+/* =========================================================
+   SMOOTH USER THEME TRANSITION
+========================================================= */
+
+.dashboard-page,
+.mynotes-page,
+.pinned-page {
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+
+/* =========================================================
+   IMPORTANT:
+   SETTINGS PAGE IS NOT STYLED HERE
+   ---------------------------------------------------------
+   Settings.css controls:
+
+   .settings-page
+   .settings-background
+   .settings-content-wrapper
+   .settings-header
+   .settings-container
+   .settings-sidebar
+   .settings-nav
+   .settings-section
+   .profile-box
+   .theme-card
+   .security-card
+   etc.
+
+   DO NOT ADD SETTINGS RULES HERE.
+========================================================= */
+
+
+/* =========================================================
+   IMPORTANT:
+   ADMIN IS NOT STYLED HERE
+   ---------------------------------------------------------
+   Admin CSS remains completely independent.
+
+   DO NOT ADD:
+
+   .admin-dashboard
+   .admin-page
+   .manage-notes-page
+   .manage-notes-main
+   .recent-activity-page
+   .reports-page
+   .admin-users-page
+   .admin-notes-page
+
+   to this file.
+========================================================= */
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  #root {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .dashboard-page,
+  .mynotes-page,
+  .pinned-page {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+  }
+}

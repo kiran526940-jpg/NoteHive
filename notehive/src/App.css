@@ -1,0 +1,56 @@
+
+/* =========================================================
+   NOTEHIVE GLOBAL FULL SCREEN FIX
+   ========================================================= */
+
+html,
+body,
+#root {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body {
+  min-height: 100vh !important;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh !important;
+  display: block !important;
+}
+
+/* React app containers */
+#root > * {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Manage Notes */
+.manage-notes-page {
+  width: 100vw !important;
+  max-width: none !important;
+  min-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Main content */
+.manage-notes-main {
+  width: calc(100vw - 270px) !important;
+  max-width: none !important;
+  margin-left: 270px !important;
+}
+
+/* Cards / controls / table */
+.notes-summary,
+.notes-controls,
+.notes-container,
+.notes-table-wrapper {
+  width: 100% !important;
+  max-width: none !important;
+}
+

@@ -1,0 +1,526 @@
+/* =========================================
+   ABOUT PAGE
+========================================= */
+
+.about-page {
+  width: 100%;
+  background: #ffffff;
+  color: #252525;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.about-hero {
+  min-height: 380px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 70px 20px;
+
+  background: linear-gradient(
+    135deg,
+    #f0f8ff,
+    #e7f3ff
+  );
+}
+
+
+.about-hero-content {
+  max-width: 750px;
+}
+
+
+.about-logo {
+  font-size: 55px;
+
+  margin-bottom: 15px;
+}
+
+
+.about-hero h1 {
+  margin: 0;
+
+  font-size: 48px;
+
+  font-weight: 800;
+
+  color: #222;
+}
+
+
+.about-hero h1 span {
+  color: #e2a500;
+}
+
+
+.about-hero p {
+  margin-top: 18px;
+
+  font-size: 18px;
+
+  line-height: 1.7;
+
+  color: #666;
+}
+
+
+/* =========================================
+   COMMON SECTION
+========================================= */
+
+.about-purpose,
+.about-features {
+  padding: 80px 8%;
+}
+
+
+.section-heading {
+  max-width: 750px;
+
+  margin: 0 auto 50px;
+
+  text-align: center;
+}
+
+
+.small-title {
+  display: inline-block;
+
+  margin-bottom: 10px;
+
+  color: #d99d00;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
+}
+
+
+.section-heading h2 {
+  margin: 0;
+
+  font-size: 34px;
+
+  color: #252525;
+}
+
+
+.section-heading p {
+  margin-top: 15px;
+
+  color: #666;
+
+  font-size: 16px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   PURPOSE CARDS
+========================================= */
+
+.purpose-content {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 25px;
+
+  max-width: 1100px;
+
+  margin: auto;
+}
+
+
+.purpose-card {
+  padding: 35px 28px;
+
+  text-align: center;
+
+  background: #ffffff;
+
+  border: 1px solid #eeeeee;
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.06);
+
+  transition: 0.3s ease;
+}
+
+
+.purpose-card:hover {
+  transform: translateY(-7px);
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+
+.purpose-card > span {
+  font-size: 38px;
+}
+
+
+.purpose-card h3 {
+  margin: 18px 0 10px;
+
+  font-size: 20px;
+}
+
+
+.purpose-card p {
+  margin: 0;
+
+  color: #666;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   FEATURES SECTION
+========================================= */
+
+.about-features {
+  background: #f2f8ff;
+}
+
+
+.feature-grid {
+  max-width: 1100px;
+
+  margin: auto;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 25px;
+}
+
+
+.feature-card {
+  padding: 30px;
+
+  background: #ffffff;
+
+  border-radius: 15px;
+
+  border: 1px solid #e7edf3;
+
+  transition: 0.3s ease;
+}
+
+
+.feature-card:hover {
+  transform: translateY(-6px);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+
+.feature-icon {
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #fff5d6;
+
+  border-radius: 12px;
+
+  font-size: 26px;
+
+  margin-bottom: 18px;
+}
+
+
+.feature-card h3 {
+  margin-bottom: 10px;
+
+  font-size: 19px;
+}
+
+
+.feature-card p {
+  margin: 0;
+
+  color: #666;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   WHY NOTEHIVE
+========================================= */
+
+.why-notehive {
+  padding: 90px 8%;
+
+  display: grid;
+
+  grid-template-columns:
+    1.2fr 0.8fr;
+
+  align-items: center;
+
+  gap: 70px;
+
+  background: #ffffff;
+}
+
+
+.why-content {
+  max-width: 650px;
+}
+
+
+.why-content h2 {
+  margin: 5px 0 18px;
+
+  font-size: 38px;
+
+  color: #252525;
+}
+
+
+.why-content > p {
+  color: #666;
+
+  line-height: 1.8;
+
+  font-size: 16px;
+}
+
+
+.why-points {
+  margin-top: 25px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 15px;
+}
+
+
+.why-points div {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  color: #444;
+
+  font-weight: 600;
+}
+
+
+.why-points span {
+  width: 25px;
+  height: 25px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #e9f8ed;
+
+  color: #2d9b4c;
+
+  border-radius: 50%;
+
+  font-size: 13px;
+}
+
+
+/* =========================================
+   WHY VISUAL
+========================================= */
+
+.why-visual {
+  display: flex;
+
+  justify-content: center;
+}
+
+
+.hive-card {
+  width: 300px;
+
+  padding: 45px 30px;
+
+  text-align: center;
+
+  background: linear-gradient(
+    145deg,
+    #fff7d9,
+    #fffdf3
+  );
+
+  border: 1px solid #f1df9c;
+
+  border-radius: 25px;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.08);
+
+  transform: rotate(2deg);
+}
+
+
+.hive-icon {
+  font-size: 60px;
+}
+
+
+.hive-card h3 {
+  margin: 15px 0 8px;
+
+  font-size: 24px;
+
+  letter-spacing: 2px;
+}
+
+
+.hive-card p {
+  color: #777;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   VISION
+========================================= */
+
+.our-vision {
+  padding: 85px 20px;
+
+  text-align: center;
+
+  background: #eef7ff;
+}
+
+
+.vision-content {
+  max-width: 750px;
+
+  margin: auto;
+}
+
+
+.vision-icon {
+  font-size: 45px;
+
+  margin-bottom: 15px;
+}
+
+
+.vision-content h2 {
+  margin: 5px 0 15px;
+
+  font-size: 34px;
+}
+
+
+.vision-content p {
+  color: #666;
+
+  font-size: 16px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+
+  .purpose-content,
+  .feature-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+
+  .why-notehive {
+    grid-template-columns: 1fr;
+
+    text-align: center;
+  }
+
+
+  .why-content {
+    margin: auto;
+  }
+
+
+  .why-points {
+    text-align: left;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .about-hero h1 {
+    font-size: 36px;
+  }
+
+
+  .about-hero p {
+    font-size: 16px;
+  }
+
+
+  .about-purpose,
+  .about-features,
+  .why-notehive {
+    padding: 60px 20px;
+  }
+
+
+  .section-heading h2,
+  .why-content h2 {
+    font-size: 28px;
+  }
+
+
+  .purpose-content,
+  .feature-grid,
+  .why-points {
+    grid-template-columns: 1fr;
+  }
+
+
+  .vision-content h2 {
+    font-size: 28px;
+  }
+
+}

@@ -1,0 +1,1205 @@
+/* =========================================================
+   NOTEHIVE - ADMIN PINNED NOTES
+   SAME ADMIN DASHBOARD LAYOUT
+   RESPONSIVE DESKTOP + TABLET + MOBILE
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+
+.admin-pinned-layout {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background: #f7f8fc;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #202124;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.admin-pinned-layout .admin-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 270px;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 28px 18px 22px;
+
+  background: #ffffff;
+  border-right: 1px solid #e9e9ee;
+
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.admin-pinned-layout .admin-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 4px 10px 24px;
+
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+
+  color: #222;
+}
+
+.admin-logo-bee {
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* =========================================================
+   PANEL TITLE
+========================================================= */
+
+.admin-pinned-layout .admin-panel-title {
+  margin: 0 10px 14px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+
+  color: #9a9aa3;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.admin-pinned-layout .admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-pinned-layout .admin-nav button {
+  width: 100%;
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 0 13px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: transparent;
+  color: #62626c;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-pinned-layout .admin-nav button:hover {
+  background: #f5f6f9;
+  color: #24242a;
+}
+
+.admin-pinned-layout .admin-nav button.active {
+  background: #f1f2f5;
+  color: #222;
+  font-weight: 700;
+}
+
+.admin-pinned-layout .admin-nav button span:first-child {
+  width: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  font-size: 18px;
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.admin-pinned-layout .admin-logout {
+  width: 100%;
+  min-height: 46px;
+
+  margin-top: auto;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 0 13px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: transparent;
+  color: #62626c;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-pinned-layout .admin-logout:hover {
+  background: #f5f6f9;
+  color: #222;
+}
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.admin-pinned-main {
+  width: calc(100% - 270px);
+  min-height: 100vh;
+
+  margin-left: 270px;
+
+  padding: 34px 42px 60px;
+
+  background: #f7f8fc;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.admin-pinned-header {
+  width: 100%;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-bottom: 22px;
+}
+
+.admin-header-label {
+  margin: 0 0 7px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+
+  color: #9a9aa3;
+}
+
+.admin-pinned-header h1 {
+  margin: 0;
+
+  font-size: 31px;
+  line-height: 1.2;
+  font-weight: 800;
+
+  color: #202124;
+}
+
+.admin-pinned-header p {
+  margin: 9px 0 0;
+
+  color: #777984;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   COUNT CARD
+========================================================= */
+
+.pinned-count {
+  min-width: 125px;
+
+  padding: 16px 20px;
+
+  border: 1px solid #e8e8ed;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  text-align: center;
+
+  box-shadow:
+    0 5px 18px rgba(20, 20, 40, 0.035);
+
+  flex-shrink: 0;
+}
+
+.pinned-count span {
+  display: block;
+
+  font-size: 27px;
+  font-weight: 800;
+
+  color: #24242a;
+}
+
+.pinned-count small {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  color: #898993;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.pinned-toolbar {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 25px;
+}
+
+.back-btn,
+.refresh-pinned-btn {
+  min-height: 40px;
+
+  border: 1px solid #e5e5eb;
+  background: #ffffff;
+
+  color: #4f5059;
+
+  border-radius: 10px;
+
+  padding: 10px 15px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.back-btn:hover,
+.refresh-pinned-btn:hover {
+  background: #f3f4f7;
+  border-color: #dcdde3;
+}
+
+.back-btn:active,
+.refresh-pinned-btn:active {
+  transform: scale(0.98);
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.admin-pinned-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.admin-pinned-card {
+  min-width: 0;
+
+  padding: 22px;
+
+  background: #ffffff;
+
+  border: 1px solid #e9e9ee;
+  border-radius: 18px;
+
+  box-shadow:
+    0 7px 22px rgba(20, 20, 40, 0.035);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-pinned-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 28px rgba(20, 20, 40, 0.065);
+}
+
+/* =========================================================
+   CARD TOP
+========================================================= */
+
+.pinned-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 17px;
+}
+
+.pin-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  background: #f4f5f7;
+  color: #55565f;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.priority-badge {
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: capitalize;
+
+  white-space: nowrap;
+}
+
+.priority-badge.high {
+  background: #fff0f0;
+  color: #d34d4d;
+}
+
+.priority-badge.medium {
+  background: #fff7e8;
+  color: #bd7a18;
+}
+
+.priority-badge.low {
+  background: #eef8f1;
+  color: #4f9565;
+}
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.admin-pinned-card h2 {
+  margin: 0 0 10px;
+
+  color: #25262b;
+
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 750;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.note-content {
+  margin: 0;
+
+  min-height: 68px;
+
+  color: #777984;
+
+  font-size: 13px;
+  line-height: 1.65;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.note-category {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-top: 17px;
+
+  color: #666771;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   USER
+========================================================= */
+
+.note-user {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 18px;
+  padding-top: 16px;
+
+  border-top: 1px solid #eeeeF2;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #f0f1f4;
+  color: #4e4f57;
+
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.note-user strong {
+  display: block;
+
+  color: #303138;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
+}
+
+.note-user small {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #92939c;
+
+  font-size: 11px;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.note-date {
+  margin-top: 14px;
+
+  color: #999aa3;
+
+  font-size: 11px;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.pinned-actions {
+  display: flex;
+
+  gap: 7px;
+
+  margin-top: 18px;
+}
+
+.pinned-actions button {
+  flex: 1;
+
+  min-height: 36px;
+
+  padding: 0 8px;
+
+  border-radius: 9px;
+
+  font-size: 11px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pinned-actions button:active {
+  transform: scale(0.97);
+}
+
+.view-btn {
+  border: 1px solid #e4e5ea;
+
+  background: #ffffff;
+  color: #55565f;
+}
+
+.view-btn:hover {
+  background: #f5f6f8;
+}
+
+.unpin-btn {
+  border: 1px solid #e8e8ed;
+
+  background: #f7f7f9;
+  color: #55565f;
+}
+
+.unpin-btn:hover {
+  background: #eeeeF2;
+}
+
+.delete-btn {
+  border: 1px solid #f0dddd;
+
+  background: #fff7f7;
+  color: #c65b5b;
+}
+
+.delete-btn:hover {
+  background: #ffefef;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.admin-pinned-empty {
+  width: 100%;
+
+  padding: 70px 30px;
+
+  border: 1px solid #e9e9ee;
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 45px;
+
+  margin-bottom: 12px;
+}
+
+.admin-pinned-empty h2 {
+  margin: 0;
+
+  font-size: 22px;
+
+  color: #292a30;
+}
+
+.admin-pinned-empty p {
+  margin: 8px 0 22px;
+
+  color: #858690;
+
+  font-size: 13px;
+}
+
+.admin-pinned-empty button,
+.admin-pinned-error button {
+  border: none;
+
+  border-radius: 10px;
+
+  padding: 11px 17px;
+
+  background: #f0f1f4;
+
+  color: #44454d;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-pinned-empty button:hover,
+.admin-pinned-error button:hover {
+  background: #e8e9ed;
+}
+
+.admin-pinned-empty button:active,
+.admin-pinned-error button:active {
+  transform: scale(0.98);
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.admin-pinned-error {
+  padding: 22px;
+
+  margin-bottom: 20px;
+
+  border: 1px solid #f0dddd;
+  border-radius: 15px;
+
+  background: #fff8f8;
+}
+
+.admin-pinned-error strong {
+  color: #c45252;
+
+  font-size: 14px;
+}
+
+.admin-pinned-error p {
+  margin: 7px 0 14px;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.admin-pinned-loading {
+  min-height: 70vh;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.admin-pinned-loading h3 {
+  margin: 15px 0 5px;
+
+  color: #33343a;
+
+  font-size: 17px;
+}
+
+.admin-pinned-loading p {
+  margin: 0;
+
+  color: #92939b;
+
+  font-size: 13px;
+}
+
+.loading-spinner {
+  width: 35px;
+  height: 35px;
+
+  border: 3px solid #e5e6ea;
+  border-top-color: #777;
+
+  border-radius: 50%;
+
+  animation: pinnedSpin 0.8s linear infinite;
+}
+
+@keyframes pinnedSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1200px) {
+  .admin-pinned-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-pinned-main {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+
+/* =========================================================
+   SMALL LAPTOP / TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+  .admin-pinned-layout .admin-sidebar {
+    width: 220px;
+  }
+
+  .admin-pinned-main {
+    width: calc(100% - 220px);
+
+    margin-left: 220px;
+
+    padding: 28px 25px 45px;
+  }
+
+  .admin-pinned-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-pinned-header {
+    gap: 20px;
+  }
+
+  .admin-pinned-header h1 {
+    font-size: 28px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+  .admin-pinned-layout {
+    display: block;
+
+    min-height: 100vh;
+  }
+
+  /* -------------------------------------------------------
+     SIDEBAR
+     Mobile par sidebar normal full-width block
+  ------------------------------------------------------- */
+
+  .admin-pinned-layout .admin-sidebar {
+    position: relative;
+
+    top: auto;
+    left: auto;
+
+    width: 100%;
+    height: auto;
+
+    padding: 18px 14px;
+
+    border-right: none;
+    border-bottom: 1px solid #e9e9ee;
+
+    overflow: visible;
+  }
+
+  .admin-pinned-layout .admin-logo {
+    padding: 2px 8px 18px;
+
+    font-size: 19px;
+  }
+
+  .admin-logo-bee {
+    font-size: 25px;
+  }
+
+  .admin-pinned-layout .admin-panel-title {
+    margin-left: 8px;
+  }
+
+  .admin-pinned-layout .admin-nav {
+    gap: 5px;
+  }
+
+  .admin-pinned-layout .admin-nav button {
+    min-height: 44px;
+
+    font-size: 13px;
+  }
+
+  .admin-pinned-layout .admin-logout {
+    margin-top: 12px;
+
+    min-height: 44px;
+  }
+
+  /* -------------------------------------------------------
+     MAIN
+  ------------------------------------------------------- */
+
+  .admin-pinned-main {
+    width: 100%;
+
+    margin-left: 0;
+
+    padding: 22px 15px 35px;
+  }
+
+  /* -------------------------------------------------------
+     HEADER
+  ------------------------------------------------------- */
+
+  .admin-pinned-header {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 16px;
+
+    margin-bottom: 18px;
+  }
+
+  .admin-header-label {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+  }
+
+  .admin-pinned-header h1 {
+    font-size: 25px;
+  }
+
+  .admin-pinned-header p {
+    margin-top: 7px;
+
+    font-size: 13px;
+  }
+
+  .pinned-count {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 14px 16px;
+  }
+
+  .pinned-count span {
+    font-size: 25px;
+  }
+
+  /* -------------------------------------------------------
+     TOOLBAR
+  ------------------------------------------------------- */
+
+  .pinned-toolbar {
+    width: 100%;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+  }
+
+  .back-btn,
+  .refresh-pinned-btn {
+    flex: 1;
+
+    min-height: 42px;
+
+    padding: 9px 10px;
+
+    font-size: 12px;
+  }
+
+  /* -------------------------------------------------------
+     GRID
+  ------------------------------------------------------- */
+
+  .admin-pinned-grid {
+    grid-template-columns: 1fr;
+
+    gap: 14px;
+  }
+
+  /* -------------------------------------------------------
+     CARD
+  ------------------------------------------------------- */
+
+  .admin-pinned-card {
+    padding: 17px;
+
+    border-radius: 16px;
+  }
+
+  .pinned-card-top {
+    margin-bottom: 14px;
+  }
+
+  .pin-badge {
+    padding: 5px 9px;
+
+    font-size: 10px;
+  }
+
+  .priority-badge {
+    padding: 5px 8px;
+
+    font-size: 9px;
+  }
+
+  .admin-pinned-card h2 {
+    font-size: 17px;
+
+    margin-bottom: 8px;
+  }
+
+  .note-content {
+    min-height: auto;
+
+    font-size: 12.5px;
+
+    line-height: 1.6;
+  }
+
+  .note-category {
+    margin-top: 14px;
+
+    font-size: 11.5px;
+  }
+
+  .note-user {
+    margin-top: 15px;
+    padding-top: 13px;
+  }
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+
+    font-size: 13px;
+  }
+
+  .note-user strong {
+    font-size: 11.5px;
+  }
+
+  .note-user small {
+    font-size: 10.5px;
+  }
+
+  .note-date {
+    margin-top: 12px;
+
+    font-size: 10.5px;
+  }
+
+  /* -------------------------------------------------------
+     ACTION BUTTONS
+  ------------------------------------------------------- */
+
+  .pinned-actions {
+    gap: 6px;
+
+    margin-top: 15px;
+  }
+
+  .pinned-actions button {
+    min-height: 38px;
+
+    font-size: 10.5px;
+  }
+
+  /* -------------------------------------------------------
+     EMPTY
+  ------------------------------------------------------- */
+
+  .admin-pinned-empty {
+    padding: 50px 18px;
+
+    border-radius: 17px;
+  }
+
+  .empty-icon {
+    font-size: 40px;
+  }
+
+  .admin-pinned-empty h2 {
+    font-size: 20px;
+  }
+
+  .admin-pinned-empty p {
+    font-size: 12px;
+
+    line-height: 1.6;
+  }
+
+  /* -------------------------------------------------------
+     ERROR
+  ------------------------------------------------------- */
+
+  .admin-pinned-error {
+    padding: 17px;
+
+    border-radius: 14px;
+  }
+
+  .admin-pinned-error p {
+    line-height: 1.55;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+  .admin-pinned-main {
+    padding: 18px 12px 30px;
+  }
+
+  .admin-pinned-header h1 {
+    font-size: 23px;
+  }
+
+  .admin-pinned-header p {
+    font-size: 12px;
+  }
+
+  .pinned-toolbar {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .back-btn,
+  .refresh-pinned-btn {
+    width: 100%;
+  }
+
+  .admin-pinned-card {
+    padding: 15px;
+  }
+
+  .admin-pinned-card h2 {
+    font-size: 16px;
+  }
+
+  .pinned-actions {
+    flex-direction: column;
+  }
+
+  .pinned-actions button {
+    width: 100%;
+
+    min-height: 40px;
+  }
+}
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) {
+  .admin-pinned-card:hover {
+    transform: none;
+
+    box-shadow:
+      0 7px 22px rgba(20, 20, 40, 0.035);
+  }
+
+  .admin-pinned-layout .admin-nav button:hover,
+  .admin-pinned-layout .admin-logout:hover,
+  .back-btn:hover,
+  .refresh-pinned-btn:hover,
+  .view-btn:hover,
+  .unpin-btn:hover,
+  .delete-btn:hover {
+    background: inherit;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-pinned-card,
+  .pinned-actions button,
+  .back-btn,
+  .refresh-pinned-btn,
+  .admin-pinned-layout .admin-nav button,
+  .admin-pinned-layout .admin-logout {
+    transition: none;
+  }
+
+  .loading-spinner {
+    animation: none;
+  }
+}

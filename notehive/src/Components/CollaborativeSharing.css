@@ -1,0 +1,1167 @@
+/* =========================================================
+   NOTEHIVE - COLLABORATIVE SHARING
+   BLUE + WHITE PREMIUM RESPONSIVE DESIGN
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+.sharing-page {
+  position: relative;
+
+  min-height: 100vh;
+  width: 100%;
+
+  padding: 42px 42px 95px;
+
+  background: #f8fafc;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: #172033;
+
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   SOFT BACKGROUND
+========================================================= */
+
+.sharing-page::before {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+
+  pointer-events: none;
+  z-index: 0;
+
+  background:
+    radial-gradient(
+      circle at 5% 5%,
+      rgba(37, 99, 235, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 95% 15%,
+      rgba(59, 130, 246, 0.06),
+      transparent 28%
+    );
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.sharing-header {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 1450px;
+
+  margin: 0 auto 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 25px;
+}
+
+.sharing-label {
+  display: inline-block;
+
+  margin-bottom: 7px;
+
+  color: #2563eb;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+}
+
+.sharing-header h1 {
+  margin: 0;
+
+  color: #172033;
+
+  font-size: clamp(32px, 4vw, 46px);
+
+  line-height: 1.1;
+
+  font-weight: 800;
+
+  letter-spacing: -1px;
+}
+
+.sharing-header h1 span {
+  color: #2563eb;
+}
+
+.sharing-header p {
+  max-width: 650px;
+
+  margin: 10px 0 0;
+
+  color: #748095;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+}
+
+/* =========================================================
+   COLLAB ICON
+========================================================= */
+
+.collab-icon {
+  flex-shrink: 0;
+
+  width: 82px;
+  height: 82px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
+  border: 1px solid #e0e7f0;
+
+  border-radius: 23px;
+
+  font-size: 36px;
+
+  box-shadow:
+    0 12px 30px rgba(30, 55, 90, 0.07);
+}
+
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+.sharing-container {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 1450px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 20px;
+}
+
+/* =========================================================
+   COMMON CARDS
+========================================================= */
+
+.share-card,
+.users-card {
+  min-width: 0;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e7ee;
+
+  border-radius: 20px;
+
+  padding: 26px;
+
+  box-shadow:
+    0 10px 30px rgba(30, 55, 90, 0.045);
+}
+
+/* =========================================================
+   CARD HEADINGS
+========================================================= */
+
+.card-heading,
+.users-heading {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  margin-bottom: 25px;
+}
+
+.card-heading h2,
+.users-heading h2 {
+  margin: 0;
+
+  color: #263247;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+.card-heading p,
+.users-heading p {
+  margin: 5px 0 0;
+
+  color: #8996a7;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+.heading-icon {
+  width: 47px;
+  height: 47px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #edf4ff;
+
+  border: 1px solid #d9e6ff;
+
+  border-radius: 13px;
+
+  font-size: 20px;
+}
+
+/* =========================================================
+   FORM LABEL
+========================================================= */
+
+.share-card label {
+  display: block;
+
+  margin: 18px 0 8px;
+
+  color: #40526b;
+
+  font-size: 12px;
+
+  font-weight: 750;
+}
+
+/* =========================================================
+   EMAIL BOX
+========================================================= */
+
+.email-box {
+  width: 100%;
+  height: 51px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 0 14px;
+
+  background: #ffffff;
+
+  border: 1px solid #dce5f0;
+
+  border-radius: 12px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.email-box:focus-within {
+  border-color: #93b4f8;
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.06);
+}
+
+.email-box input {
+  width: 100%;
+  min-width: 0;
+
+  height: 100%;
+
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #263247;
+
+  font-family: inherit;
+
+  font-size: 13px;
+}
+
+.email-box input::placeholder {
+  color: #a0acba;
+}
+
+/* =========================================================
+   PERMISSION
+========================================================= */
+
+.permission-box {
+  display: flex;
+
+  align-items: stretch;
+
+  gap: 10px;
+}
+
+.permission-box select {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 51px;
+
+  padding: 0 14px;
+
+  border: 1px solid #dce5f0;
+
+  border-radius: 12px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #40526b;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.permission-box select:focus {
+  border-color: #93b4f8;
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.06);
+}
+
+.permission-box button {
+  flex-shrink: 0;
+
+  min-width: 105px;
+
+  height: 51px;
+
+  padding: 0 18px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.permission-box button:hover {
+  transform: translateY(-2px);
+
+  background: #1d4ed8;
+
+  box-shadow:
+    0 9px 20px rgba(37, 99, 235, 0.24);
+}
+
+/* =========================================================
+   USERS HEADING
+========================================================= */
+
+.users-heading {
+  justify-content: space-between;
+}
+
+.access-badge {
+  flex-shrink: 0;
+
+  padding: 7px 11px;
+
+  background: #edf4ff;
+
+  border: 1px solid #d9e6ff;
+
+  border-radius: 20px;
+
+  color: #2563eb;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   USERS LIST
+========================================================= */
+
+.users-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 11px;
+}
+
+/* =========================================================
+   USER ROW
+========================================================= */
+
+.user-row {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 12px;
+
+  background: #ffffff;
+
+  border: 1px solid #e8edf3;
+
+  border-radius: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.user-row:hover {
+  background: #fafdff;
+
+  border-color: #d6e3f7;
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   USER AVATAR
+========================================================= */
+
+.user-avatar {
+  width: 43px;
+  height: 43px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #edf4ff;
+
+  border: 1px solid #d8e6ff;
+
+  border-radius: 50%;
+
+  color: #2563eb;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   USER INFO
+========================================================= */
+
+.user-info {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.user-info h3 {
+  margin: 0 0 3px;
+
+  color: #263247;
+
+  font-size: 13px;
+
+  font-weight: 750;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.user-info p {
+  margin: 0;
+
+  color: #8996a7;
+
+  font-size: 10px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   PERMISSION TAG
+========================================================= */
+
+.permission-tag {
+  flex-shrink: 0;
+
+  padding: 6px 8px;
+
+  background: #f1f5f9;
+
+  border: 1px solid #e5eaf0;
+
+  border-radius: 8px;
+
+  color: #5d6b7d;
+
+  font-size: 9px;
+
+  font-weight: 650;
+}
+
+/* =========================================================
+   REMOVE BUTTON
+========================================================= */
+
+.remove-btn {
+  flex-shrink: 0;
+
+  min-width: 32px;
+  min-height: 31px;
+
+  padding: 6px 8px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #fff1f2;
+
+  color: #dc5260;
+
+  font-family: inherit;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: #ffe4e6;
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   INFO SECTION
+========================================================= */
+
+.collaboration-info {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 1450px;
+
+  margin: 20px auto 0;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+/* =========================================================
+   INFO BOX
+========================================================= */
+
+.info-box {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e7ee;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 8px 24px rgba(30, 55, 90, 0.035);
+}
+
+.info-box > span {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #edf4ff;
+
+  border: 1px solid #d9e6ff;
+
+  border-radius: 11px;
+
+  font-size: 19px;
+}
+
+.info-box h3 {
+  margin: 0 0 5px;
+
+  color: #263247;
+
+  font-size: 13px;
+
+  font-weight: 750;
+}
+
+.info-box p {
+  margin: 0;
+
+  color: #8996a7;
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.permission-box button:focus-visible,
+.remove-btn:focus-visible,
+.permission-box select:focus-visible,
+.email-box input:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.13);
+
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .sharing-page {
+    padding: 34px 25px 90px;
+  }
+
+  .sharing-container {
+    grid-template-columns: 1fr;
+  }
+
+  .collaboration-info {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .sharing-page {
+    min-height: calc(100vh - 65px);
+
+    padding:
+      25px
+      16px
+      calc(110px + env(safe-area-inset-bottom));
+  }
+
+  /* Header */
+
+  .sharing-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 0;
+
+    margin-bottom: 22px;
+  }
+
+  .sharing-label {
+    margin-bottom: 6px;
+
+    font-size: 10px;
+
+    letter-spacing: 1.8px;
+  }
+
+  .sharing-header h1 {
+    font-size: 30px;
+
+    letter-spacing: -0.7px;
+  }
+
+  .sharing-header p {
+    margin-top: 8px;
+
+    font-size: 11.5px;
+
+    line-height: 1.65;
+  }
+
+  .collab-icon {
+    display: none;
+  }
+
+  /* Main */
+
+  .sharing-container {
+    grid-template-columns: 1fr;
+
+    gap: 13px;
+  }
+
+  /* Cards */
+
+  .share-card,
+  .users-card {
+    padding: 18px;
+
+    border-radius: 18px;
+  }
+
+  .card-heading,
+  .users-heading {
+    gap: 10px;
+
+    margin-bottom: 19px;
+  }
+
+  .heading-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 11px;
+
+    font-size: 18px;
+  }
+
+  .card-heading h2,
+  .users-heading h2 {
+    font-size: 17px;
+  }
+
+  .card-heading p,
+  .users-heading p {
+    font-size: 9px;
+  }
+
+  /* Form */
+
+  .share-card label {
+    margin-top: 15px;
+
+    font-size: 11px;
+  }
+
+  .email-box {
+    height: 48px;
+
+    padding: 0 12px;
+
+    border-radius: 11px;
+  }
+
+  .email-box input {
+    font-size: 12px;
+  }
+
+  .permission-box {
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+  .permission-box select,
+  .permission-box button {
+    width: 100%;
+
+    height: 48px;
+  }
+
+  .permission-box button {
+    font-size: 11px;
+  }
+
+  /* Users */
+
+  .access-badge {
+    padding: 6px 9px;
+
+    font-size: 8px;
+  }
+
+  .users-list {
+    gap: 9px;
+  }
+
+  .user-row {
+    padding: 10px;
+
+    gap: 9px;
+
+    border-radius: 12px;
+  }
+
+  .user-avatar {
+    width: 39px;
+    height: 39px;
+
+    font-size: 10px;
+  }
+
+  .user-info h3 {
+    font-size: 11px;
+  }
+
+  .user-info p {
+    font-size: 9px;
+  }
+
+  .permission-tag {
+    padding: 5px 7px;
+
+    font-size: 8px;
+  }
+
+  .remove-btn {
+    min-width: 30px;
+    min-height: 30px;
+
+    padding: 5px 7px;
+
+    font-size: 9px;
+  }
+
+  /* Info */
+
+  .collaboration-info {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+
+    margin-top: 13px;
+  }
+
+  .info-box {
+    padding: 14px;
+
+    border-radius: 14px;
+
+    gap: 10px;
+  }
+
+  .info-box > span {
+    width: 35px;
+    height: 35px;
+
+    border-radius: 10px;
+
+    font-size: 17px;
+  }
+
+  .info-box h3 {
+    font-size: 12px;
+  }
+
+  .info-box p {
+    font-size: 9px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .sharing-page {
+    padding:
+      21px
+      12px
+      calc(105px + env(safe-area-inset-bottom));
+  }
+
+  .sharing-header h1 {
+    font-size: 27px;
+  }
+
+  .sharing-header p {
+    font-size: 10.5px;
+  }
+
+  .share-card,
+  .users-card {
+    padding: 15px;
+
+    border-radius: 16px;
+  }
+
+  .card-heading h2,
+  .users-heading h2 {
+    font-size: 16px;
+  }
+
+  .heading-icon {
+    width: 39px;
+    height: 39px;
+  }
+
+  .user-row {
+    padding: 9px;
+
+    gap: 8px;
+  }
+
+  .permission-tag {
+    display: none;
+  }
+
+  .user-info h3 {
+    font-size: 10.5px;
+  }
+
+  .user-info p {
+    font-size: 8.5px;
+  }
+
+  .remove-btn {
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .sharing-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .sharing-header h1 {
+    font-size: 25px;
+  }
+
+  .share-card,
+  .users-card {
+    padding: 13px;
+  }
+
+  .user-info h3 {
+    font-size: 10px;
+  }
+
+  .user-info p {
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+  .permission-box button:hover,
+  .remove-btn:hover,
+  .user-row:hover {
+    transform: none;
+  }
+
+  .user-row:hover {
+    background: #ffffff;
+
+    border-color: #e8edf3;
+  }
+}
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+body.notehive-dark .sharing-page {
+  background: #111827;
+
+  color: #e5e7eb;
+}
+
+body.notehive-dark .sharing-page::before {
+  background:
+    radial-gradient(
+      circle at 5% 5%,
+      rgba(37, 99, 235, 0.14),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 95% 15%,
+      rgba(59, 130, 246, 0.08),
+      transparent 28%
+    );
+}
+
+body.notehive-dark .sharing-header h1 {
+  color: #edf2f7;
+}
+
+body.notehive-dark .sharing-header p {
+  color: #9aa7b8;
+}
+
+body.notehive-dark .collab-icon,
+body.notehive-dark .share-card,
+body.notehive-dark .users-card,
+body.notehive-dark .info-box {
+  background: #182131;
+
+  border-color: #283548;
+
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.18);
+}
+
+body.notehive-dark .card-heading h2,
+body.notehive-dark .users-heading h2,
+body.notehive-dark .info-box h3 {
+  color: #edf2f7;
+}
+
+body.notehive-dark .card-heading p,
+body.notehive-dark .users-heading p,
+body.notehive-dark .info-box p {
+  color: #8d9aae;
+}
+
+body.notehive-dark .heading-icon,
+body.notehive-dark .user-avatar,
+body.notehive-dark .info-box > span {
+  background: #172b4d;
+
+  border-color: #28466f;
+}
+
+body.notehive-dark .share-card label {
+  color: #aab6c7;
+}
+
+body.notehive-dark .email-box,
+body.notehive-dark .permission-box select {
+  background: #141d2b;
+
+  border-color: #2d3b4e;
+
+  color: #e5e7eb;
+}
+
+body.notehive-dark .email-box input {
+  color: #edf2f7;
+}
+
+body.notehive-dark .email-box input::placeholder {
+  color: #718096;
+}
+
+body.notehive-dark .user-row {
+  background: #141d2b;
+
+  border-color: #293548;
+}
+
+body.notehive-dark .user-info h3 {
+  color: #edf2f7;
+}
+
+body.notehive-dark .user-info p {
+  color: #8d9aae;
+}
+
+body.notehive-dark .permission-tag {
+  background: #202b3b;
+
+  border-color: #303d50;
+
+  color: #aab6c7;
+}
+
+body.notehive-dark .access-badge {
+  background: #172b4d;
+
+  border-color: #28466f;
+
+  color: #60a5fa;
+}

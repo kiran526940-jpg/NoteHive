@@ -1,0 +1,83 @@
+.learn-more-page {
+  min-height: 100vh;
+  background: #f5f9ff;
+  padding: 60px 7%;
+  font-family: Arial, sans-serif;
+}
+
+.learn-more-content {
+  max-width: 1000px;
+  margin: auto;
+  text-align: center;
+}
+
+.learn-badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #5b7cfa;
+}
+
+.learn-more-content h1 {
+  font-size: 40px;
+  color: #172b4d;
+  margin: 15px 0;
+}
+
+.learn-more-content h1 span {
+  color: #5b7cfa;
+}
+
+.learn-more-content > p {
+  max-width: 650px;
+  margin: auto;
+  color: #718096;
+  line-height: 1.7;
+}
+
+.learn-cards {
+  margin-top: 45px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.learn-card {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  text-align: left;
+  border: 1px solid #e2eaf3;
+  transition: 0.3s;
+}
+
+.learn-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(70, 100, 150, 0.1);
+}
+
+.learn-icon {
+  font-size: 30px;
+  margin-bottom: 15px;
+}
+
+.learn-card h3 {
+  color: #172b4d;
+  margin-bottom: 8px;
+}
+
+.learn-card p {
+  color: #718096;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 650px) {
+  .learn-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .learn-more-content h1 {
+    font-size: 30px;
+  }
+}
