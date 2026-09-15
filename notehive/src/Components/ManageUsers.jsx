@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminHeader from "./Dashboard/Admin/AdminHeader";
 import "./ManageUsers.css";
@@ -11,38 +11,37 @@ const ManageUsers = () => {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
   const [error, setError] = useState("");
+
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
-  /* =========================================================
-     ADMIN AUTH CHECK
-  ========================================================= */
+  const [actionLoading, setActionLoading] = useState("");
 
+  // User Details
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
+
+  // ============================================================
+  // ADMIN AUTH
+  // ============================================================
   useEffect(() => {
-    const adminLoggedIn =
-      localStorage.getItem("adminLoggedIn") === "true";
-
+    const adminLoggedIn = localStorage.getItem("adminLoggedIn");
     const userRole = localStorage.getItem("userRole");
 
-    if (!adminLoggedIn || userRole !== "admin") {
-      navigate("/admin-login", { replace: true });
-      return;
+    if (adminLoggedIn !== "true" || userRole !== "admin") {
+      navigate("/admin-login");
     }
-
-    fetchUsers();
   }, [navigate]);
 
-  /* =========================================================
-     FETCH USERS
-  ========================================================= */
-
-  const fetchUsers = async (isRefresh = false) => {
+  // ============================================================
+  // FETCH USERS
+  // ============================================================
+  const fetchUsers = useCallback(async (isRefresh = false) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
@@ -52,176 +51,199 @@ const ManageUsers = () => {
 
       setError("");
 
-      const response = await fetch(
-        `${SERVER_URL}/api/admin/users`
-      );
-
+      const response = await fetch(`${SERVER_URL}/api/admin/users`);
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to fetch users"
-        );
+        throw new Error(data.message || "Unable to load users.");
       }
 
-      const userList = Array.isArray(data)
+      const list = Array.isArray(data)
         ? data
-        : data.users || [];
+        : Array.isArray(data.users)
+        ? data.users
+        : [];
 
-      setUsers(userList);
-      setFilteredUsers(userList);
+      setUsers(list);
     } catch (err) {
       console.error("Fetch users error:", err);
-
-      setError(
-        err.message ||
-          "Unable to load users. Please check the server."
-      );
+      setError(err.message || "Unable to load users.");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  /* =========================================================
-     SEARCH + FILTER
-  ========================================================= */
+  }, []);
 
   useEffect(() => {
-    let result = [...users];
+    fetchUsers();
+  }, [fetchUsers]);
 
-    const searchValue = search.trim().toLowerCase();
+  // ============================================================
+  // HELPERS
+  // ============================================================
+  const getStatus = (user) => {
+    return String(user?.status || "pending").toLowerCase();
+  };
 
-    if (searchValue) {
-      result = result.filter((user) => {
-        const name = String(user.name || "").toLowerCase();
-        const email = String(user.email || "").toLowerCase();
-        const role = String(user.role || "").toLowerCase();
-        const status = String(user.status || "").toLowerCase();
-        const id = String(user._id || "").toLowerCase();
-
-        return (
-          name.includes(searchValue) ||
-          email.includes(searchValue) ||
-          role.includes(searchValue) ||
-          status.includes(searchValue) ||
-          id.includes(searchValue)
-        );
-      });
-    }
-
-    if (filter !== "all") {
-      result = result.filter((user) => {
-        const role = String(user.role || "").toLowerCase();
-        const status = String(user.status || "").toLowerCase();
-
-        if (filter === "pending") {
-          return status === "pending";
-        }
-
-        if (filter === "approved") {
-          return status === "approved";
-        }
-
-        if (filter === "rejected") {
-          return status === "rejected";
-        }
-
-        if (filter === "users") {
-          return role === "user";
-        }
-
-        if (filter === "admins") {
-          return role === "admin";
-        }
-
-        return true;
-      });
-    }
-
-    setFilteredUsers(result);
-  }, [users, search, filter]);
-
-  /* =========================================================
-     HELPERS
-  ========================================================= */
+  const getRole = (user) => {
+    return String(user?.role || "user").toLowerCase();
+  };
 
   const isMainAdmin = (user) => {
     return (
-      String(user.email || "").toLowerCase() ===
+      String(user?.email || "").toLowerCase() ===
       MAIN_ADMIN_EMAIL.toLowerCase()
     );
   };
 
   const getUserName = (user) => {
-    return user.name || "Unknown User";
+    return user?.name?.trim() || "Unnamed User";
   };
 
   const getUserInitial = (user) => {
     const name = getUserName(user);
-
     return name.charAt(0).toUpperCase();
   };
 
   const getProfileImage = (user) => {
-    const image =
-      user.profileImage ||
-      user.profilePhoto ||
-      user.avatar ||
-      "";
+    const image = user?.profileImage;
 
-    if (!image) {
-      return "";
+    if (!image) return "";
+
+    if (image.startsWith("http://") || image.startsWith("https://")) {
+      return image;
     }
 
     if (image.startsWith("data:image")) {
       return image;
     }
 
-    if (
-      image.startsWith("http://") ||
-      image.startsWith("https://")
-    ) {
-      return image;
-    }
-
-    if (image.startsWith("/uploads/")) {
+    if (image.startsWith("/")) {
       return `${SERVER_URL}${image}`;
     }
 
-    if (image.startsWith("uploads/")) {
-      return `${SERVER_URL}/${image}`;
-    }
-
-    return `${SERVER_URL}/uploads/${image.replace(/^\/+/, "")}`;
+    return `${SERVER_URL}/${image}`;
   };
 
   const formatDate = (date) => {
-    if (!date) {
+    if (!date) return "—";
+
+    const parsed = new Date(date);
+
+    if (Number.isNaN(parsed.getTime())) {
       return "—";
     }
 
-    const parsedDate = new Date(date);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      return "—";
-    }
-
-    return parsedDate.toLocaleDateString("en-IN", {
-      day: "numeric",
+    return parsed.toLocaleDateString("en-IN", {
+      day: "2-digit",
       month: "short",
       year: "numeric",
     });
   };
 
-  /* =========================================================
-     APPROVE USER
-  ========================================================= */
+  // ============================================================
+  // FILTER + SEARCH
+  // ============================================================
+  const filteredUsers = useMemo(() => {
+    const query = search.trim().toLowerCase();
 
-  const handleApprove = async (userId) => {
+    return users.filter((user) => {
+      const matchesSearch =
+        !query ||
+        getUserName(user).toLowerCase().includes(query) ||
+        String(user?.email || "").toLowerCase().includes(query);
+
+      if (!matchesSearch) return false;
+
+      const status = getStatus(user);
+      const role = getRole(user);
+
+      if (filter === "pending") return status === "pending";
+      if (filter === "approved") return status === "approved";
+      if (filter === "rejected") return status === "rejected";
+      if (filter === "users") return role === "user";
+      if (filter === "admins") return role === "admin";
+
+      return true;
+    });
+  }, [users, search, filter]);
+
+  // ============================================================
+  // SUMMARY
+  // ============================================================
+  const totalUsers = users.length;
+
+  const approvedUsers = users.filter(
+    (user) => getStatus(user) === "approved"
+  ).length;
+
+  const pendingUsers = users.filter(
+    (user) => getStatus(user) === "pending"
+  ).length;
+
+  const rejectedUsers = users.filter(
+    (user) => getStatus(user) === "rejected"
+  ).length;
+
+  const adminUsers = users.filter(
+    (user) => getRole(user) === "admin"
+  ).length;
+
+  // ============================================================
+  // USER DETAILS API
+  // ============================================================
+  const openUserDetails = async (user) => {
+    if (!user?._id || isMainAdmin(user)) return;
+
+    setSelectedUser(user);
+    setUserDetails(null);
+    setDetailsError("");
+    setDetailsLoading(true);
+
     try {
       const response = await fetch(
-        `${SERVER_URL}/api/admin/users/${userId}/approve`,
+        `${SERVER_URL}/api/admin/users/${user._id}/details`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Unable to load user details."
+        );
+      }
+
+      setUserDetails(data);
+    } catch (err) {
+      console.error("User details error:", err);
+      setDetailsError(
+        err.message || "Unable to load user details."
+      );
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const closeUserDetails = () => {
+    setSelectedUser(null);
+    setUserDetails(null);
+    setDetailsLoading(false);
+    setDetailsError("");
+  };
+
+  // ============================================================
+  // APPROVE USER
+  // ============================================================
+  const handleApprove = async (event, user) => {
+    event.stopPropagation();
+
+    if (!user?._id || isMainAdmin(user)) return;
+
+    try {
+      setActionLoading(user._id);
+
+      const response = await fetch(
+        `${SERVER_URL}/api/admin/users/${user._id}/approve`,
         {
           method: "PATCH",
           headers: {
@@ -232,48 +254,50 @@ const ManageUsers = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to approve user"
-        );
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || "Unable to approve user.");
       }
 
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user._id === userId
-            ? {
-                ...user,
+      setUsers((prev) =>
+        prev.map((item) =>
+          item._id === user._id
+            ? { ...item, status: "approved" }
+            : item
+        )
+      );
+
+      setUserDetails((prev) =>
+        prev
+          ? {
+              ...prev,
+              user: {
+                ...prev.user,
                 status: "approved",
-              }
-            : user
-        )
+              },
+            }
+          : prev
       );
     } catch (err) {
-      console.error("Approve user error:", err);
-
-      alert(
-        err.message ||
-          "Unable to approve user. Please try again."
-      );
+      console.error("Approve error:", err);
+      alert(err.message || "Unable to approve user.");
+    } finally {
+      setActionLoading("");
     }
   };
 
-  /* =========================================================
-     REJECT USER
-  ========================================================= */
+  // ============================================================
+  // REJECT USER
+  // ============================================================
+  const handleReject = async (event, user) => {
+    event.stopPropagation();
 
-  const handleReject = async (userId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to reject this user?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
+    if (!user?._id || isMainAdmin(user)) return;
 
     try {
+      setActionLoading(user._id);
+
       const response = await fetch(
-        `${SERVER_URL}/api/admin/users/${userId}/reject`,
+        `${SERVER_URL}/api/admin/users/${user._id}/reject`,
         {
           method: "PATCH",
           headers: {
@@ -284,48 +308,56 @@ const ManageUsers = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to reject user"
-        );
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || "Unable to reject user.");
       }
 
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user._id === userId
-            ? {
-                ...user,
-                status: "rejected",
-              }
-            : user
+      setUsers((prev) =>
+        prev.map((item) =>
+          item._id === user._id
+            ? { ...item, status: "rejected" }
+            : item
         )
       );
-    } catch (err) {
-      console.error("Reject user error:", err);
 
-      alert(
-        err.message ||
-          "Unable to reject user. Please try again."
+      setUserDetails((prev) =>
+        prev
+          ? {
+              ...prev,
+              user: {
+                ...prev.user,
+                status: "rejected",
+              },
+            }
+          : prev
       );
+    } catch (err) {
+      console.error("Reject error:", err);
+      alert(err.message || "Unable to reject user.");
+    } finally {
+      setActionLoading("");
     }
   };
 
-  /* =========================================================
-     DELETE USER
-  ========================================================= */
+  // ============================================================
+  // DELETE USER
+  // ============================================================
+  const handleDelete = async (event, user) => {
+    event.stopPropagation();
 
-  const handleDelete = async (userId) => {
+    if (!user?._id || isMainAdmin(user)) return;
+
     const confirmed = window.confirm(
-      "Are you sure you want to delete this user? This action cannot be undone."
+      `Are you sure you want to delete ${getUserName(user)}?`
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
+      setActionLoading(user._id);
+
       const response = await fetch(
-        `${SERVER_URL}/api/users/${userId}`,
+        `${SERVER_URL}/api/users/${user._id}`,
         {
           method: "DELETE",
         }
@@ -333,657 +365,798 @@ const ManageUsers = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to delete user"
-        );
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || "Unable to delete user.");
       }
 
-      setUsers((prevUsers) =>
-        prevUsers.filter((user) => user._id !== userId)
+      setUsers((prev) =>
+        prev.filter((item) => item._id !== user._id)
       );
+
+      if (selectedUser?._id === user._id) {
+        closeUserDetails();
+      }
     } catch (err) {
       console.error("Delete user error:", err);
-
-      alert(
-        err.message ||
-          "Unable to delete user. Please try again."
-      );
+      alert(err.message || "Unable to delete user.");
+    } finally {
+      setActionLoading("");
     }
   };
 
-  /* =========================================================
-     LOGOUT
-  ========================================================= */
-
-  const handleLogout = () => {
-    localStorage.removeItem("adminLoggedIn");
-    localStorage.removeItem("adminId");
-    localStorage.removeItem("admin");
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("notehive_userId");
-    localStorage.removeItem("notehive_user");
-
-    navigate("/admin-login", {
-      replace: true,
-    });
-  };
-
-  /* =========================================================
-     NAVIGATION
-  ========================================================= */
-
-  const goDashboard = () => {
-    navigate("/admin-dashboard");
-  };
-
-  const goUsers = () => {
-    navigate("/admin/manage-users");
-  };
-
-  const goNotes = () => {
-    navigate("/admin/manage-notes");
-  };
-
-  const goPinned = () => {
-    navigate("/admin/pinned-notes");
-  };
-
-  const goFavorites = () => {
-    navigate("/admin/favorite-notes");
-  };
-
-  const goReports = () => {
-    navigate("/admin/reports");
-  };
-
-  const goNotifications = () => {
-    navigate("/admin/notifications");
-  };
-
-  /* =========================================================
-     CLEAR FILTERS
-  ========================================================= */
-
+  // ============================================================
+  // CLEAR FILTERS
+  // ============================================================
   const clearFilters = () => {
     setSearch("");
     setFilter("all");
   };
 
-  /* =========================================================
-     SUMMARY DATA
-  ========================================================= */
-
-  const totalUsers = users.length;
-
-  const approvedUsers = users.filter(
-    (user) =>
-      String(user.status || "").toLowerCase() ===
-      "approved"
-  ).length;
-
-  const pendingUsers = users.filter(
-    (user) =>
-      String(user.status || "").toLowerCase() ===
-      "pending"
-  ).length;
-
-  const adminUsers = users.filter(
-    (user) =>
-      String(user.role || "").toLowerCase() ===
-      "admin"
-  ).length;
-
-  /* =========================================================
-     LOADING
-  ========================================================= */
-
+  // ============================================================
+  // LOADING
+  // ============================================================
   if (loading) {
     return (
-      <div className="admin-page-wrapper">
-        {/* HEADER IS OUTSIDE THE MAIN FLEX LAYOUT */}
-        
-          
+      <div className="manage-users-loading">
+        <div className="manage-users-loader">
+          <div className="loader-bee">🐝</div>
+          <div className="loader-spinner"></div>
+          <p>Loading users...</p>
         </div>
-      
+      </div>
     );
   }
 
-  /* =========================================================
-     MAIN UI
-  ========================================================= */
-
+  // ============================================================
+  // RENDER
+  // ============================================================
   return (
     <div className="admin-page-wrapper">
-      {/* =====================================================
-          ADMIN HEADER
-          OUTSIDE SIDEBAR + MAIN FLEX LAYOUT
-      ===================================================== */}
-
       <AdminHeader />
 
-      {/* =====================================================
-          EXISTING ADMIN LAYOUT
-      ===================================================== */}
-
-      <div className="manage-notes-page">
-
-        {/* ===================================================
-            SIDEBAR
-        =================================================== */}
-
-        <aside className="admin-sidebar">
-          <div className="admin-sidebar-brand">
-            <div className="admin-logo">
-              <span className="admin-logo-bee">🐝</span>
-            </div>
-
-            <div>
-              <h2>NOTEHIVE</h2>
-              <p>ADMIN PANEL</p>
+      <main className="manage-users-page">
+        {/* PAGE HEADER */}
+        <section className="manage-users-heading">
+          <div>
+            <div className="manage-users-title-row">
+              <span className="title-bee">🐝</span>
+              <div>
+                <h1>Manage Users</h1>
+                <p>
+                  Manage NoteHive users, accounts and activities.
+                </p>
+              </div>
             </div>
           </div>
-
-          <nav className="admin-nav">
-
-            <button
-              type="button"
-              onClick={goDashboard}
-              className="admin-nav-item"
-            >
-              <span>📊</span>
-              <span>Dashboard</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={goUsers}
-              className="admin-nav-item active"
-            >
-              <span>👥</span>
-              <span>Users</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={goNotifications}
-              className="admin-nav-item"
-            >
-              <span>🔔</span>
-              <span>Notifications</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={goNotes}
-              className="admin-nav-item"
-            >
-              <span>📝</span>
-              <span>Notes</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={goPinned}
-              className="admin-nav-item"
-            >
-              <span>📌</span>
-              <span>Pinned Notes</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={goFavorites}
-              className="admin-nav-item"
-            >
-              <span>⭐</span>
-              <span>Favorites</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={goReports}
-              className="admin-nav-item"
-            >
-              <span>📈</span>
-              <span>Reports</span>
-            </button>
-
-          </nav>
 
           <button
             type="button"
-            className="admin-logout"
-            onClick={handleLogout}
+            className="refresh-users-btn"
+            onClick={() => fetchUsers(true)}
+            disabled={refreshing}
           >
-            <span>🚪</span>
-            <span>Logout</span>
+            <span className={refreshing ? "refresh-icon spinning" : "refresh-icon"}>
+              ↻
+            </span>
+            {refreshing ? "Refreshing..." : "Refresh"}
           </button>
-        </aside>
+        </section>
 
-        {/* ===================================================
-            MAIN CONTENT
-        =================================================== */}
-
-        <main className="manage-notes-main">
-
-          {/* PAGE HEADER */}
-
-          <header className="manage-notes-header">
+        {/* SUMMARY */}
+        <section className="users-summary">
+          <div className="summary-card summary-total">
+            <div className="summary-icon">👥</div>
             <div>
-              <p className="manage-notes-label">
-                ADMINISTRATION
-              </p>
-
-              <h1>Manage Users</h1>
-
-              <p>
-                View and manage all users registered on the
-                NoteHive platform.
-              </p>
+              <span>Total Users</span>
+              <strong>{totalUsers}</strong>
             </div>
+          </div>
+
+          <div className="summary-card summary-approved">
+            <div className="summary-icon">✓</div>
+            <div>
+              <span>Approved</span>
+              <strong>{approvedUsers}</strong>
+            </div>
+          </div>
+
+          <div className="summary-card summary-pending">
+            <div className="summary-icon">⏳</div>
+            <div>
+              <span>Pending</span>
+              <strong>{pendingUsers}</strong>
+            </div>
+          </div>
+
+          <div className="summary-card summary-rejected">
+            <div className="summary-icon">×</div>
+            <div>
+              <span>Rejected</span>
+              <strong>{rejectedUsers}</strong>
+            </div>
+          </div>
+
+          <div className="summary-card summary-admin">
+            <div className="summary-icon">🛡️</div>
+            <div>
+              <span>Admins</span>
+              <strong>{adminUsers}</strong>
+            </div>
+          </div>
+        </section>
+
+        {/* ERROR */}
+        {error && (
+          <div className="users-error">
+            <span>⚠️</span>
+            <p>{error}</p>
+            <button type="button" onClick={() => fetchUsers()}>
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* SEARCH / FILTER */}
+        <section className="users-toolbar">
+          <div className="users-search-box">
+            <span>⌕</span>
+            <input
+              type="text"
+              placeholder="Search users by name or email..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+
+            {search && (
+              <button
+                type="button"
+                className="clear-search"
+                onClick={() => setSearch("")}
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          <div className="users-filters">
+            <button
+              type="button"
+              className={filter === "all" ? "active" : ""}
+              onClick={() => setFilter("all")}
+            >
+              All
+            </button>
 
             <button
               type="button"
-              className={`notes-refresh-button ${
-                refreshing ? "refreshing" : ""
-              }`}
-              onClick={() => fetchUsers(true)}
-              disabled={refreshing}
+              className={filter === "pending" ? "active" : ""}
+              onClick={() => setFilter("pending")}
             >
-              <span>↻</span>
-
-              {refreshing
-                ? "Refreshing..."
-                : "Refresh"}
+              Pending
             </button>
-          </header>
 
-          {/* =================================================
-              SUMMARY CARDS
-          ================================================= */}
+            <button
+              type="button"
+              className={filter === "approved" ? "active" : ""}
+              onClick={() => setFilter("approved")}
+            >
+              Approved
+            </button>
 
-          <section className="notes-summary">
+            <button
+              type="button"
+              className={filter === "rejected" ? "active" : ""}
+              onClick={() => setFilter("rejected")}
+            >
+              Rejected
+            </button>
 
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon">
-                👥
-              </div>
+            <button
+              type="button"
+              className={filter === "users" ? "active" : ""}
+              onClick={() => setFilter("users")}
+            >
+              Users
+            </button>
 
-              <div>
-                <span>Total Users</span>
-                <strong>{totalUsers}</strong>
-              </div>
-            </div>
-
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon">
-                ✅
-              </div>
-
-              <div>
-                <span>Approved</span>
-                <strong>{approvedUsers}</strong>
-              </div>
-            </div>
-
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon">
-                ⏳
-              </div>
-
-              <div>
-                <span>Pending</span>
-                <strong>{pendingUsers}</strong>
-              </div>
-            </div>
-
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon">
-                🛡️
-              </div>
-
-              <div>
-                <span>Admins</span>
-                <strong>{adminUsers}</strong>
-              </div>
-            </div>
-
-          </section>
-
-          {/* =================================================
-              ERROR
-          ================================================= */}
-
-          {error && (
-            <div className="notes-error">
-              <div>
-                <strong>Unable to load users</strong>
-                <p>{error}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => fetchUsers()}
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-
-          {/* =================================================
-              TOOLBAR
-          ================================================= */}
-
-          <section className="notes-toolbar">
-
-            <div className="notes-search">
-              <span>🔎</span>
-
-              <input
-                type="text"
-                value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
-                }
-                placeholder="Search users..."
-              />
-            </div>
-
-            <div className="notes-filter">
-              <select
-                value={filter}
-                onChange={(e) =>
-                  setFilter(e.target.value)
-                }
-              >
-                <option value="all">
-                  All Users
-                </option>
-
-                <option value="pending">
-                  Pending
-                </option>
-
-                <option value="approved">
-                  Approved
-                </option>
-
-                <option value="rejected">
-                  Rejected
-                </option>
-
-                <option value="users">
-                  Users
-                </option>
-
-                <option value="admins">
-                  Admins
-                </option>
-              </select>
-            </div>
-
-          </section>
-
-          {/* =================================================
-              RESULTS INFO
-          ================================================= */}
-
-          <div className="notes-results-info">
-
-            <span>
-              {filteredUsers.length}{" "}
-              {filteredUsers.length === 1
-                ? "user"
-                : "users"}{" "}
-              found
-            </span>
-
-            {(search || filter !== "all") && (
-              <button
-                type="button"
-                onClick={clearFilters}
-              >
-                Clear filters
-              </button>
-            )}
-
+            <button
+              type="button"
+              className={filter === "admins" ? "active" : ""}
+              onClick={() => setFilter("admins")}
+            >
+              Admins
+            </button>
           </div>
 
-          {/* =================================================
-              EMPTY STATE
-          ================================================= */}
+          {(search || filter !== "all") && (
+            <button
+              type="button"
+              className="clear-filters-btn"
+              onClick={clearFilters}
+            >
+              Clear filters
+            </button>
+          )}
+        </section>
 
-          {filteredUsers.length === 0 ? (
-            <div className="notes-empty-state">
+        {/* RESULTS */}
+        <section className="users-results-header">
+          <div>
+            <h2>Users</h2>
+            <span>
+              Showing {filteredUsers.length} of {users.length}
+            </span>
+          </div>
 
-              <div className="empty-icon">
-                👥
-              </div>
+          <span className="click-hint">
+            Click a user to view details
+          </span>
+        </section>
 
-              <h3>No users found</h3>
+        {/* EMPTY */}
+        {filteredUsers.length === 0 ? (
+          <div className="users-empty">
+            <div className="empty-icon">👤</div>
+            <h3>No users found</h3>
+            <p>
+              {search || filter !== "all"
+                ? "Try changing your search or filters."
+                : "There are no users available yet."}
+            </p>
 
-              <p>
-                Try changing your search or filter.
-              </p>
+            {(search || filter !== "all") && (
+              <button type="button" onClick={clearFilters}>
+                Clear Filters
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="users-table-card">
+            <div className="users-table-wrap">
+              <table className="users-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
 
-              {(search || filter !== "all") && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                >
-                  Clear Filters
-                </button>
-              )}
+                <tbody>
+                  {filteredUsers.map((user) => {
+                    const protectedAdmin = isMainAdmin(user);
+                    const image = getProfileImage(user);
+                    const status = getStatus(user);
+                    const role = getRole(user);
+                    const busy = actionLoading === user._id;
 
+                    return (
+                      <tr
+                        key={user._id}
+                        className={
+                          protectedAdmin
+                            ? "protected-user-row"
+                            : "clickable-user-row"
+                        }
+                        onClick={() => openUserDetails(user)}
+                        onKeyDown={(event) => {
+                          if (
+                            !protectedAdmin &&
+                            (event.key === "Enter" ||
+                              event.key === " ")
+                          ) {
+                            event.preventDefault();
+                            openUserDetails(user);
+                          }
+                        }}
+                        tabIndex={protectedAdmin ? -1 : 0}
+                      >
+                        <td>
+                          <div className="user-table-profile">
+                            <div className="user-avatar">
+                              {image ? (
+                                <img
+                                  src={image}
+                                  alt={getUserName(user)}
+                                />
+                              ) : (
+                                <span>
+                                  {getUserInitial(user)}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="user-table-info">
+                              <strong>{getUserName(user)}</strong>
+                              <span>{user.email || "No email"}</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span className={`role-badge ${role}`}>
+                            {role === "admin" ? "🛡️ Admin" : "👤 User"}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className={`status-badge ${status}`}>
+                            <i></i>
+                            {status.charAt(0).toUpperCase() +
+                              status.slice(1)}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className="joined-date">
+                            {formatDate(user.createdAt)}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="user-actions">
+                            {protectedAdmin ? (
+                              <span className="protected-badge">
+                                🔒 Protected
+                              </span>
+                            ) : (
+                              <>
+                                {status === "pending" && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      className="action-btn approve"
+                                      disabled={busy}
+                                      onClick={(event) =>
+                                        handleApprove(event, user)
+                                      }
+                                      title="Approve user"
+                                    >
+                                      ✓
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      className="action-btn reject"
+                                      disabled={busy}
+                                      onClick={(event) =>
+                                        handleReject(event, user)
+                                      }
+                                      title="Reject user"
+                                    >
+                                      ×
+                                    </button>
+                                  </>
+                                )}
+
+                                <button
+                                  type="button"
+                                  className="action-btn view"
+                                  disabled={busy}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openUserDetails(user);
+                                  }}
+                                  title="View details"
+                                >
+                                  👁
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="action-btn delete"
+                                  disabled={busy}
+                                  onClick={(event) =>
+                                    handleDelete(event, user)
+                                  }
+                                  title="Delete user"
+                                >
+                                  🗑
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          ) : (
-            /* ===============================================
-               USERS TABLE
-            =============================================== */
 
-            <div className="notes-table-wrapper">
+            {/* MOBILE USERS */}
+            <div className="mobile-users-list">
+              {filteredUsers.map((user) => {
+                const protectedAdmin = isMainAdmin(user);
+                const image = getProfileImage(user);
+                const status = getStatus(user);
+                const busy = actionLoading === user._id;
 
-              <div className="notes-table">
+                return (
+                  <div
+                    key={user._id}
+                    className="mobile-user-card"
+                    onClick={() => openUserDetails(user)}
+                  >
+                    <div className="mobile-user-top">
+                      <div className="user-avatar">
+                        {image ? (
+                          <img
+                            src={image}
+                            alt={getUserName(user)}
+                          />
+                        ) : (
+                          <span>{getUserInitial(user)}</span>
+                        )}
+                      </div>
 
-                {/* TABLE HEADER */}
+                      <div className="mobile-user-main">
+                        <strong>{getUserName(user)}</strong>
+                        <span>{user.email || "No email"}</span>
+                      </div>
 
-                <div className="notes-table-header">
+                      <span className={`status-badge ${status}`}>
+                        <i></i>
+                        {status}
+                      </span>
+                    </div>
 
-                  <div>User</div>
-                  <div>Role</div>
-                  <div>Status</div>
-                  <div>Joined</div>
-                  <div>Actions</div>
+                    <div className="mobile-user-meta">
+                      <span>
+                        👤 {user.role || "user"}
+                      </span>
 
-                </div>
+                      <span>
+                        📅 {formatDate(user.createdAt)}
+                      </span>
+                    </div>
 
-                {/* TABLE ROWS */}
-
-                {filteredUsers.map((user) => {
-
-                  const profileImage =
-                    getProfileImage(user);
-
-                  const role =
-                    String(
-                      user.role || "user"
-                    ).toLowerCase();
-
-                  const status =
-                    String(
-                      user.status || "pending"
-                    ).toLowerCase();
-
-                  const protectedAdmin =
-                    isMainAdmin(user);
-
-                  return (
-                    <div
-                      className="notes-table-row"
-                      key={user._id}
-                    >
-
-                      {/* USER */}
-
-                      <div className="note-info">
-
-                        <div className="user-avatar-small">
-
-                          {profileImage ? (
-                            <img
-                              src={profileImage}
-                              alt={getUserName(user)}
-                              onError={(e) => {
-                                e.currentTarget.style.display =
-                                  "none";
-
-                                const fallback =
-                                  e.currentTarget
-                                    .nextElementSibling;
-
-                                if (fallback) {
-                                  fallback.style.display =
-                                    "flex";
+                    <div className="mobile-user-actions">
+                      {protectedAdmin ? (
+                        <span className="protected-badge">
+                          🔒 Protected
+                        </span>
+                      ) : (
+                        <>
+                          {status === "pending" && (
+                            <>
+                              <button
+                                type="button"
+                                className="mobile-action approve"
+                                disabled={busy}
+                                onClick={(event) =>
+                                  handleApprove(event, user)
                                 }
-                              }}
-                            />
-                          ) : null}
+                              >
+                                ✓ Approve
+                              </button>
 
-                          <div
-                            className="user-avatar-fallback"
-                            style={{
-                              display: profileImage
-                                ? "none"
-                                : "flex",
+                              <button
+                                type="button"
+                                className="mobile-action reject"
+                                disabled={busy}
+                                onClick={(event) =>
+                                  handleReject(event, user)
+                                }
+                              >
+                                × Reject
+                              </button>
+                            </>
+                          )}
+
+                          <button
+                            type="button"
+                            className="mobile-action view"
+                            disabled={busy}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openUserDetails(user);
                             }}
                           >
-                            {getUserInitial(user)}
-                          </div>
+                            👁 Details
+                          </button>
 
-                        </div>
-
-                        <div>
-                          <strong className="note-user">
-                            {getUserName(user)}
-                          </strong>
-
-                          <span>
-                            {user.email || "No email"}
-                          </span>
-                        </div>
-
-                      </div>
-
-                      {/* ROLE */}
-
-                      <div>
-
-                        <span
-                          className={`note-category ${
-                            role === "admin"
-                              ? "user-role-admin"
-                              : "user-role-user"
-                          }`}
-                        >
-                          {role === "admin"
-                            ? "Administrator"
-                            : "User"}
-                        </span>
-
-                      </div>
-
-                      {/* STATUS */}
-
-                      <div>
-
-                        <span
-                          className={`user-status-badge status-${status}`}
-                        >
-                          {status
-                            .charAt(0)
-                            .toUpperCase() +
-                            status.slice(1)}
-                        </span>
-
-                      </div>
-
-                      {/* JOINED */}
-
-                      <div className="note-created">
-                        {formatDate(
-                          user.createdAt
-                        )}
-                      </div>
-
-                      {/* ACTIONS */}
-
-                      <div className="note-actions">
-
-                        {protectedAdmin ? (
-                          <span className="protected-admin-badge">
-                            🔒 Protected
-                          </span>
-                        ) : (
-                          <>
-                            {status !== "approved" && (
-                              <button
-                                type="button"
-                                className="view-note-btn"
-                                onClick={() =>
-                                  handleApprove(
-                                    user._id
-                                  )
-                                }
-                                title="Approve user"
-                              >
-                                ✓
-                              </button>
-                            )}
-
-                            {status !== "rejected" && (
-                              <button
-                                type="button"
-                                className="edit-note-btn"
-                                onClick={() =>
-                                  handleReject(
-                                    user._id
-                                  )
-                                }
-                                title="Reject user"
-                              >
-                                ✕
-                              </button>
-                            )}
-
-                            <button
-                              type="button"
-                              className="delete-note-btn"
-                              onClick={() =>
-                                handleDelete(
-                                  user._id
-                                )
-                              }
-                              title="Delete user"
-                            >
-                              🗑
-                            </button>
-                          </>
-                        )}
-
-                      </div>
-
+                          <button
+                            type="button"
+                            className="mobile-action delete"
+                            disabled={busy}
+                            onClick={(event) =>
+                              handleDelete(event, user)
+                            }
+                          >
+                            🗑 Delete
+                          </button>
+                        </>
+                      )}
                     </div>
-                  );
-                })}
-
-              </div>
+                  </div>
+                );
+              })}
             </div>
-          )}
+          </div>
+        )}
+      </main>
 
-        </main>
-      </div>
+      {/* ========================================================
+          USER DETAILS MODAL
+          ======================================================== */}
+      {selectedUser && (
+        <div
+          className="user-details-overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeUserDetails();
+            }
+          }}
+        >
+          <div className="user-details-modal">
+            {/* HEADER */}
+            <div className="details-modal-header">
+              <div>
+                <span className="details-small-label">
+                  NOTEHIVE USER
+                </span>
+                <h2>User Details</h2>
+              </div>
+
+              <button
+                type="button"
+                className="details-close-btn"
+                onClick={closeUserDetails}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            {detailsLoading ? (
+              <div className="details-loading">
+                <div className="details-spinner"></div>
+                <p>Loading user details...</p>
+              </div>
+            ) : detailsError ? (
+              <div className="details-error">
+                <div>⚠️</div>
+                <h3>Unable to load details</h3>
+                <p>{detailsError}</p>
+
+                <button
+                  type="button"
+                  onClick={() => openUserDetails(selectedUser)}
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : userDetails ? (
+              <>
+                {/* PROFILE */}
+                <div className="details-profile-card">
+                  <div className="details-avatar">
+                    {userDetails.user.profileImage ? (
+                      <img
+                        src={
+                          userDetails.user.profileImage.startsWith(
+                            "http"
+                          )
+                            ? userDetails.user.profileImage
+                            : `${SERVER_URL}${userDetails.user.profileImage}`
+                        }
+                        alt={userDetails.user.name}
+                      />
+                    ) : (
+                      <span>
+                        {userDetails.user.name
+                          ?.charAt(0)
+                          ?.toUpperCase() || "U"}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="details-profile-info">
+                    <h3>
+                      {userDetails.user.name || "Unnamed User"}
+                    </h3>
+
+                    <p>
+                      {userDetails.user.email || "No email"}
+                    </p>
+
+                    <div className="details-badges">
+                      <span className="details-role">
+                        👤 {userDetails.user.role || "user"}
+                      </span>
+
+                      <span
+                        className={`details-status ${String(
+                          userDetails.user.status
+                        ).toLowerCase()}`}
+                      >
+                        <i></i>
+                        {userDetails.user.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* STATS */}
+                <div className="user-details-stats">
+                  <div className="detail-stat total">
+                    <span className="detail-stat-icon">📝</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.totalNotes}
+                      </strong>
+                      <span>Total Notes</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-stat pinned">
+                    <span className="detail-stat-icon">📌</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.pinnedNotes}
+                      </strong>
+                      <span>Pinned Notes</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-stat favorite">
+                    <span className="detail-stat-icon">⭐</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.favoriteNotes}
+                      </strong>
+                      <span>Favorites</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-stat completed">
+                    <span className="detail-stat-icon">✅</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.completedNotes}
+                      </strong>
+                      <span>Completed</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* INFORMATION */}
+                <div className="details-section">
+                  <div className="details-section-title">
+                    <span>👤</span>
+                    <h3>Profile Information</h3>
+                  </div>
+
+                  <div className="details-info-grid">
+                    <div className="details-info-item">
+                      <span>Full Name</span>
+                      <strong>
+                        {userDetails.user.name || "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Email</span>
+                      <strong>
+                        {userDetails.user.email || "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Profession</span>
+                      <strong>
+                        {userDetails.user.profession ||
+                          "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Location</span>
+                      <strong>
+                        {userDetails.user.location ||
+                          "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Joined</span>
+                      <strong>
+                        {formatDate(
+                          userDetails.user.createdAt
+                        )}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Account Status</span>
+                      <strong className="capitalize">
+                        {userDetails.user.status || "pending"}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* WEBSITE */}
+                {userDetails.user.website && (
+                  <div className="details-website">
+                    <span>🌐</span>
+                    <div>
+                      <small>Website</small>
+                      <a
+                        href={userDetails.user.website}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(event) =>
+                          event.stopPropagation()
+                        }
+                      >
+                        {userDetails.user.website}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* BIO */}
+                {userDetails.user.bio && (
+                  <div className="details-bio">
+                    <div className="details-section-title">
+                      <span>💬</span>
+                      <h3>About User</h3>
+                    </div>
+
+                    <p>{userDetails.user.bio}</p>
+                  </div>
+                )}
+
+                {/* ACTIONS */}
+                {!isMainAdmin(selectedUser) && (
+                  <div className="details-actions">
+                    {getStatus(selectedUser) === "pending" && (
+                      <>
+                        <button
+                          type="button"
+                          className="details-approve-btn"
+                          disabled={actionLoading === selectedUser._id}
+                          onClick={(event) =>
+                            handleApprove(event, selectedUser)
+                          }
+                        >
+                          ✓ Approve User
+                        </button>
+
+                        <button
+                          type="button"
+                          className="details-reject-btn"
+                          disabled={actionLoading === selectedUser._id}
+                          onClick={(event) =>
+                            handleReject(event, selectedUser)
+                          }
+                        >
+                          × Reject User
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      type="button"
+                      className="details-delete-btn"
+                      disabled={actionLoading === selectedUser._id}
+                      onClick={(event) =>
+                        handleDelete(event, selectedUser)
+                      }
+                    >
+                      🗑 Delete User
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

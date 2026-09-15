@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
 import {
   Link,
   useNavigate,
   useLocation,
 } from "react-router-dom";
+import { io } from "socket.io-client";
 import "./Header.css";
 
-const API_URL = "http://192.168.1.68:5000/api";
+const SERVER_URL =
+  import.meta.env.VITE_SERVER_URL ||
+  "http://192.168.1.68:5000";
+
+const API_URL = `${SERVER_URL}/api`;
 
 const Header = () => {
   const navigate = useNavigate();
@@ -28,10 +34,30 @@ const Header = () => {
     useState(0);
 
   // ======================================================
+  // CHAT
+  // ======================================================
+
+  const [chatUnreadCount, setChatUnreadCount] =
+    useState(() => {
+      return Number(
+        localStorage.getItem(
+          "notehive_chat_unread_count"
+        ) || 0
+      );
+    });
+
+  const [chatPopup, setChatPopup] = useState(null);
+
+  const socketRef = useRef(null);
+
+  const shownMessageIdsRef = useRef(new Set());
+
+  // ======================================================
   // USER ID
   // ======================================================
 
-  const userId = localStorage.getItem("notehive_userId");
+  const userId =
+    localStorage.getItem("notehive_userId");
 
   // ======================================================
   // CHECK LOGIN
@@ -70,84 +96,472 @@ const Header = () => {
   }, []);
 
   // ======================================================
-  // FETCH UNREAD NOTIFICATIONS
+  // GLOBAL CHAT SOCKET
   // ======================================================
 
-  const fetchUnreadNotifications = async () => {
+  useEffect(() => {
     const currentUserId =
       localStorage.getItem("notehive_userId");
 
     const loggedIn =
       localStorage.getItem("isLoggedIn") === "true";
 
-    if (!currentUserId || !loggedIn) {
-      setUnreadNotifications(0);
+    if (!loggedIn || !currentUserId) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+
       return;
     }
 
-    try {
-      const response = await fetch(
-        `${API_URL}/notifications/${currentUserId}`
+    // Prevent duplicate socket connection
+    if (socketRef.current) {
+      return;
+    }
+
+    console.log(
+      "💬 Starting global NoteHive chat socket..."
+    );
+
+    const socket = io(SERVER_URL, {
+      transports: ["websocket", "polling"],
+      withCredentials: true,
+    });
+
+    socketRef.current = socket;
+
+    // ==================================================
+    // SOCKET CONNECTED
+    // ==================================================
+
+    socket.on("connect", () => {
+      console.log(
+        "🟢 Global chat socket connected:",
+        socket.id
       );
 
-      const data = await response.json();
+      socket.emit(
+        "join-user",
+        currentUserId
+      );
 
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Failed to fetch notifications"
+      console.log(
+        `👤 Joined global chat room: user-${currentUserId}`
+      );
+    });
+
+    // ==================================================
+    // SOCKET ERROR
+    // ==================================================
+
+    socket.on("connect_error", (error) => {
+      console.error(
+        "❌ Global chat socket error:",
+        error.message
+      );
+    });
+
+    // ==================================================
+    // RECEIVE MESSAGE
+    // ==================================================
+
+    socket.on(
+      "receive-message",
+      (messageData) => {
+         console.log(
+    "💬 GLOBAL HEADER MESSAGE RECEIVED:",
+    newMessage
+  );
+  if (!newMessage) return;
+
+        try {
+          console.log(
+            "💬 Global message received:",
+            messageData
+          );
+
+          if (!messageData) {
+            return;
+          }
+
+          const messageId =
+            messageData._id ||
+            `${messageData.sender?._id}-${messageData.createdAt}-${messageData.message}`;
+
+          // Prevent duplicate processing
+          if (
+            shownMessageIdsRef.current.has(
+              messageId
+            )
+          ) {
+            return;
+          }
+
+          shownMessageIdsRef.current.add(
+            messageId
+          );
+
+          // Keep Set from growing forever
+          if (
+            shownMessageIdsRef.current.size >
+            100
+          ) {
+            const firstId =
+              shownMessageIdsRef.current
+                .values()
+                .next().value;
+
+            shownMessageIdsRef.current.delete(
+              firstId
+            );
+          }
+
+          const senderId =
+            messageData.sender?._id ||
+            messageData.sender;
+
+          // Ignore own messages
+          if (
+            String(senderId) ===
+            String(currentUserId)
+          ) {
+            return;
+          }
+
+          const senderName =
+            messageData.sender?.name ||
+            "Someone";
+
+          const senderImage =
+            messageData.sender?.profileImage ||
+            "";
+
+          const messageText =
+            messageData.message ||
+            "New message";
+
+          // ==================================================
+          // IF CHAT PAGE IS CURRENTLY OPEN WITH THIS USER
+          // ==================================================
+
+          const currentChatUser =
+            localStorage.getItem(
+              "notehive_active_chat_user"
+            );
+
+          const isChatPage =
+            location.pathname === "/chat";
+
+          if (
+            isChatPage &&
+            currentChatUser &&
+            String(currentChatUser) ===
+              String(senderId)
+          ) {
+            // Chat page will handle the message itself.
+            return;
+          }
+
+          // ==================================================
+          // INCREASE UNREAD COUNT
+          // ==================================================
+
+          setChatUnreadCount((previous) => {
+            const nextCount =
+              previous + 1;
+
+            localStorage.setItem(
+              "notehive_chat_unread_count",
+              String(nextCount)
+            );
+
+            window.dispatchEvent(
+              new CustomEvent(
+                "notehive-chat-unread-change",
+                {
+                  detail: {
+                    count: nextCount,
+                  },
+                }
+              )
+            );
+
+            return nextCount;
+          });
+
+          // ==================================================
+          // SHOW POPUP
+          // ==================================================
+
+          setChatPopup({
+            id: messageId,
+            senderId,
+            senderName,
+            senderImage,
+            message: messageText,
+          });
+
+          // ==================================================
+          // ALSO INFORM CHAT COMPONENT
+          // ==================================================
+
+          window.dispatchEvent(
+            new CustomEvent(
+              "notehive-global-chat-message",
+              {
+                detail: messageData,
+              }
+            )
+          );
+        } catch (error) {
+          console.error(
+            "❌ Global chat message handling error:",
+            error
+          );
+        }
+      }
+    );
+
+    // ==================================================
+    // DISCONNECT
+    // ==================================================
+
+    socket.on(
+      "disconnect",
+      (reason) => {
+        console.log(
+          "🔴 Global chat socket disconnected:",
+          reason
         );
       }
+    );
 
-      setUnreadNotifications(
-        Number(data.unreadCount || 0)
-      );
-    } catch (error) {
-      console.error(
-        "❌ Notification error:",
-        error
-      );
+    // ==================================================
+    // CLEANUP
+    // ==================================================
 
-      setUnreadNotifications(0);
+    return () => {
+      socket.off("connect");
+      socket.off("connect_error");
+      socket.off("receive-message");
+      socket.off("disconnect");
+
+      socket.disconnect();
+
+      socketRef.current = null;
+    };
+  }, [isLoggedIn, location.pathname]);
+
+  // ======================================================
+  // LISTEN FOR CHAT UNREAD CHANGES
+  // ======================================================
+
+  useEffect(() => {
+    const handleUnreadChange = (event) => {
+      const count =
+        Number(event.detail?.count || 0);
+
+      setChatUnreadCount(count);
+    };
+
+    window.addEventListener(
+      "notehive-chat-unread-change",
+      handleUnreadChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        "notehive-chat-unread-change",
+        handleUnreadChange
+      );
+    };
+  }, []);
+
+  // ======================================================
+  // OPEN CHAT FROM POPUP
+  // ======================================================
+
+  const handleChatPopupClick = () => {
+    if (!chatPopup) {
+      return;
     }
+
+    const senderId =
+      chatPopup.senderId;
+
+    // Tell Chat page which user to open
+    localStorage.setItem(
+      "notehive_open_chat_user",
+      String(senderId)
+    );
+
+    // Remove popup
+    setChatPopup(null);
+
+    // Open chat
+    navigate("/chat");
+
+    // Clear total unread count
+    setChatUnreadCount(0);
+
+    localStorage.setItem(
+      "notehive_chat_unread_count",
+      "0"
+    );
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "notehive-chat-unread-change",
+        {
+          detail: {
+            count: 0,
+          },
+        }
+      )
+    );
   };
+
+  // ======================================================
+  // CLOSE CHAT POPUP
+  // ======================================================
+
+  const closeChatPopup = (event) => {
+    event?.stopPropagation();
+
+    setChatPopup(null);
+  };
+
+  // ======================================================
+  // FETCH UNREAD NOTIFICATIONS
+  // ======================================================
+
+  const fetchUnreadNotifications =
+    async () => {
+      const currentUserId =
+        localStorage.getItem(
+          "notehive_userId"
+        );
+
+      const loggedIn =
+        localStorage.getItem(
+          "isLoggedIn"
+        ) === "true";
+
+      if (
+        !currentUserId ||
+        !loggedIn
+      ) {
+        setUnreadNotifications(0);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_URL}/notifications/${currentUserId}`
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Failed to fetch notifications"
+          );
+        }
+
+        setUnreadNotifications(
+          Number(
+            data.unreadCount || 0
+          )
+        );
+      } catch (error) {
+        console.error(
+          "❌ Notification error:",
+          error
+        );
+
+        setUnreadNotifications(0);
+      }
+    };
 
   // ======================================================
   // NOTIFICATION POLLING
   // ======================================================
 
   useEffect(() => {
-    if (!isLoggedIn || !userId) {
+    if (
+      !isLoggedIn ||
+      !userId
+    ) {
       setUnreadNotifications(0);
       return;
     }
 
     fetchUnreadNotifications();
 
-    const notificationInterval = setInterval(() => {
-      fetchUnreadNotifications();
-    }, 5000);
+    const notificationInterval =
+      setInterval(() => {
+        fetchUnreadNotifications();
+      }, 5000);
 
     return () => {
-      clearInterval(notificationInterval);
+      clearInterval(
+        notificationInterval
+      );
     };
-  }, [isLoggedIn, userId]);
+  }, [
+    isLoggedIn,
+    userId,
+  ]);
 
   // ======================================================
   // LOGOUT
   // ======================================================
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("notehive_userId");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("notehive_user");
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+
+    localStorage.removeItem(
+      "isLoggedIn"
+    );
+
+    localStorage.removeItem(
+      "notehive_userId"
+    );
+
+    localStorage.removeItem(
+      "userRole"
+    );
+
+    localStorage.removeItem(
+      "notehive_user"
+    );
+
+    localStorage.removeItem(
+      "notehive_chat_unread_count"
+    );
+
+    localStorage.removeItem(
+      "notehive_open_chat_user"
+    );
 
     setIsLoggedIn(false);
+
     setUnreadNotifications(0);
 
+    setChatUnreadCount(0);
+
+    setChatPopup(null);
+
     window.dispatchEvent(
-      new Event("notehive-login-change")
+      new Event(
+        "notehive-login-change"
+      )
     );
 
     navigate("/login");
@@ -159,6 +573,14 @@ const Header = () => {
 
   const handleNotifications = () => {
     navigate("/notifications");
+  };
+
+  // ======================================================
+  // CHAT
+  // ======================================================
+
+  const handleChat = () => {
+    navigate("/chat");
   };
 
   // ======================================================
@@ -174,7 +596,9 @@ const Header = () => {
   // ======================================================
 
   const isActive = (path) => {
-    return location.pathname === path;
+    return (
+      location.pathname === path
+    );
   };
 
   // ======================================================
@@ -183,27 +607,79 @@ const Header = () => {
 
   return (
     <>
+      {/* ==================================================
+          GLOBAL CHAT POPUP
+      ================================================== */}
+
+      {isLoggedIn &&
+        chatPopup && (
+          <button
+            type="button"
+            className="global-chat-popup"
+            onClick={handleChatPopupClick}
+          >
+            <div className="global-chat-popup-avatar">
+              {chatPopup.senderImage ? (
+                <img
+                  src={`${SERVER_URL}${chatPopup.senderImage}`}
+                  alt={chatPopup.senderName}
+                />
+              ) : (
+                <span>
+                  {chatPopup.senderName
+                    ?.charAt(0)
+                    ?.toUpperCase() || "U"}
+                </span>
+              )}
+            </div>
+
+            <div className="global-chat-popup-content">
+              <strong>
+                {chatPopup.senderName}
+              </strong>
+
+              <span>
+                {chatPopup.message}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="global-chat-popup-close"
+              onClick={closeChatPopup}
+              aria-label="Close"
+            >
+              ×
+            </button>
+          </button>
+        )}
+
+      {/* ==================================================
+          HEADER
+      ================================================== */}
+
       <header className="header">
         <div className="header-container">
 
-          {/* ==================================================
-              LOGO
-          ================================================== */}
+          {/* LOGO */}
 
           <Link
             to="/"
             className="logo"
-            onClick={() => window.scrollTo(0, 0)}
+            onClick={() =>
+              window.scrollTo(0, 0)
+            }
           >
-            <span className="logo-bee">🐝</span>
+            <span className="logo-bee">
+              🐝
+            </span>
+
             <span className="logo-text">
               NOTEHIVE
             </span>
           </Link>
 
-          {/* ==================================================
-              DESKTOP NAVIGATION
-          ================================================== */}
+          {/* DESKTOP NAVIGATION */}
 
           {isLoggedIn && (
             <nav className="nav">
@@ -211,7 +687,9 @@ const Header = () => {
               <Link
                 to="/dashboard"
                 className={`nav-link ${
-                  isActive("/dashboard")
+                  isActive(
+                    "/dashboard"
+                  )
                     ? "active"
                     : ""
                 }`}
@@ -222,7 +700,9 @@ const Header = () => {
               <Link
                 to="/my-notes"
                 className={`nav-link ${
-                  isActive("/my-notes")
+                  isActive(
+                    "/my-notes"
+                  )
                     ? "active"
                     : ""
                 }`}
@@ -233,7 +713,9 @@ const Header = () => {
               <Link
                 to="/pinned-notes"
                 className={`nav-link ${
-                  isActive("/pinned-notes")
+                  isActive(
+                    "/pinned-notes"
+                  )
                     ? "active"
                     : ""
                 }`}
@@ -241,10 +723,37 @@ const Header = () => {
                 Pinned
               </Link>
 
+              {/* CHAT */}
+
+              <Link
+                to="/chat"
+                className={`nav-link ${
+                  isActive("/chat")
+                    ? "active"
+                    : ""
+                }`}
+              >
+                <span>
+                  Chat
+                </span>
+
+                {chatUnreadCount >
+                  0 && (
+                  <span className="header-chat-badge">
+                    {chatUnreadCount >
+                    99
+                      ? "99+"
+                      : chatUnreadCount}
+                  </span>
+                )}
+              </Link>
+
               <Link
                 to="/settings"
                 className={`nav-link ${
-                  isActive("/settings")
+                  isActive(
+                    "/settings"
+                  )
                     ? "active"
                     : ""
                 }`}
@@ -255,23 +764,21 @@ const Header = () => {
             </nav>
           )}
 
-          {/* ==================================================
-              RIGHT SIDE
-          ================================================== */}
+          {/* RIGHT SIDE */}
 
           <div className="header-actions">
 
             {isLoggedIn && (
               <>
 
-                {/* ==================================================
-                    NOTIFICATION
-                ================================================== */}
+                {/* NOTIFICATION */}
 
                 <button
                   type="button"
                   className="header-notification-btn"
-                  onClick={handleNotifications}
+                  onClick={
+                    handleNotifications
+                  }
                   title="Notifications"
                   aria-label="Notifications"
                 >
@@ -279,33 +786,31 @@ const Header = () => {
                     🔔
                   </span>
 
-                  {unreadNotifications > 0 && (
+                  {unreadNotifications >
+                    0 && (
                     <span className="notification-dot">
-                      {unreadNotifications > 99
+                      {unreadNotifications >
+                      99
                         ? "99+"
                         : unreadNotifications}
                     </span>
                   )}
                 </button>
 
-                {/* ==================================================
-                    LOGOUT
-                ================================================== */}
+                {/* LOGOUT */}
 
                 <button
                   type="button"
                   className="header-logout-btn"
-                  onClick={handleLogout}
+                  onClick={
+                    handleLogout
+                  }
                 >
                   Logout
                 </button>
 
               </>
             )}
-
-            {/* ==================================================
-                LOGIN / SIGNUP
-            ================================================== */}
 
             {!isLoggedIn && (
               <>
@@ -326,7 +831,6 @@ const Header = () => {
             )}
 
           </div>
-
         </div>
       </header>
 
@@ -342,11 +846,15 @@ const Header = () => {
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive("/dashboard")
+              isActive(
+                "/dashboard"
+              )
                 ? "mobile-nav-active"
                 : ""
             }`}
-            onClick={() => navigate("/dashboard")}
+            onClick={() =>
+              navigate("/dashboard")
+            }
           >
             <span className="mobile-nav-icon">
               🏠
@@ -362,11 +870,15 @@ const Header = () => {
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive("/my-notes")
+              isActive(
+                "/my-notes"
+              )
                 ? "mobile-nav-active"
                 : ""
             }`}
-            onClick={() => navigate("/my-notes")}
+            onClick={() =>
+              navigate("/my-notes")
+            }
           >
             <span className="mobile-nav-icon">
               📝
@@ -382,12 +894,16 @@ const Header = () => {
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive("/pinned-notes")
+              isActive(
+                "/pinned-notes"
+              )
                 ? "mobile-nav-active"
                 : ""
             }`}
             onClick={() =>
-              navigate("/pinned-notes")
+              navigate(
+                "/pinned-notes"
+              )
             }
           >
             <span className="mobile-nav-icon">
@@ -399,24 +915,60 @@ const Header = () => {
             </span>
           </button>
 
+          {/* CHAT */}
+
+          <button
+            type="button"
+            className={`mobile-nav-item ${
+              isActive("/chat")
+                ? "mobile-nav-active"
+                : ""
+            }`}
+            onClick={handleChat}
+          >
+            <span className="mobile-nav-icon">
+              💬
+            </span>
+
+            {chatUnreadCount >
+              0 && (
+              <span className="mobile-chat-badge">
+                {chatUnreadCount >
+                99
+                  ? "99+"
+                  : chatUnreadCount}
+              </span>
+            )}
+
+            <span className="mobile-nav-label">
+              Chat
+            </span>
+          </button>
+
           {/* NOTIFICATIONS */}
 
           <button
             type="button"
             className={`mobile-nav-item mobile-notification-item ${
-              isActive("/notifications")
+              isActive(
+                "/notifications"
+              )
                 ? "mobile-nav-active"
                 : ""
             }`}
-            onClick={handleNotifications}
+            onClick={
+              handleNotifications
+            }
           >
             <span className="mobile-nav-icon">
               🔔
             </span>
 
-            {unreadNotifications > 0 && (
+            {unreadNotifications >
+              0 && (
               <span className="mobile-notification-badge">
-                {unreadNotifications > 99
+                {unreadNotifications >
+                99
                   ? "99+"
                   : unreadNotifications}
               </span>
@@ -432,11 +984,15 @@ const Header = () => {
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive("/settings")
+              isActive(
+                "/settings"
+              )
                 ? "mobile-nav-active"
                 : ""
             }`}
-            onClick={handleSettings}
+            onClick={
+              handleSettings
+            }
           >
             <span className="mobile-nav-icon">
               ⚙️

@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -9,7 +8,8 @@ import { API_URL, SERVER_URL } from "../../../config/api";
 
 // =====================================================
 // NOTEHIVE - ADMIN NOTIFICATIONS
-// Manage Users Style Admin Layout
+// Reports Style • No Sidebar • Responsive
+// Socket.IO kept only for real-time notifications
 // =====================================================
 
 const AdminNotifications = () => {
@@ -26,11 +26,19 @@ const AdminNotifications = () => {
   // =====================================================
 
   useEffect(() => {
-    const adminLoggedIn = localStorage.getItem("adminLoggedIn");
-    const userRole = localStorage.getItem("userRole");
+    const adminLoggedIn =
+      localStorage.getItem("adminLoggedIn");
 
-    if (adminLoggedIn !== "true" || userRole !== "admin") {
-      navigate("/admin-login", { replace: true });
+    const userRole =
+      localStorage.getItem("userRole");
+
+    if (
+      adminLoggedIn !== "true" ||
+      userRole !== "admin"
+    ) {
+      navigate("/admin-login", {
+        replace: true,
+      });
     }
   }, [navigate]);
 
@@ -38,46 +46,56 @@ const AdminNotifications = () => {
   // FETCH NOTIFICATIONS
   // =====================================================
 
-  const fetchNotifications = useCallback(async (showRefresh = false) => {
-    try {
-      if (showRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
+  const fetchNotifications = useCallback(
+    async (showRefresh = false) => {
+      try {
+        if (showRefresh) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+
+        setError("");
+
+        const response = await fetch(
+          `${API_URL}/admin/notifications`
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Server returned ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        const notificationList = Array.isArray(data)
+          ? data
+          : Array.isArray(data.notifications)
+          ? data.notifications
+          : Array.isArray(data.activities)
+          ? data.activities
+          : [];
+
+        setNotifications(notificationList);
+      } catch (err) {
+        console.error(
+          "❌ Admin notifications error:",
+          err
+        );
+
+        setError(
+          "Unable to load notifications. Please check the server."
+        );
+
+        setNotifications([]);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      setError("");
-
-      const response = await fetch(`${API_URL}/admin/notifications`);
-
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      const notificationList = Array.isArray(data)
-        ? data
-        : Array.isArray(data.notifications)
-        ? data.notifications
-        : Array.isArray(data.activities)
-        ? data.activities
-        : [];
-
-      setNotifications(notificationList);
-    } catch (err) {
-      console.error("❌ Admin notifications error:", err);
-
-      setError(
-        "Unable to load notifications. Please check the server."
-      );
-
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // =====================================================
   // INITIAL LOAD
@@ -88,15 +106,21 @@ const AdminNotifications = () => {
   }, [fetchNotifications]);
 
   // =====================================================
-  // SOCKET.IO REAL TIME
+  // SOCKET.IO
+  // Real-time only for admin notifications
   // =====================================================
 
   useEffect(() => {
+    console.log(
+      "🟡 Starting NoteHive admin real-time connection..."
+    );
+
     const socket = io(SERVER_URL, {
-      transports: ["websocket", "polling"],
+      transports: ["polling", "websocket"],
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     });
 
     socket.on("connect", () => {
@@ -108,10 +132,17 @@ const AdminNotifications = () => {
       setSocketConnected(true);
 
       socket.emit("join-admin");
+
+      console.log(
+        "👑 Admin joined real-time notification room"
+      );
     });
 
-    socket.on("disconnect", () => {
-      console.log("🔴 Admin socket disconnected");
+    socket.on("disconnect", (reason) => {
+      console.log(
+        "🔴 Admin socket disconnected:",
+        reason
+      );
 
       setSocketConnected(false);
     });
@@ -125,33 +156,48 @@ const AdminNotifications = () => {
       setSocketConnected(false);
     });
 
-    socket.on("admin-notification", (newNotification) => {
-      console.log(
-        "🔔 New admin notification:",
-        newNotification
-      );
+    socket.on(
+      "admin-notification",
+      (newNotification) => {
+        console.log(
+          "🔔 New admin notification:",
+          newNotification
+        );
 
-      setNotifications((prev) => {
-        const notificationId =
-          newNotification?._id ||
-          newNotification?.id;
-
-        if (
-          notificationId &&
-          prev.some(
-            (item) =>
-              item?._id === notificationId ||
-              item?.id === notificationId
-          )
-        ) {
-          return prev;
+        if (!newNotification) {
+          return;
         }
 
-        return [newNotification, ...prev];
-      });
-    });
+        setNotifications((prev) => {
+          const notificationId =
+            newNotification?._id ||
+            newNotification?.id;
+
+          if (
+            notificationId &&
+            prev.some(
+              (item) =>
+                item?._id === notificationId ||
+                item?.id === notificationId
+            )
+          ) {
+            return prev;
+          }
+
+          return [
+            newNotification,
+            ...prev,
+          ];
+        });
+      }
+    );
 
     return () => {
+      console.log(
+        "🧹 Cleaning up admin Socket.IO connection..."
+      );
+
+      socket.removeAllListeners();
       socket.disconnect();
     };
   }, []);
@@ -178,7 +224,9 @@ const AdminNotifications = () => {
     localStorage.removeItem("notehive_userId");
     localStorage.removeItem("notehive_user");
 
-    navigate("/admin-login", { replace: true });
+    navigate("/admin-login", {
+      replace: true,
+    });
   };
 
   // =====================================================
@@ -229,12 +277,25 @@ const AdminNotifications = () => {
     }
 
     const now = new Date();
-    const difference = now.getTime() - date.getTime();
 
-    const seconds = Math.floor(difference / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
+    const difference =
+      now.getTime() - date.getTime();
+
+    const seconds = Math.floor(
+      difference / 1000
+    );
+
+    const minutes = Math.floor(
+      seconds / 60
+    );
+
+    const hours = Math.floor(
+      minutes / 60
+    );
+
+    const days = Math.floor(
+      hours / 24
+    );
 
     if (seconds < 60) {
       return "Just now";
@@ -249,21 +310,28 @@ const AdminNotifications = () => {
     }
 
     if (days < 7) {
-      return `${days} day${days > 1 ? "s" : ""} ago`;
+      return `${days} day${
+        days > 1 ? "s" : ""
+      } ago`;
     }
 
-    return date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return date.toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
   };
 
   // =====================================================
   // NOTIFICATION TYPE
   // =====================================================
 
-  const getNotificationType = (notification) => {
+  const getNotificationType = (
+    notification
+  ) => {
     const type = String(
       notification?.type ||
         notification?.category ||
@@ -297,8 +365,11 @@ const AdminNotifications = () => {
   // ICON
   // =====================================================
 
-  const getNotificationIcon = (notification) => {
-    const type = getNotificationType(notification);
+  const getNotificationIcon = (
+    notification
+  ) => {
+    const type =
+      getNotificationType(notification);
 
     if (type === "user") {
       return "👤";
@@ -315,12 +386,15 @@ const AdminNotifications = () => {
   // TITLE
   // =====================================================
 
-  const getNotificationTitle = (notification) => {
+  const getNotificationTitle = (
+    notification
+  ) => {
     if (notification?.title) {
       return notification.title;
     }
 
-    const type = getNotificationType(notification);
+    const type =
+      getNotificationType(notification);
 
     if (type === "user") {
       return "User Activity";
@@ -337,7 +411,9 @@ const AdminNotifications = () => {
   // MESSAGE
   // =====================================================
 
-  const getNotificationMessage = (notification) => {
+  const getNotificationMessage = (
+    notification
+  ) => {
     if (notification?.message) {
       return notification.message;
     }
@@ -357,7 +433,9 @@ const AdminNotifications = () => {
   // USER NAME
   // =====================================================
 
-  const getUserName = (notification) => {
+  const getUserName = (
+    notification
+  ) => {
     if (notification?.user?.name) {
       return notification.user.name;
     }
@@ -381,7 +459,9 @@ const AdminNotifications = () => {
   // READ / UNREAD
   // =====================================================
 
-  const isUnread = (notification) => {
+  const isUnread = (
+    notification
+  ) => {
     return (
       notification?.read === false ||
       notification?.isRead === false
@@ -392,114 +472,38 @@ const AdminNotifications = () => {
   // SUMMARY
   // =====================================================
 
-  const totalNotifications = notifications.length;
+  const totalNotifications =
+    notifications.length;
 
-  const systemNotifications = notifications.filter(
-    (notification) =>
-      getNotificationType(notification) === "system"
-  ).length;
+  const systemNotifications =
+    notifications.filter(
+      (notification) =>
+        getNotificationType(
+          notification
+        ) === "system"
+    ).length;
 
-  const userActivities = notifications.filter(
-    (notification) =>
-      getNotificationType(notification) === "user"
-  ).length;
+  const userActivities =
+    notifications.filter(
+      (notification) =>
+        getNotificationType(
+          notification
+        ) === "user"
+    ).length;
 
-  const noteActivities = notifications.filter(
-    (notification) =>
-      getNotificationType(notification) === "note"
-  ).length;
+  const noteActivities =
+    notifications.filter(
+      (notification) =>
+        getNotificationType(
+          notification
+        ) === "note"
+    ).length;
 
-  const unreadNotifications = notifications.filter(
-    (notification) => isUnread(notification)
-  ).length;
-
-  // =====================================================
-  // SIDEBAR
-  // =====================================================
-
-  const AdminSidebar = () => (
-    <aside className="admin-sidebar">
-      {/* BRAND */}
-      <div className="admin-sidebar-brand">
-        <div className="admin-logo">
-          <span className="admin-logo-bee">🐝</span>
-
-          <div className="admin-logo-text">
-            <strong>NOTEHIVE</strong>
-            <small>ADMIN PANEL</small>
-          </div>
-        </div>
-      </div>
-
-      {/* NAVIGATION */}
-      <nav className="admin-nav">
-        <button
-          className="admin-nav-item"
-          onClick={goToDashboard}
-        >
-          <span>📊</span>
-          <label>Dashboard</label>
-        </button>
-
-        <button
-          className="admin-nav-item"
-          onClick={goToUsers}
-        >
-          <span>👥</span>
-          <label>Users</label>
-        </button>
-
-        <button
-          className="admin-nav-item active"
-          onClick={goToNotifications}
-        >
-          <span>🔔</span>
-          <label>Notifications</label>
-        </button>
-
-        <button
-          className="admin-nav-item"
-          onClick={goToNotes}
-        >
-          <span>📝</span>
-          <label>Notes</label>
-        </button>
-
-        <button
-          className="admin-nav-item"
-          onClick={goToPinned}
-        >
-          <span>📌</span>
-          <label>Pinned Notes</label>
-        </button>
-
-        <button
-          className="admin-nav-item"
-          onClick={goToFavorites}
-        >
-          <span>⭐</span>
-          <label>Favorites</label>
-        </button>
-
-        <button
-          className="admin-nav-item"
-          onClick={goToReports}
-        >
-          <span>📈</span>
-          <label>Reports</label>
-        </button>
-      </nav>
-
-      {/* LOGOUT */}
-      <button
-        className="admin-logout"
-        onClick={handleLogout}
-      >
-        <span>🚪</span>
-        <label>Logout</label>
-      </button>
-    </aside>
-  );
+  const unreadNotifications =
+    notifications.filter(
+      (notification) =>
+        isUnread(notification)
+    ).length;
 
   // =====================================================
   // LOADING
@@ -507,259 +511,391 @@ const AdminNotifications = () => {
 
   if (loading) {
     return (
-      <div className="admin-page-wrapper">
+      <div className="admin-notifications-page">
+
         <AdminHeader />
 
-        <div className="manage-notes-page">
-          <AdminSidebar />
+        <main className="admin-notifications-main">
 
-          <main className="manage-notes-main">
-            <div className="notifications-loading">
-              <div className="loading-spinner"></div>
+          <div className="notifications-loading-card">
 
-              <p>Loading notifications...</p>
-            </div>
-          </main>
-        </div>
+            <div className="loading-spinner"></div>
+
+            <h3>
+              Loading Notifications...
+            </h3>
+
+            <p>
+              Please wait while we fetch
+              your latest activities.
+            </p>
+
+          </div>
+
+        </main>
+
       </div>
     );
   }
 
   // =====================================================
-  // MAIN
+  // MAIN PAGE
   // =====================================================
 
   return (
-    <div className="admin-page-wrapper">
-      {/* =================================================
-          HEADER
-      ================================================= */}
+    <div className="admin-notifications-page">
+
       <AdminHeader />
 
-      <div className="manage-notes-page">
-        {/* =================================================
-            SIDEBAR
-        ================================================= */}
-        <AdminSidebar />
+      <main className="admin-notifications-main">
 
         {/* =================================================
-            MAIN CONTENT
+            HERO
         ================================================= */}
-        <main className="manage-notes-main">
-          {/* =================================================
-              PAGE HEADER
-          ================================================= */}
-          <header className="manage-notes-header">
-            <div>
-              <span className="manage-notes-label">
-                ADMIN NOTIFICATIONS
+
+        <section className="notifications-hero">
+
+          <div className="notifications-hero-text">
+
+            <p className="notifications-eyebrow">
+              ADMINISTRATION
+            </p>
+
+            <h1>
+              🔔 Notifications
+            </h1>
+
+            <p>
+              Monitor system, user and note
+              activities across your NoteHive
+              platform in real time.
+            </p>
+
+          </div>
+
+          <div className="notifications-hero-actions">
+
+            <div className="live-status">
+
+              <span
+                className={`live-dot ${
+                  socketConnected
+                    ? "connected"
+                    : ""
+                }`}
+              ></span>
+
+              <span>
+                {socketConnected
+                  ? "Live Connected"
+                  : "Connecting..."}
               </span>
 
-              <h1>Notifications</h1>
+            </div>
+
+            <button
+              className={`notifications-refresh-btn ${
+                refreshing
+                  ? "refreshing"
+                  : ""
+              }`}
+              onClick={handleRefresh}
+              disabled={refreshing}
+            >
+              <span>↻</span>
+
+              {refreshing
+                ? "Refreshing..."
+                : "Refresh"}
+            </button>
+
+          </div>
+
+        </section>
+
+        {/* =================================================
+            SUMMARY CARDS
+        ================================================= */}
+
+        <section className="notification-stat-scroll">
+
+          <article className="notification-stat-card blue">
+
+            <div className="notification-stat-top">
+
+              <span className="notification-stat-icon">
+                🔔
+              </span>
+
+              <span className="notification-stat-mini">
+                TOTAL
+              </span>
+
+            </div>
+
+            <strong>
+              {totalNotifications}
+            </strong>
+
+            <span>
+              Total Notifications
+            </span>
+
+          </article>
+
+          <article className="notification-stat-card purple">
+
+            <div className="notification-stat-top">
+
+              <span className="notification-stat-icon">
+                📢
+              </span>
+
+              <span className="notification-stat-mini">
+                SYSTEM
+              </span>
+
+            </div>
+
+            <strong>
+              {systemNotifications}
+            </strong>
+
+            <span>
+              System Updates
+            </span>
+
+          </article>
+
+          <article className="notification-stat-card pink">
+
+            <div className="notification-stat-top">
+
+              <span className="notification-stat-icon">
+                👤
+              </span>
+
+              <span className="notification-stat-mini">
+                USERS
+              </span>
+
+            </div>
+
+            <strong>
+              {userActivities}
+            </strong>
+
+            <span>
+              User Activities
+            </span>
+
+          </article>
+
+          <article className="notification-stat-card green">
+
+            <div className="notification-stat-top">
+
+              <span className="notification-stat-icon">
+                📝
+              </span>
+
+              <span className="notification-stat-mini">
+                NOTES
+              </span>
+
+            </div>
+
+            <strong>
+              {noteActivities}
+            </strong>
+
+            <span>
+              Note Activities
+            </span>
+
+          </article>
+
+          <article className="notification-stat-card orange">
+
+            <div className="notification-stat-top">
+
+              <span className="notification-stat-icon">
+                ✨
+              </span>
+
+              <span className="notification-stat-mini">
+                NEW
+              </span>
+
+            </div>
+
+            <strong>
+              {unreadNotifications}
+            </strong>
+
+            <span>
+              Unread Notifications
+            </span>
+
+          </article>
+
+        </section>
+
+        {/* =================================================
+            ERROR
+        ================================================= */}
+
+        {error && (
+          <div className="notifications-error-card">
+
+            <div className="error-icon">
+              ⚠️
+            </div>
+
+            <div className="error-content">
+
+              <h3>
+                Unable to load notifications
+              </h3>
 
               <p>
-                Monitor all system, user and note
-                activities across NoteHive.
+                {error}
               </p>
+
             </div>
 
-            <div className="notification-header-actions">
-              <div className="notification-live-status">
-                <span
-                  className={`live-status-dot ${
-                    socketConnected ? "connected" : ""
-                  }`}
-                ></span>
+            <button
+              onClick={handleRefresh}
+            >
+              Try Again
+            </button>
 
-                {socketConnected
-                  ? "Live"
-                  : "Connecting..."}
-              </div>
+          </div>
+        )}
 
-              <button
-                className={`notes-refresh-button ${
-                  refreshing ? "refreshing" : ""
-                }`}
-                onClick={handleRefresh}
-                disabled={refreshing}
-              >
-                <span className="refresh-icon">↻</span>
+        {/* =================================================
+            NOTIFICATIONS SECTION
+        ================================================= */}
 
-                {refreshing
-                  ? "Refreshing..."
-                  : "Refresh"}
-              </button>
+        <section className="notifications-panel">
+
+          <div className="notifications-panel-header">
+
+            <div>
+
+              <p>
+                ACTIVITY CENTER
+              </p>
+
+              <h2>
+                Recent Notifications
+              </h2>
+
+              <span>
+                Latest activity from your
+                NoteHive application
+              </span>
+
             </div>
-          </header>
 
-          {/* =================================================
-              SUMMARY
-          ================================================= */}
-          <section className="notes-summary">
-            {/* TOTAL */}
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon blue">
+            <div className="notification-count-badge">
+
+              {totalNotifications}{" "}
+
+              {totalNotifications === 1
+                ? "Notification"
+                : "Notifications"}
+
+            </div>
+
+          </div>
+
+          {/* EMPTY */}
+
+          {!error &&
+          notifications.length === 0 ? (
+
+            <div className="notifications-empty">
+
+              <div className="empty-notification-icon">
                 🔔
               </div>
 
-              <div>
-                <span>Total Notifications</span>
-                <strong>{totalNotifications}</strong>
-              </div>
-            </div>
+              <p>
+                NOTEHIVE ACTIVITY
+              </p>
 
-            {/* SYSTEM */}
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon purple">
-                📢
-              </div>
+              <h3>
+                No notifications yet
+              </h3>
 
-              <div>
-                <span>System Updates</span>
-                <strong>{systemNotifications}</strong>
-              </div>
-            </div>
-
-            {/* USERS */}
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon pink">
-                👤
-              </div>
-
-              <div>
-                <span>User Activities</span>
-                <strong>{userActivities}</strong>
-              </div>
-            </div>
-
-            {/* NOTES */}
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon green">
-                📝
-              </div>
-
-              <div>
-                <span>Note Activities</span>
-                <strong>{noteActivities}</strong>
-              </div>
-            </div>
-
-            {/* UNREAD */}
-            <div className="notes-summary-card">
-              <div className="notes-summary-icon orange">
-                ✨
-              </div>
-
-              <div>
-                <span>New / Unread</span>
-                <strong>{unreadNotifications}</strong>
-              </div>
-            </div>
-          </section>
-
-          {/* =================================================
-              ERROR
-          ================================================= */}
-          {error && (
-            <div className="notes-error">
-              <span>⚠️</span>
-
-              <div>
-                <strong>
-                  Unable to load notifications
-                </strong>
-
-                <p>{error}</p>
-              </div>
-
-              <button onClick={handleRefresh}>
-                Try Again
-              </button>
-            </div>
-          )}
-
-          {/* =================================================
-              NOTIFICATIONS
-          ================================================= */}
-          <section className="notifications-container">
-            <div className="notifications-container-header">
-              <div>
-                <h2>Recent Notifications</h2>
-
-                <p>
-                  Latest activity from your NoteHive
-                  application
-                </p>
-              </div>
-
-              <span className="notification-count">
-                {totalNotifications}{" "}
-                {totalNotifications === 1
-                  ? "Notification"
-                  : "Notifications"}
+              <span>
+                New system, user and note
+                activities will appear here.
               </span>
+
+              <button
+                onClick={handleRefresh}
+              >
+                Refresh Notifications
+              </button>
+
             </div>
 
-            {/* EMPTY */}
-            {!error && notifications.length === 0 ? (
-              <div className="notes-empty-state">
-                <div className="empty-icon">
-                  🔔
-                </div>
+          ) : (
 
-                <h3>No notifications yet</h3>
+            <div className="notifications-list">
 
-                <p>
-                  New system, user and note activities
-                  will appear here.
-                </p>
+              {notifications.map(
+                (
+                  notification,
+                  index
+                ) => {
 
-                <button
-                  className="empty-refresh-btn"
-                  onClick={handleRefresh}
-                >
-                  Refresh Notifications
-                </button>
-              </div>
-            ) : (
-              <div className="notifications-list">
-                {notifications.map(
-                  (notification, index) => {
-                    const notificationId =
-                      notification?._id ||
-                      notification?.id ||
-                      `notification-${index}`;
+                  const notificationId =
+                    notification?._id ||
+                    notification?.id ||
+                    `notification-${index}`;
 
-                    const unread =
-                      isUnread(notification);
+                  const unread =
+                    isUnread(
+                      notification
+                    );
 
-                    const type =
-                      getNotificationType(
-                        notification
-                      );
+                  const type =
+                    getNotificationType(
+                      notification
+                    );
 
-                    const userName =
-                      getUserName(notification);
+                  const userName =
+                    getUserName(
+                      notification
+                    );
 
-                    return (
+                  return (
+                    <article
+                      key={notificationId}
+                      className={`notification-card ${
+                        unread
+                          ? "unread"
+                          : ""
+                      }`}
+                    >
+
                       <div
-                        key={notificationId}
-                        className={`notification-item ${
-                          unread ? "unread" : ""
-                        }`}
+                        className={`notification-card-icon ${type}`}
                       >
-                        {/* ICON */}
-                        <div
-                          className={`notification-icon ${type}`}
-                        >
-                          {getNotificationIcon(
-                            notification
-                          )}
-                        </div>
+                        {getNotificationIcon(
+                          notification
+                        )}
+                      </div>
 
-                        {/* CONTENT */}
-                        <div className="notification-content">
-                          <div className="notification-title-row">
+                      <div className="notification-card-content">
+
+                        <div className="notification-card-title">
+
+                          <div>
+
                             <h3>
                               {getNotificationTitle(
                                 notification
@@ -767,81 +903,145 @@ const AdminNotifications = () => {
                             </h3>
 
                             {unread && (
-                              <span className="unread-badge">
+                              <span className="new-badge">
                                 NEW
                               </span>
                             )}
+
                           </div>
 
-                          <p className="notification-message">
-                            {getNotificationMessage(
-                              notification
-                            )}
-                          </p>
+                          <span
+                            className={`notification-type ${type}`}
+                          >
+                            {type === "user"
+                              ? "User"
+                              : type === "note"
+                              ? "Note"
+                              : "System"}
+                          </span>
 
-                          <div className="notification-meta">
-                            {userName && (
-                              <span className="notification-user">
-                                👤 {userName}
-                              </span>
-                            )}
+                        </div>
 
-                            {notification?.note
-                              ?.title && (
-                              <span className="notification-note">
-                                📝{" "}
-                                {
-                                  notification.note
-                                    .title
-                                }
-                              </span>
-                            )}
+                        <p className="notification-card-message">
+                          {getNotificationMessage(
+                            notification
+                          )}
+                        </p>
 
-                            <span className="notification-time">
-                              🕒{" "}
-                              {formatDate(
-                                notification?.createdAt ||
-                                  notification?.date
-                              )}
+                        <div className="notification-card-meta">
+
+                          {userName && (
+                            <span>
+                              👤 {userName}
                             </span>
-                          </div>
+                          )}
+
+                          {notification?.note
+                            ?.title && (
+                            <span>
+                              📝{" "}
+                              {
+                                notification
+                                  .note
+                                  .title
+                              }
+                            </span>
+                          )}
+
+                          <span>
+                            🕒{" "}
+                            {formatDate(
+                              notification?.createdAt ||
+                                notification?.date
+                            )}
+                          </span>
+
                         </div>
 
-                        {/* TYPE */}
-                        <div
-                          className={`notification-type-badge ${type}`}
-                        >
-                          {type === "user"
-                            ? "User"
-                            : type === "note"
-                            ? "Note"
-                            : "System"}
-                        </div>
                       </div>
-                    );
-                  }
-                )}
-              </div>
-            )}
-          </section>
 
-          {/* =================================================
-              FOOTER
-          ================================================= */}
-          <footer className="admin-notifications-footer">
-            <span>
-              🐝 NOTEHIVE ADMIN PANEL
-            </span>
+                    </article>
+                  );
+                }
+              )}
 
-            <span>
-              Real-time notifications
-              {socketConnected
-                ? " • Connected"
-                : " • Offline"}
-            </span>
-          </footer>
-        </main>
-      </div>
+            </div>
+          )}
+
+        </section>
+
+        {/* =================================================
+            FOOTER
+        ================================================= */}
+
+        <footer className="admin-notifications-footer">
+
+          <div>
+            🐝 NOTEHIVE ADMIN PANEL
+          </div>
+
+          <span>
+            Real-time notifications
+            {socketConnected
+              ? " • Connected"
+              : " • Offline"}
+          </span>
+
+        </footer>
+
+      </main>
+
+      {/* =================================================
+          MOBILE NAV
+      ================================================= */}
+
+      <nav className="notifications-mobile-nav">
+
+        <button
+          onClick={goToDashboard}
+        >
+          <span>📊</span>
+          <small>Home</small>
+        </button>
+
+        <button
+          onClick={goToUsers}
+        >
+          <span>👥</span>
+          <small>Users</small>
+        </button>
+
+        <button
+          onClick={goToNotes}
+        >
+          <span>📝</span>
+          <small>Notes</small>
+        </button>
+
+        <button
+          onClick={goToPinned}
+        >
+          <span>📌</span>
+          <small>Pinned</small>
+        </button>
+
+        <button
+          className="active"
+          onClick={goToNotifications}
+        >
+          <span>🔔</span>
+          <small>Alerts</small>
+        </button>
+
+        <button
+          onClick={goToReports}
+        >
+          <span>📈</span>
+          <small>Reports</small>
+        </button>
+
+      </nav>
+
     </div>
   );
 };

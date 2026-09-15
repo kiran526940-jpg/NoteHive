@@ -1,103 +1,449 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminHeader from "./AdminHeader";
 import "./AdminReports.css";
-
-const SERVER_URL = "http://192.168.1.68:5000";
+import { API_URL } from "../../../config/api";
 
 const AdminReports = () => {
   const navigate = useNavigate();
 
-  const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // =====================================================
-  // FETCH REPORTS
-  // =====================================================
+  const [notes, setNotes] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [activities, setActivities] = useState([]);
+
+  /* ============================================================
+     AUTH CHECK
+  ============================================================ */
+
+  useEffect(() => {
+    const adminLoggedIn = localStorage.getItem("adminLoggedIn");
+    const userRole = localStorage.getItem("userRole");
+
+    if (adminLoggedIn !== "true" || userRole !== "admin") {
+      navigate("/admin-login", { replace: true });
+    }
+  }, [navigate]);
+
+  /* ============================================================
+     HELPERS
+  ============================================================ */
+
+  const getArray = (data, keys = []) => {
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    for (const key of keys) {
+      if (Array.isArray(data?.[key])) {
+        return data[key];
+      }
+    }
+
+    return [];
+  };
+
+  const getId = (item) => {
+    return item?._id || item?.id || "";
+  };
+
+  const getDate = (item) => {
+    const value =
+      item?.createdAt ||
+      item?.updatedAt ||
+      item?.date ||
+      item?.timestamp;
+
+    if (!value) return null;
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const isSameDay = (date, targetDate) => {
+    if (!date) return false;
+
+    return (
+      date.getFullYear() === targetDate.getFullYear() &&
+      date.getMonth() === targetDate.getMonth() &&
+      date.getDate() === targetDate.getDate()
+    );
+  };
+
+  const formatDay = (date) => {
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+    });
+  };
+
+  const getLast7Days = () => {
+    const days = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() - i);
+      days.push(date);
+    }
+
+    return days;
+  };
+
+  /* ============================================================
+     FETCH REPORT DATA
+  ============================================================ */
 
   const fetchReports = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        `${SERVER_URL}/api/admin/reports`
-      );
+      const [notesResponse, usersResponse, activityResponse] =
+        await Promise.all([
+          fetch(`${API_URL}/admin/notes`),
+          fetch(`${API_URL}/admin/users`),
+          fetch(`${API_URL}/admin/activity`),
+        ]);
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data.message || "Unable to load reports"
-        );
+      if (!notesResponse.ok) {
+        throw new Error("Failed to fetch notes.");
       }
 
-      setReport(data.report);
+      if (!usersResponse.ok) {
+        throw new Error("Failed to fetch users.");
+      }
+
+      if (!activityResponse.ok) {
+        throw new Error("Failed to fetch activity.");
+      }
+
+      const notesData = await notesResponse.json();
+      const usersData = await usersResponse.json();
+      const activityData = await activityResponse.json();
+
+      const notesArray = getArray(notesData, [
+        "notes",
+        "data",
+        "results",
+      ]);
+
+      const usersArray = getArray(usersData, [
+        "users",
+        "data",
+        "results",
+      ]);
+
+      const activityArray = getArray(activityData, [
+        "activities",
+        "notifications",
+        "data",
+        "results",
+      ]);
+
+      setNotes(notesArray);
+      setUsers(usersArray);
+      setActivities(activityArray);
     } catch (err) {
-      console.error("Reports Error:", err);
+      console.error("Admin Reports error:", err);
+
       setError(
-        err.message ||
-          "Unable to load reports. Please check the server."
+        err?.message || "Failed to load reports and analytics."
       );
+
+      setNotes([]);
+      setUsers([]);
+      setActivities([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchReports();
+    const adminLoggedIn = localStorage.getItem("adminLoggedIn");
+    const userRole = localStorage.getItem("userRole");
+
+    if (adminLoggedIn === "true" && userRole === "admin") {
+      fetchReports();
+    }
   }, []);
 
-  // =====================================================
-  // DATE FORMAT
-  // =====================================================
+  /* ============================================================
+     BASIC OVERVIEW
+  ============================================================ */
 
-  const formatDate = (date) => {
-    if (!date) return "";
+  const overview = useMemo(() => {
+    const totalUsers = users.filter(
+      (user) => user?.role !== "admin"
+    ).length;
 
-    const parts = date.split("-");
+    const normalUsers = users.filter(
+      (user) => user?.role !== "admin"
+    );
 
-    if (parts.length !== 3) return date;
+    const totalNotes = notes.length;
 
-    return `${parts[2]}/${parts[1]}`;
-  };
+    const completedNotes = notes.filter(
+      (note) => note?.completed === true
+    ).length;
 
-  // =====================================================
-  // CSV EXPORT
-  // =====================================================
+    const pendingUsers = normalUsers.filter(
+      (user) => user?.status === "pending"
+    ).length;
+
+    const pinnedNotes = notes.filter(
+      (note) => note?.pinned === true
+    ).length;
+
+    const favoriteNotes = notes.filter(
+      (note) => note?.favorite === true
+    ).length;
+
+    const publicNotes = notes.filter(
+      (note) =>
+        String(note?.visibility || "").toLowerCase() === "public"
+    ).length;
+
+    const privateNotes = notes.filter(
+      (note) =>
+        String(note?.visibility || "").toLowerCase() === "private"
+    ).length;
+
+    const today = new Date();
+
+    const todayUsers = normalUsers.filter((user) =>
+      isSameDay(getDate(user), today)
+    ).length;
+
+    const todayNotes = notes.filter((note) =>
+      isSameDay(getDate(note), today)
+    ).length;
+
+    const completionPercentage =
+      totalNotes > 0
+        ? Math.round((completedNotes / totalNotes) * 100)
+        : 0;
+
+    return {
+      totalUsers,
+      totalNotes,
+      completedNotes,
+      pendingUsers,
+      pinnedNotes,
+      favoriteNotes,
+      publicNotes,
+      privateNotes,
+      todayUsers,
+      todayNotes,
+      completionPercentage,
+    };
+  }, [notes, users]);
+
+  /* ============================================================
+     CATEGORY REPORT
+  ============================================================ */
+
+  const categoryReport = useMemo(() => {
+    const categoryMap = {};
+
+    notes.forEach((note) => {
+      const category =
+        note?.category?.trim() || "General";
+
+      categoryMap[category] =
+        (categoryMap[category] || 0) + 1;
+    });
+
+    return Object.entries(categoryMap)
+      .map(([category, count]) => ({
+        category,
+        count,
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [notes]);
+
+  /* ============================================================
+     USER REPORT
+  ============================================================ */
+
+  const userReport = useMemo(() => {
+    const normalUsers = users.filter(
+      (user) => user?.role !== "admin"
+    );
+
+    return normalUsers
+      .map((user) => {
+        const userId = getId(user);
+
+        const userNotes = notes.filter((note) => {
+          const noteUser =
+            note?.user ||
+            note?.userId ||
+            note?.owner ||
+            note?.createdBy;
+
+          const noteUserId =
+            typeof noteUser === "object"
+              ? getId(noteUser)
+              : noteUser;
+
+          return String(noteUserId || "") === String(userId);
+        });
+
+        return {
+          id: userId,
+          name:
+            user?.name ||
+            user?.username ||
+            "Unknown User",
+          email: user?.email || "No email",
+          status: user?.status || "approved",
+          notes: userNotes.length,
+          completed: userNotes.filter(
+            (note) => note?.completed === true
+          ).length,
+        };
+      })
+      .sort((a, b) => b.notes - a.notes);
+  }, [users, notes]);
+
+  /* ============================================================
+     LAST 7 DAYS - NOTES
+  ============================================================ */
+
+  const notesLast7Days = useMemo(() => {
+    const days = getLast7Days();
+
+    return days.map((day) => {
+      const count = notes.filter((note) =>
+        isSameDay(getDate(note), day)
+      ).length;
+
+      return {
+        label: formatDay(day),
+        count,
+      };
+    });
+  }, [notes]);
+
+  /* ============================================================
+     LAST 7 DAYS - USERS
+  ============================================================ */
+
+  const usersLast7Days = useMemo(() => {
+    const normalUsers = users.filter(
+      (user) => user?.role !== "admin"
+    );
+
+    const days = getLast7Days();
+
+    return days.map((day) => {
+      const count = normalUsers.filter((user) =>
+        isSameDay(getDate(user), day)
+      ).length;
+
+      return {
+        label: formatDay(day),
+        count,
+      };
+    });
+  }, [users]);
+
+  /* ============================================================
+     ACTIVITY LAST 7 DAYS
+  ============================================================ */
+
+  const activityLast7Days = useMemo(() => {
+    const days = getLast7Days();
+
+    return days.map((day) => {
+      const count = activities.filter((activity) =>
+        isSameDay(getDate(activity), day)
+      ).length;
+
+      return {
+        label: formatDay(day),
+        count,
+      };
+    });
+  }, [activities]);
+
+  /* ============================================================
+     ACTIVITY TOTAL
+  ============================================================ */
+
+  const activitySummary = useMemo(() => {
+    const noteActivities = activities.filter((activity) => {
+      const type = String(
+        activity?.type || ""
+      ).toLowerCase();
+
+      return (
+        type.includes("note") ||
+        type.includes("created") ||
+        type.includes("updated") ||
+        type.includes("deleted") ||
+        type.includes("pinned") ||
+        type.includes("favorite")
+      );
+    }).length;
+
+    const userActivities = activities.filter((activity) => {
+      const type = String(
+        activity?.type || ""
+      ).toLowerCase();
+
+      return (
+        type.includes("user") ||
+        type.includes("signup") ||
+        type.includes("register") ||
+        type.includes("login") ||
+        type.includes("approved") ||
+        type.includes("rejected")
+      );
+    }).length;
+
+    return {
+      total: activities.length,
+      noteActivities,
+      userActivities,
+    };
+  }, [activities]);
+
+  /* ============================================================
+     CSV EXPORT
+  ============================================================ */
 
   const exportCSV = () => {
-    if (!report) return;
+    const rows = [
+      [
+        "User Name",
+        "Email",
+        "Status",
+        "Notes",
+        "Completed Notes",
+      ],
+      ...userReport.map((user) => [
+        user.name,
+        user.email,
+        user.status,
+        user.notes,
+        user.completed,
+      ]),
+    ];
 
-    let csv = "";
-
-    csv += "NOTEHIVE ADMIN REPORTS\n\n";
-
-    csv += "OVERVIEW\n";
-    csv += "Metric,Value\n";
-    csv += `Total Users,${report.overview?.totalUsers || 0}\n`;
-    csv += `Total Notes,${report.overview?.totalNotes || 0}\n`;
-    csv += `Completed Notes,${report.overview?.completedNotes || 0}\n`;
-    csv += `Pending Notes,${report.overview?.pendingNotes || 0}\n`;
-    csv += `Pinned Notes,${report.overview?.pinnedNotes || 0}\n`;
-    csv += `Favorite Notes,${report.overview?.favoriteNotes || 0}\n\n`;
-
-    csv += "CATEGORY REPORT\n";
-    csv += "Category,Count\n";
-
-    (report.categoryReport || []).forEach((item) => {
-      csv += `"${item.category || "Uncategorized"}",${item.count || 0}\n`;
-    });
-
-    csv += "\nUSER REPORT\n";
-    csv += "User,Email,Notes,Completed\n";
-
-    (report.userReport || []).forEach((user) => {
-      csv += `"${user.name || "User"}","${user.email || ""}",${
-        user.notes || 0
-      },${user.completed || 0}\n`;
-    });
+    const csv = rows
+      .map((row) =>
+        row
+          .map((value) =>
+            `"${String(value ?? "").replace(/"/g, '""')}"`
+          )
+          .join(",")
+      )
+      .join("\n");
 
     const blob = new Blob([csv], {
       type: "text/csv;charset=utf-8;",
@@ -107,7 +453,7 @@ const AdminReports = () => {
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = "notehive-admin-report.csv";
+    link.download = "notehive-user-report.csv";
 
     document.body.appendChild(link);
     link.click();
@@ -116,731 +462,711 @@ const AdminReports = () => {
     URL.revokeObjectURL(url);
   };
 
-  // =====================================================
-  // SIDEBAR LOGOUT
-  // =====================================================
+  /* ============================================================
+     CHART HELPERS
+  ============================================================ */
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminLoggedIn");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("adminName");
-    localStorage.removeItem("adminId");
+  const getMaxValue = (data) => {
+    if (!data.length) return 1;
 
-    navigate("/admin-login");
+    return Math.max(
+      1,
+      ...data.map((item) => Number(item.count || 0))
+    );
   };
 
-  // =====================================================
-  // LOADING
-  // =====================================================
+  const renderBarChart = (data, emptyText = "No activity available") => {
+    if (!data.length) {
+      return (
+        <div className="report-empty">
+          {emptyText}
+        </div>
+      );
+    }
+
+    const max = getMaxValue(data);
+
+    return (
+      <div className="report-bar-chart">
+        {data.map((item, index) => {
+          const value = Number(item.count || 0);
+
+          const height =
+            value === 0
+              ? 8
+              : Math.max(12, (value / max) * 100);
+
+          return (
+            <div
+              className="report-bar-column"
+              key={`${item.label}-${index}`}
+            >
+              <div className="report-bar-value">
+                {value}
+              </div>
+
+              <div className="report-bar-track">
+                <div
+                  className="report-bar-fill"
+                  style={{
+                    height: `${height}%`,
+                  }}
+                />
+              </div>
+
+              <div className="report-bar-label">
+                {item.label}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  /* ============================================================
+     NAVIGATION
+  ============================================================ */
+
+  const goTo = (path) => {
+    navigate(path);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("adminLoggedIn");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("adminId");
+
+    navigate("/admin-login", {
+      replace: true,
+    });
+  };
+
+  /* ============================================================
+     LOADING
+  ============================================================ */
 
   if (loading) {
     return (
-      <div className="reports-page">
+      <div className="admin-reports-page">
         <AdminHeader />
 
-        <aside className="reports-sidebar">
-          <div className="reports-sidebar-brand">
-            <div className="reports-sidebar-logo">🐝</div>
+        <main className="admin-reports-main">
+          <div className="reports-loading-card">
+            <div className="reports-spinner" />
 
-            <div>
-              <h2>NOTEHIVE</h2>
-              <span>ADMIN PANEL</span>
-            </div>
+            <h2>Loading Reports...</h2>
+
+            <p>
+              Please wait while NoteHive analytics are being
+              prepared.
+            </p>
           </div>
-
-          <nav className="reports-sidebar-nav">
-            <button onClick={() => navigate("/admin-dashboard")}>
-              <span>📊</span>
-              <span>Dashboard</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/users")}>
-              <span>👥</span>
-              <span>Users</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/notifications")}>
-              <span>🔔</span>
-              <span>Notifications</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/notes")}>
-              <span>📝</span>
-              <span>Notes</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/pinned-notes")}>
-              <span>📌</span>
-              <span>Pinned Notes</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/favorites")}>
-              <span>⭐</span>
-              <span>Favorites</span>
-            </button>
-
-            <button
-              className="active"
-              onClick={() => navigate("/admin/reports")}
-            >
-              <span>📈</span>
-              <span>Reports</span>
-            </button>
-          </nav>
-
-          <button
-            className="reports-sidebar-logout"
-            onClick={handleLogout}
-          >
-            <span>🚪</span>
-            <span>Logout</span>
-          </button>
-        </aside>
-
-        <div className="reports-loading">
-          <div className="reports-spinner"></div>
-          <p>Loading reports...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // =====================================================
-  // ERROR
-  // =====================================================
-
-  if (error) {
-    return (
-      <div className="reports-page">
-        <AdminHeader />
-
-        <aside className="reports-sidebar">
-          <div className="reports-sidebar-brand">
-            <div className="reports-sidebar-logo">🐝</div>
-
-            <div>
-              <h2>NOTEHIVE</h2>
-              <span>ADMIN PANEL</span>
-            </div>
-          </div>
-
-          <nav className="reports-sidebar-nav">
-            <button onClick={() => navigate("/admin-dashboard")}>
-              <span>📊</span>
-              <span>Dashboard</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/users")}>
-              <span>👥</span>
-              <span>Users</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/notifications")}>
-              <span>🔔</span>
-              <span>Notifications</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/notes")}>
-              <span>📝</span>
-              <span>Notes</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/pinned-notes")}>
-              <span>📌</span>
-              <span>Pinned Notes</span>
-            </button>
-
-            <button onClick={() => navigate("/admin/favorites")}>
-              <span>⭐</span>
-              <span>Favorites</span>
-            </button>
-
-            <button
-              className="active"
-              onClick={() => navigate("/admin/reports")}
-            >
-              <span>📈</span>
-              <span>Reports</span>
-            </button>
-          </nav>
-
-          <button
-            className="reports-sidebar-logout"
-            onClick={handleLogout}
-          >
-            <span>🚪</span>
-            <span>Logout</span>
-          </button>
-        </aside>
-
-        <main className="reports-error">
-          <div className="error-icon">⚠️</div>
-
-          <h2>Unable to Load Reports</h2>
-
-          <p>{error}</p>
-
-          <button
-            className="retry-btn"
-            onClick={fetchReports}
-          >
-            Try Again
-          </button>
         </main>
       </div>
     );
   }
 
-  // =====================================================
-  // SAFE DATA
-  // =====================================================
-
-  const overview = report?.overview || {};
-
-  const totalUsers = overview.totalUsers || 0;
-  const totalNotes = overview.totalNotes || 0;
-  const completedNotes = overview.completedNotes || 0;
-  const pendingNotes = overview.pendingNotes || 0;
-  const pinnedNotes = overview.pinnedNotes || 0;
-  const favoriteNotes = overview.favoriteNotes || 0;
-
-  const publicNotes = overview.publicNotes || 0;
-  const privateNotes = overview.privateNotes || 0;
-
-  const completionPercentage =
-    totalNotes > 0
-      ? Math.round((completedNotes / totalNotes) * 100)
-      : 0;
-
-  const visibilityTotal =
-    publicNotes + privateNotes || 1;
+  /* ============================================================
+     MAIN UI
+  ============================================================ */
 
   return (
-    <div className="reports-page">
-      {/* =================================================
-          TOP HEADER
-      ================================================= */}
-
+    <div className="admin-reports-page">
       <AdminHeader />
 
-      {/* =================================================
-          LEFT ADMIN SIDEBAR
-      ================================================= */}
+      <main className="admin-reports-main">
+        {/* ======================================================
+            HERO
+        ====================================================== */}
 
-      <aside className="reports-sidebar">
-        <div className="reports-sidebar-brand">
-          <div className="reports-sidebar-logo">🐝</div>
-
-          <div>
-            <h2>NOTEHIVE</h2>
-            <span>ADMIN PANEL</span>
-          </div>
-        </div>
-
-        <nav className="reports-sidebar-nav">
-          <button onClick={() => navigate("/admin-dashboard")}>
-            <span>📊</span>
-            <span>Dashboard</span>
-          </button>
-
-          <button onClick={() => navigate("/admin/users")}>
-            <span>👥</span>
-            <span>Users</span>
-          </button>
-
-          <button
-            onClick={() => navigate("/admin/notifications")}
-          >
-            <span>🔔</span>
-            <span>Notifications</span>
-          </button>
-
-          <button onClick={() => navigate("/admin/notes")}>
-            <span>📝</span>
-            <span>Notes</span>
-          </button>
-
-          <button
-            onClick={() => navigate("/admin/pinned-notes")}
-          >
-            <span>📌</span>
-            <span>Pinned Notes</span>
-          </button>
-
-          <button
-            onClick={() => navigate("/admin/favorites")}
-          >
-            <span>⭐</span>
-            <span>Favorites</span>
-          </button>
-
-          <button
-            className="active"
-            onClick={() => navigate("/admin/reports")}
-          >
-            <span>📈</span>
-            <span>Reports</span>
-          </button>
-        </nav>
-
-        <button
-          className="reports-sidebar-logout"
-          onClick={handleLogout}
-        >
-          <span>🚪</span>
-          <span>Logout</span>
-        </button>
-      </aside>
-
-      {/* =================================================
-          MAIN CONTENT
-      ================================================= */}
-
-      <main className="reports-main">
-        {/* HEADING */}
-
-        <div className="reports-heading">
-          <div>
-            <span className="reports-small-title">
-              ADMIN ANALYTICS
-            </span>
+        <section className="reports-hero">
+          <div className="reports-hero-content">
+            <div className="reports-badge">
+              📊 NOTEHIVE • ADMIN ANALYTICS
+            </div>
 
             <h1>Reports & Analytics</h1>
 
             <p>
-              Track your NoteHive activity, users and notes
-              performance.
+              Monitor users, notes, activity and overall
+              NoteHive performance from one place.
             </p>
           </div>
 
-          <div className="reports-actions">
+          <div className="reports-hero-actions">
             <button
-              className="refresh-report-btn"
+              className="reports-refresh-btn"
               onClick={fetchReports}
             >
               🔄 Refresh
             </button>
 
             <button
-              className="export-report-btn"
+              className="reports-export-btn"
               onClick={exportCSV}
             >
               📥 Export CSV
             </button>
           </div>
-        </div>
+        </section>
 
-        {/* =================================================
-            OVERVIEW CARDS
-        ================================================= */}
+        {/* ======================================================
+            ERROR
+        ====================================================== */}
 
-        <section className="report-cards">
-          <div className="report-card users-card">
-            <div className="report-card-icon">👥</div>
+        {error && (
+          <div className="reports-error">
+            ⚠️ {error}
+          </div>
+        )}
 
-            <div className="report-card-content">
+        {/* ======================================================
+            MAIN STATS
+        ====================================================== */}
+
+        <section className="reports-stats-grid">
+          <div className="report-stat-card blue">
+            <div className="report-stat-icon">👥</div>
+
+            <div>
               <span>Total Users</span>
-              <strong>{totalUsers}</strong>
-              <small>Registered users</small>
+              <strong>{overview.totalUsers}</strong>
             </div>
           </div>
 
-          <div className="report-card notes-card">
-            <div className="report-card-icon">📝</div>
+          <div className="report-stat-card purple">
+            <div className="report-stat-icon">📝</div>
 
-            <div className="report-card-content">
+            <div>
               <span>Total Notes</span>
-              <strong>{totalNotes}</strong>
-              <small>All notes</small>
+              <strong>{overview.totalNotes}</strong>
             </div>
           </div>
 
-          <div className="report-card completed-card">
-            <div className="report-card-icon">✅</div>
+          <div className="report-stat-card pink">
+            <div className="report-stat-icon">✅</div>
 
-            <div className="report-card-content">
-              <span>Completed</span>
-              <strong>{completedNotes}</strong>
-              <small>Completed notes</small>
+            <div>
+              <span>Completed Notes</span>
+              <strong>{overview.completedNotes}</strong>
             </div>
           </div>
 
-          <div className="report-card pending-card">
-            <div className="report-card-icon">⏳</div>
+          <div className="report-stat-card orange">
+            <div className="report-stat-icon">⏳</div>
 
-            <div className="report-card-content">
-              <span>Pending</span>
-              <strong>{pendingNotes}</strong>
-              <small>Pending notes</small>
+            <div>
+              <span>Pending Users</span>
+              <strong>{overview.pendingUsers}</strong>
             </div>
           </div>
 
-          <div className="report-card pinned-card">
-            <div className="report-card-icon">📌</div>
+          <div className="report-stat-card green">
+            <div className="report-stat-icon">📌</div>
 
-            <div className="report-card-content">
-              <span>Pinned</span>
-              <strong>{pinnedNotes}</strong>
-              <small>Pinned notes</small>
+            <div>
+              <span>Pinned Notes</span>
+              <strong>{overview.pinnedNotes}</strong>
             </div>
           </div>
 
-          <div className="report-card favorite-card">
-            <div className="report-card-icon">⭐</div>
+          <div className="report-stat-card violet">
+            <div className="report-stat-icon">❤️</div>
 
-            <div className="report-card-content">
-              <span>Favorites</span>
-              <strong>{favoriteNotes}</strong>
-              <small>Favorite notes</small>
+            <div>
+              <span>Favorite Notes</span>
+              <strong>{overview.favoriteNotes}</strong>
+            </div>
+          </div>
+
+          <div className="report-stat-card cyan">
+            <div className="report-stat-icon">🌐</div>
+
+            <div>
+              <span>Public Notes</span>
+              <strong>{overview.publicNotes}</strong>
+            </div>
+          </div>
+
+          <div className="report-stat-card gray">
+            <div className="report-stat-icon">🔒</div>
+
+            <div>
+              <span>Private Notes</span>
+              <strong>{overview.privateNotes}</strong>
             </div>
           </div>
         </section>
 
-        {/* =================================================
-            VISIBILITY + COMPLETION
-        ================================================= */}
+        {/* ======================================================
+            TODAY STRIP
+        ====================================================== */}
 
-        <section className="analytics-grid">
-          <div className="analytics-box visibility-box">
-            <div className="analytics-title">
+        <section className="today-report-strip">
+          <div className="today-report-title">
+            <span>📅</span>
+
+            <div>
+              <h3>Today's Activity</h3>
+              <p>Fresh activity recorded today</p>
+            </div>
+          </div>
+
+          <div className="today-report-items">
+            <div>
+              <strong>{overview.todayUsers}</strong>
+              <span>New Users</span>
+            </div>
+
+            <div>
+              <strong>{overview.todayNotes}</strong>
+              <span>New Notes</span>
+            </div>
+
+            <div>
+              <strong>{activityLast7Days.at(-1)?.count || 0}</strong>
+              <span>Activities</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ======================================================
+            VISIBILITY + COMPLETION
+        ====================================================== */}
+
+        <section className="reports-two-column">
+          <div className="report-panel">
+            <div className="report-panel-header">
               <div>
                 <h2>Note Visibility</h2>
                 <p>Public vs private notes</p>
               </div>
 
-              <span className="analytics-icon">👁️</span>
+              <span>👁️</span>
             </div>
 
-            <div className="visibility-content">
-              <div className="visibility-item">
-                <div className="visibility-label">
-                  <span className="dot public-dot"></span>
-                  Public
+            <div className="visibility-report">
+              <div className="visibility-total">
+                <strong>{overview.totalNotes}</strong>
+                <span>Total Notes</span>
+              </div>
+
+              <div className="visibility-items">
+                <div className="visibility-item public">
+                  <span className="visibility-dot" />
+
+                  <div>
+                    <strong>
+                      {overview.publicNotes}
+                    </strong>
+
+                    <span>Public</span>
+                  </div>
                 </div>
 
-                <strong>{publicNotes}</strong>
-              </div>
+                <div className="visibility-item private">
+                  <span className="visibility-dot" />
 
-              <div className="visibility-bar">
-                <div
-                  className="public-bar"
-                  style={{
-                    width: `${
-                      (publicNotes / visibilityTotal) * 100
-                    }%`,
-                  }}
-                ></div>
-              </div>
+                  <div>
+                    <strong>
+                      {overview.privateNotes}
+                    </strong>
 
-              <div className="visibility-item">
-                <div className="visibility-label">
-                  <span className="dot private-dot"></span>
-                  Private
+                    <span>Private</span>
+                  </div>
                 </div>
-
-                <strong>{privateNotes}</strong>
-              </div>
-
-              <div className="visibility-bar">
-                <div
-                  className="private-bar"
-                  style={{
-                    width: `${
-                      (privateNotes / visibilityTotal) * 100
-                    }%`,
-                  }}
-                ></div>
               </div>
             </div>
           </div>
 
-          <div className="analytics-box completion-box">
-            <div className="analytics-title">
+          <div className="report-panel">
+            <div className="report-panel-header">
               <div>
-                <h2>Completion Rate</h2>
-                <p>Overall note completion</p>
+                <h2>Completion</h2>
+                <p>Completed notes percentage</p>
               </div>
 
-              <span className="analytics-icon">🎯</span>
+              <span>🎯</span>
             </div>
 
-            <div className="completion-content">
+            <div className="completion-report">
               <div
-                className="completion-circle"
+                className="completion-ring"
                 style={{
-                  "--progress": `${completionPercentage}%`,
+                  "--completion":
+                    `${overview.completionPercentage}%`,
                 }}
               >
-                <div>
+                <div className="completion-ring-inner">
                   <strong>
-                    {completionPercentage}%
+                    {overview.completionPercentage}%
                   </strong>
 
                   <span>Completed</span>
                 </div>
               </div>
 
-              <div className="completion-stats">
+              <div className="completion-info">
                 <div>
-                  <span className="complete-dot"></span>
+                  <strong>
+                    {overview.completedNotes}
+                  </strong>
 
-                  <div>
-                    <small>Completed</small>
-                    <strong>{completedNotes}</strong>
-                  </div>
+                  <span>Completed</span>
                 </div>
 
                 <div>
-                  <span className="pending-dot"></span>
+                  <strong>
+                    {Math.max(
+                      0,
+                      overview.totalNotes -
+                        overview.completedNotes
+                    )}
+                  </strong>
 
-                  <div>
-                    <small>Pending</small>
-                    <strong>{pendingNotes}</strong>
-                  </div>
+                  <span>Remaining</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* =================================================
-            CHARTS
-        ================================================= */}
+        {/* ======================================================
+            ACTIVITY CHARTS
+        ====================================================== */}
 
-        <section className="charts-grid">
-          <div className="chart-box">
-            <div className="chart-header">
+        <section className="reports-analytics-grid">
+          <div className="report-panel">
+            <div className="report-panel-header">
               <div>
                 <h2>Notes Activity</h2>
-                <p>Last 7 days</p>
+                <p>Notes created during the last 7 days</p>
               </div>
 
               <span>📝</span>
             </div>
 
-            <div className="bar-chart">
-              {(report?.notesActivity || []).length === 0 ? (
-                <div className="empty-chart">
-                  No activity available
-                </div>
-              ) : (
-                report.notesActivity.map((item, index) => {
-                  const maxValue = Math.max(
-                    ...(report.notesActivity || []).map(
-                      (x) => x.count || 0
-                    ),
-                    1
-                  );
-
-                  const height =
-                    ((item.count || 0) / maxValue) * 100;
-
-                  return (
-                    <div
-                      className="chart-column"
-                      key={index}
-                    >
-                      <span className="bar-value">
-                        {item.count || 0}
-                      </span>
-
-                      <div className="bar-wrapper">
-                        <div
-                          className="chart-bar"
-                          style={{
-                            height: `${Math.max(
-                              height,
-                              3
-                            )}%`,
-                          }}
-                        ></div>
-                      </div>
-
-                      <span className="bar-label">
-                        {formatDate(item.date)}
-                      </span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+            {renderBarChart(
+              notesLast7Days,
+              "No note activity available"
+            )}
           </div>
 
-          <div className="chart-box">
-            <div className="chart-header">
+          <div className="report-panel">
+            <div className="report-panel-header">
               <div>
                 <h2>User Activity</h2>
-                <p>Last 7 days</p>
-              </div>
-
-              <span>👥</span>
-            </div>
-
-            <div className="bar-chart">
-              {(report?.userActivity || []).length === 0 ? (
-                <div className="empty-chart">
-                  No activity available
-                </div>
-              ) : (
-                report.userActivity.map((item, index) => {
-                  const maxValue = Math.max(
-                    ...(report.userActivity || []).map(
-                      (x) => x.count || 0
-                    ),
-                    1
-                  );
-
-                  const height =
-                    ((item.count || 0) / maxValue) * 100;
-
-                  return (
-                    <div
-                      className="chart-column"
-                      key={index}
-                    >
-                      <span className="bar-value">
-                        {item.count || 0}
-                      </span>
-
-                      <div className="bar-wrapper">
-                        <div
-                          className="chart-bar user-chart-bar"
-                          style={{
-                            height: `${Math.max(
-                              height,
-                              3
-                            )}%`,
-                          }}
-                        ></div>
-                      </div>
-
-                      <span className="bar-label">
-                        {formatDate(item.date)}
-                      </span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* =================================================
-            TABLES
-        ================================================= */}
-
-        <section className="tables-grid">
-          {/* CATEGORY REPORT */}
-
-          <div className="table-box">
-            <div className="table-heading">
-              <div>
-                <h2>Notes by Category</h2>
-                <p>Category-wise distribution</p>
-              </div>
-
-              <span>📂</span>
-            </div>
-
-            <div className="category-list">
-              {(report?.categoryReport || []).length === 0 ? (
-                <div className="empty-table">
-                  No category data available
-                </div>
-              ) : (
-                report.categoryReport.map((item, index) => (
-                  <div
-                    className="category-row"
-                    key={index}
-                  >
-                    <div className="category-info">
-                      <span className="category-number">
-                        {index + 1}
-                      </span>
-
-                      <div>
-                        <strong>
-                          {item.category ||
-                            "Uncategorized"}
-                        </strong>
-
-                        <small>Notes</small>
-                      </div>
-                    </div>
-
-                    <span className="category-count">
-                      {item.count || 0}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* USER REPORT */}
-
-          <div className="table-box user-report-box">
-            <div className="table-heading">
-              <div>
-                <h2>User Report</h2>
-                <p>User-wise notes activity</p>
+                <p>New users during the last 7 days</p>
               </div>
 
               <span>👤</span>
             </div>
 
-            <div className="user-table">
-              <div className="user-table-head">
-                <span>User</span>
-                <span>Notes</span>
-                <span>Done</span>
+            {renderBarChart(
+              usersLast7Days,
+              "No user activity available"
+            )}
+          </div>
+
+          <div className="report-panel wide">
+            <div className="report-panel-header">
+              <div>
+                <h2>System Activity</h2>
+                <p>All recorded activity during the last 7 days</p>
               </div>
 
-              {(report?.userReport || []).length === 0 ? (
-                <div className="empty-table">
-                  No user data available
-                </div>
-              ) : (
-                report.userReport.map((user, index) => (
-                  <div
-                    className="user-table-row"
-                    key={user._id || index}
-                  >
-                    <div className="user-info">
-                      <div className="user-avatar">
-                        {(
-                          user.name ||
-                          "U"
+              <span>⚡</span>
+            </div>
+
+            {renderBarChart(
+              activityLast7Days,
+              "No system activity available"
+            )}
+          </div>
+        </section>
+
+        {/* ======================================================
+            CATEGORY REPORT
+        ====================================================== */}
+
+        <section className="reports-two-column">
+          <div className="report-panel">
+            <div className="report-panel-header">
+              <div>
+                <h2>Notes by Category</h2>
+                <p>Distribution of notes across categories</p>
+              </div>
+
+              <span>🗂️</span>
+            </div>
+
+            {categoryReport.length === 0 ? (
+              <div className="report-empty">
+                No category data available
+              </div>
+            ) : (
+              <div className="category-report-list">
+                {categoryReport.map((item) => {
+                  const percentage =
+                    overview.totalNotes > 0
+                      ? Math.round(
+                          (item.count /
+                            overview.totalNotes) *
+                            100
                         )
-                          .charAt(0)
-                          .toUpperCase()}
-                      </div>
+                      : 0;
 
-                      <div>
+                  return (
+                    <div
+                      className="category-report-item"
+                      key={item.category}
+                    >
+                      <div className="category-report-top">
+                        <span>{item.category}</span>
+
                         <strong>
-                          {user.name || "User"}
+                          {item.count}
                         </strong>
-
-                        <small>
-                          {user.email || ""}
-                        </small>
                       </div>
+
+                      <div className="category-report-track">
+                        <div
+                          className="category-report-fill"
+                          style={{
+                            width: `${percentage}%`,
+                          }}
+                        />
+                      </div>
+
+                      <small>
+                        {percentage}% of all notes
+                      </small>
                     </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-                    <strong>
-                      {user.notes || 0}
-                    </strong>
+          {/* ====================================================
+              ACTIVITY SUMMARY
+          ==================================================== */}
 
-                    <strong className="done-number">
-                      {user.completed || 0}
-                    </strong>
-                  </div>
-                ))
-              )}
+          <div className="report-panel">
+            <div className="report-panel-header">
+              <div>
+                <h2>Activity Summary</h2>
+                <p>Recorded NoteHive activity</p>
+              </div>
+
+              <span>📈</span>
+            </div>
+
+            <div className="activity-summary-grid">
+              <div className="activity-summary-card">
+                <span>⚡</span>
+                <strong>
+                  {activitySummary.total}
+                </strong>
+                <small>Total Activity</small>
+              </div>
+
+              <div className="activity-summary-card">
+                <span>📝</span>
+                <strong>
+                  {activitySummary.noteActivities}
+                </strong>
+                <small>Note Activity</small>
+              </div>
+
+              <div className="activity-summary-card">
+                <span>👥</span>
+                <strong>
+                  {activitySummary.userActivities}
+                </strong>
+                <small>User Activity</small>
+              </div>
+
+              <div className="activity-summary-card">
+                <span>📅</span>
+                <strong>
+                  {overview.todayNotes +
+                    overview.todayUsers}
+                </strong>
+                <small>Today's Records</small>
+              </div>
             </div>
           </div>
         </section>
+
+        {/* ======================================================
+            USER REPORT
+        ====================================================== */}
+
+        <section className="report-panel full-width">
+          <div className="report-panel-header">
+            <div>
+              <h2>User Report</h2>
+              <p>
+                Individual user activity and note summary
+              </p>
+            </div>
+
+            <span>👥</span>
+          </div>
+
+          {userReport.length === 0 ? (
+            <div className="report-empty">
+              No user data available
+            </div>
+          ) : (
+            <div className="user-report-table-wrapper">
+              <table className="user-report-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                    <th>Completed</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {userReport.map((user) => (
+                    <tr key={user.id || user.email}>
+                      <td>
+                        <div className="user-report-name">
+                          <div className="user-report-avatar">
+                            {user.name
+                              ?.charAt(0)
+                              ?.toUpperCase() || "U"}
+                          </div>
+
+                          <span>{user.name}</span>
+                        </div>
+                      </td>
+
+                      <td>{user.email}</td>
+
+                      <td>
+                        <span
+                          className={`user-status-badge ${String(
+                            user.status
+                          ).toLowerCase()}`}
+                        >
+                          {user.status}
+                        </span>
+                      </td>
+
+                      <td>
+                        <strong>{user.notes}</strong>
+                      </td>
+
+                      <td>
+                        <strong>
+                          {user.completed}
+                        </strong>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* ======================================================
+            QUICK ACTIONS
+        ====================================================== */}
+
+        <section className="reports-quick-actions">
+          <button onClick={() => goTo("/admin-dashboard")}>
+            🏠
+            <span>Dashboard</span>
+          </button>
+
+          <button onClick={() => goTo("/admin/manage-users")}>
+            👥
+            <span>Manage Users</span>
+          </button>
+
+          <button onClick={() => goTo("/admin/manage-notes")}>
+            📝
+            <span>Manage Notes</span>
+          </button>
+
+          <button onClick={() => goTo("/admin/notifications")}>
+            🔔
+            <span>Notifications</span>
+          </button>
+
+          <button onClick={() => goTo("/admin/profile")}>
+            👤
+            <span>Admin Profile</span>
+          </button>
+        </section>
+
+        {/* ======================================================
+            FOOTER
+        ====================================================== */}
+
+        <footer className="admin-reports-footer">
+          <div>
+            🐝 <strong>NoteHive</strong>
+          </div>
+
+          <span>
+            Admin Reports & Analytics
+          </span>
+
+          <button onClick={logout}>
+            Logout
+          </button>
+        </footer>
       </main>
+
+      {/* ========================================================
+          MOBILE BOTTOM NAV
+      ======================================================== */}
+
+      <nav className="admin-mobile-bottom-nav">
+        <button
+          onClick={() => goTo("/admin-dashboard")}
+        >
+          <span>🏠</span>
+          <small>Home</small>
+        </button>
+
+        <button
+          onClick={() => goTo("/admin/manage-users")}
+        >
+          <span>👥</span>
+          <small>Users</small>
+        </button>
+
+        <button
+          onClick={() => goTo("/admin/manage-notes")}
+        >
+          <span>📝</span>
+          <small>Notes</small>
+        </button>
+
+        <button
+          onClick={() => goTo("/admin/notifications")}
+        >
+          <span>🔔</span>
+          <small>Alerts</small>
+        </button>
+
+        <button
+          onClick={() => goTo("/admin/profile")}
+        >
+          <span>👤</span>
+          <small>Profile</small>
+        </button>
+      </nav>
     </div>
   );
 };

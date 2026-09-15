@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminProfile.css";
@@ -16,6 +17,9 @@ function AdminProfile() {
     profileImage: "",
     role: "Admin",
     bio: "",
+    profession: "",
+    location: "",
+    website: "",
     createdAt: "",
   });
 
@@ -48,7 +52,7 @@ function AdminProfile() {
   const [messageType, setMessageType] = useState("");
 
   // =====================================================
-  // AUTH CHECK
+  // AUTH + LOAD
   // =====================================================
 
   useEffect(() => {
@@ -106,6 +110,9 @@ function AdminProfile() {
         profileImage: user.profileImage || "",
         role: user.role || "Admin",
         bio: user.bio || "",
+        profession: user.profession || "",
+        location: user.location || "",
+        website: user.website || "",
         createdAt: user.createdAt || "",
       };
 
@@ -126,6 +133,7 @@ function AdminProfile() {
       }
     } catch (error) {
       console.error("Admin profile error:", error);
+
       showMessage(
         error.message || "Unable to load admin profile.",
         "error"
@@ -136,7 +144,7 @@ function AdminProfile() {
   };
 
   // =====================================================
-  // INPUT CHANGE
+  // INPUT
   // =====================================================
 
   const handleInputChange = (event) => {
@@ -149,7 +157,7 @@ function AdminProfile() {
   };
 
   // =====================================================
-  // SAVE PROFILE DETAILS
+  // SAVE PROFILE
   // =====================================================
 
   const handleSaveProfile = async (event) => {
@@ -196,7 +204,9 @@ function AdminProfile() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Unable to update profile");
+        throw new Error(
+          data.message || "Unable to update profile"
+        );
       }
 
       const updatedUser = data.user || {};
@@ -208,19 +218,21 @@ function AdminProfile() {
         bio: updatedUser.bio ?? trimmedBio,
       }));
 
-      setFormData((prev) => ({
-        ...prev,
+      setFormData({
         name: updatedUser.name ?? trimmedName,
         email: updatedUser.email ?? trimmedEmail,
         bio: updatedUser.bio ?? trimmedBio,
-      }));
+      });
 
       localStorage.setItem(
         "adminName",
         updatedUser.name ?? trimmedName
       );
 
-      showMessage("Profile updated successfully ✅", "success");
+      showMessage(
+        "Profile updated successfully ✓",
+        "success"
+      );
     } catch (error) {
       console.error("Profile update error:", error);
 
@@ -231,6 +243,61 @@ function AdminProfile() {
     } finally {
       setSaving(false);
     }
+  };
+
+  // =====================================================
+  // DATE
+  // =====================================================
+
+  const formatDate = (date) => {
+    if (!date) return "Not available";
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "Not available";
+    }
+
+    return parsedDate.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // =====================================================
+  // JOIN DATE FALLBACK
+  // =====================================================
+
+  const getJoinDate = () => {
+    if (admin.createdAt) {
+      return formatDate(admin.createdAt);
+    }
+
+    if (
+      adminId &&
+      /^[a-fA-F0-9]{24}$/.test(adminId)
+    ) {
+      try {
+        const timestamp = parseInt(
+          adminId.substring(0, 8),
+          16
+        );
+
+        const date = new Date(timestamp * 1000);
+
+        if (!Number.isNaN(date.getTime())) {
+          return formatDate(date);
+        }
+      } catch (error) {
+        console.error(
+          "Join date calculation error:",
+          error
+        );
+      }
+    }
+
+    return "Not available";
   };
 
   // =====================================================
@@ -269,7 +336,10 @@ function AdminProfile() {
       return;
     }
 
-    if (preview && preview.startsWith("blob:")) {
+    if (
+      preview &&
+      preview.startsWith("blob:")
+    ) {
       URL.revokeObjectURL(preview);
     }
 
@@ -303,7 +373,10 @@ function AdminProfile() {
 
       const uploadData = new FormData();
 
-      uploadData.append("profileImage", selectedFile);
+      uploadData.append(
+        "profileImage",
+        selectedFile
+      );
 
       const response = await fetch(
         `${SERVER_URL}/api/admin/profile/${adminId}/photo`,
@@ -317,11 +390,13 @@ function AdminProfile() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Profile photo upload failed"
+          data.message ||
+            "Profile photo upload failed"
         );
       }
 
-      const imagePath = data.user?.profileImage || "";
+      const imagePath =
+        data.user?.profileImage || "";
 
       setAdmin((prev) => ({
         ...prev,
@@ -341,14 +416,18 @@ function AdminProfile() {
       }
 
       showMessage(
-        "Profile photo updated successfully ✅",
+        "Profile photo updated successfully ✓",
         "success"
       );
     } catch (error) {
-      console.error("Photo upload error:", error);
+      console.error(
+        "Photo upload error:",
+        error
+      );
 
       showMessage(
-        error.message || "Profile photo upload failed.",
+        error.message ||
+          "Profile photo upload failed.",
         "error"
       );
     } finally {
@@ -357,7 +436,7 @@ function AdminProfile() {
   };
 
   // =====================================================
-  // CANCEL SELECTED PHOTO
+  // CANCEL PHOTO
   // =====================================================
 
   const handleCancelPhoto = () => {
@@ -405,7 +484,8 @@ function AdminProfile() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Unable to remove photo"
+          data.message ||
+            "Unable to remove photo"
         );
       }
 
@@ -426,10 +506,14 @@ function AdminProfile() {
         "success"
       );
     } catch (error) {
-      console.error("Remove photo error:", error);
+      console.error(
+        "Remove photo error:",
+        error
+      );
 
       showMessage(
-        error.message || "Unable to remove photo.",
+        error.message ||
+          "Unable to remove photo.",
         "error"
       );
     } finally {
@@ -438,7 +522,7 @@ function AdminProfile() {
   };
 
   // =====================================================
-  // PASSWORD INPUT
+  // PASSWORD
   // =====================================================
 
   const handlePasswordChange = (event) => {
@@ -449,10 +533,6 @@ function AdminProfile() {
       [name]: value,
     }));
   };
-
-  // =====================================================
-  // CHANGE PASSWORD
-  // =====================================================
 
   const handleChangePassword = async (event) => {
     event.preventDefault();
@@ -521,7 +601,8 @@ function AdminProfile() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Unable to change password"
+          data.message ||
+            "Unable to change password"
         );
       }
 
@@ -534,39 +615,23 @@ function AdminProfile() {
       setShowPasswordSection(false);
 
       showMessage(
-        "Password changed successfully ✅",
+        "Password changed successfully ✓",
         "success"
       );
     } catch (error) {
-      console.error("Password change error:", error);
+      console.error(
+        "Password change error:",
+        error
+      );
 
       showMessage(
-        error.message || "Unable to change password.",
+        error.message ||
+          "Unable to change password.",
         "error"
       );
     } finally {
       setChangingPassword(false);
     }
-  };
-
-  // =====================================================
-  // DATE FORMAT
-  // =====================================================
-
-  const formatDate = (date) => {
-    if (!date) return "Not available";
-
-    const parsedDate = new Date(date);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      return "Not available";
-    }
-
-    return parsedDate.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
   };
 
   // =====================================================
@@ -580,7 +645,9 @@ function AdminProfile() {
 
     if (!confirmLogout) return;
 
-    localStorage.removeItem("adminLoggedIn");
+    localStorage.removeItem(
+      "adminLoggedIn"
+    );
     localStorage.removeItem("userRole");
     localStorage.removeItem("adminName");
     localStorage.removeItem("adminId");
@@ -608,213 +675,294 @@ function AdminProfile() {
   return (
     <div className="admin-profile-page">
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
 
-      <div className="admin-profile-header">
+      <header className="admin-profile-topbar">
+
         <div>
+          <span className="admin-profile-eyebrow">
+            NOTEHIVE ADMINISTRATION
+          </span>
+
           <h1>Admin Profile</h1>
+
           <p>
-            Manage your account, profile photo and security.
+            Manage your account, identity and security
+            settings.
           </p>
         </div>
 
         <button
-          className="admin-profile-back-btn"
-          onClick={() => navigate("/admin-dashboard")}
+          className="admin-profile-dashboard-btn"
+          onClick={() =>
+            navigate("/admin-dashboard")
+          }
         >
-          ← Dashboard
+          <span>←</span>
+          Dashboard
         </button>
-      </div>
 
-      {/* =================================================
-          MAIN PROFILE CARD
-      ================================================= */}
+      </header>
 
-      <div className="admin-profile-card">
+      {/* MESSAGE */}
 
-        {/* =================================================
-            LEFT PROFILE
-        ================================================= */}
-
-        <div className="admin-profile-left">
-
-          <div className="admin-avatar-wrapper">
-
-            {preview ? (
-              <img
-                src={preview}
-                alt="Admin Profile"
-                className="admin-profile-image"
-                onError={(event) => {
-                  event.currentTarget.style.display = "none";
-                }}
-              />
-            ) : (
-              <div className="admin-default-avatar">
-                👤
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="admin-camera-btn"
-              onClick={() => fileInputRef.current?.click()}
-              title="Change profile photo"
-            >
-              📷
-            </button>
-          </div>
-
-          <h2>{admin.name || "Administrator"}</h2>
-
-          <span className="admin-role-badge">
-            🛡️ {admin.role}
+      {message && (
+        <div
+          className={`admin-profile-message ${messageType}`}
+        >
+          <span>
+            {messageType === "success"
+              ? "✓"
+              : "!"}
           </span>
 
-          <p className="admin-profile-email">
-            {admin.email || "No email available"}
-          </p>
-
-          {admin.bio && (
-            <p className="admin-profile-bio">
-              "{admin.bio}"
-            </p>
-          )}
+          {message}
         </div>
+      )}
 
-        {/* =================================================
-            RIGHT CONTENT
-        ================================================= */}
+      {/* HERO */}
 
-        <div className="admin-profile-right">
+      <section className="admin-profile-hero">
 
-          {/* =================================================
-              MESSAGE
-          ================================================= */}
+        <div className="admin-hero-glow"></div>
 
-          {message && (
-            <div
-              className={`admin-profile-message ${messageType}`}
-            >
-              <span>
-                {messageType === "success" ? "✓" : "!"}
+        <div className="admin-hero-content">
+
+          <div className="admin-hero-avatar-area">
+
+            <div className="admin-avatar-ring">
+
+              {preview ? (
+                <img
+                  src={preview}
+                  alt="Admin"
+                  className="admin-profile-image"
+                  onError={(event) => {
+                    event.currentTarget.style.display =
+                      "none";
+                  }}
+                />
+              ) : (
+                <div className="admin-default-avatar">
+                  👤
+                </div>
+              )}
+
+              <button
+                type="button"
+                className="admin-camera-btn"
+                onClick={() =>
+                  fileInputRef.current?.click()
+                }
+                title="Change profile photo"
+              >
+                📷
+              </button>
+
+            </div>
+
+          </div>
+
+          <div className="admin-hero-info">
+
+            <div className="admin-name-line">
+
+              <h2>
+                {admin.name ||
+                  "Administrator"}
+              </h2>
+
+              <span className="admin-verified">
+                ✓
               </span>
 
-              {message}
             </div>
-          )}
 
-          {/* =================================================
-              PROFILE DETAILS
-          ================================================= */}
+            <span className="admin-role-badge">
+              🛡️ Administrator
+            </span>
 
-          <section className="admin-profile-content-section">
+            <p className="admin-hero-email">
+              {admin.email ||
+                "No email available"}
+            </p>
 
-            <div className="admin-profile-section-title">
-              <span>👤</span>
+            {admin.bio ? (
+              <p className="admin-hero-bio">
+                “{admin.bio}”
+              </p>
+            ) : (
+              <p className="admin-hero-bio muted">
+                Add a short description about
+                yourself.
+              </p>
+            )}
+
+          </div>
+
+          <div className="admin-hero-date">
+
+            <span className="admin-date-icon">
+              📅
+            </span>
+
+            <div>
+              <small>Member since</small>
+
+              <strong>
+                {getJoinDate()}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* MAIN GRID */}
+
+      <div className="admin-profile-layout">
+
+        {/* LEFT */}
+
+        <main>
+
+          {/* PERSONAL */}
+
+          <section className="admin-panel">
+
+            <div className="admin-panel-heading">
+
+              <div className="admin-panel-icon blue">
+                👤
+              </div>
 
               <div>
                 <h3>Personal Information</h3>
                 <p>
-                  Update your basic administrator details.
+                  Keep your administrator profile
+                  information up to date.
                 </p>
               </div>
+
             </div>
 
-            <form onSubmit={handleSaveProfile}>
+            <form
+              onSubmit={handleSaveProfile}
+            >
 
               <div className="admin-form-grid">
 
                 <div className="admin-form-group">
-                  <label htmlFor="adminName">
+
+                  <label>
                     Full Name
                   </label>
 
                   <div className="admin-input-wrapper">
+
                     <span>👤</span>
 
                     <input
-                      id="adminName"
                       name="name"
                       type="text"
                       value={formData.name}
-                      onChange={handleInputChange}
+                      onChange={
+                        handleInputChange
+                      }
                       placeholder="Enter your name"
                     />
+
                   </div>
+
                 </div>
 
                 <div className="admin-form-group">
-                  <label htmlFor="adminEmail">
+
+                  <label>
                     Email Address
                   </label>
 
                   <div className="admin-input-wrapper">
+
                     <span>📧</span>
 
                     <input
-                      id="adminEmail"
                       name="email"
                       type="email"
                       value={formData.email}
-                      onChange={handleInputChange}
+                      onChange={
+                        handleInputChange
+                      }
                       placeholder="Enter your email"
                     />
+
                   </div>
+
                 </div>
 
               </div>
 
-              <div className="admin-form-group admin-bio-group">
-                <label htmlFor="adminBio">
-                  About You
-                </label>
+              <div className="admin-form-group">
+
+                <div className="admin-label-row">
+
+                  <label>
+                    About You
+                  </label>
+
+                  <span>
+                    {formData.bio.length}/250
+                  </span>
+
+                </div>
 
                 <textarea
-                  id="adminBio"
                   name="bio"
                   value={formData.bio}
-                  onChange={handleInputChange}
-                  placeholder="Write something about yourself..."
+                  onChange={
+                    handleInputChange
+                  }
                   maxLength={250}
-                  rows={4}
+                  rows={5}
+                  placeholder="Write something about yourself..."
                 />
 
-                <small>
-                  {formData.bio.length}/250
-                </small>
               </div>
 
               <button
                 type="submit"
-                className="admin-save-profile-btn"
+                className="admin-primary-btn"
                 disabled={saving}
               >
                 {saving
                   ? "Saving..."
                   : "💾 Save Profile"}
               </button>
+
             </form>
+
           </section>
 
-          {/* =================================================
-              PROFILE PHOTO
-          ================================================= */}
+          {/* PROFILE PHOTO */}
 
-          <section className="admin-profile-content-section">
+          <section className="admin-panel">
 
-            <div className="admin-profile-section-title">
-              <span>📸</span>
+            <div className="admin-panel-heading">
+
+              <div className="admin-panel-icon purple">
+                📸
+              </div>
 
               <div>
                 <h3>Profile Photo</h3>
                 <p>
-                  Upload a professional photo for your admin
-                  account.
+                  Use a professional image for your
+                  administrator account.
                 </p>
               </div>
+
             </div>
 
             <input
@@ -825,42 +973,74 @@ function AdminProfile() {
               className="admin-hidden-file-input"
             />
 
-            <div className="admin-upload-box">
+            <div className="admin-photo-upload">
 
-              <div className="admin-upload-icon">
-                📷
+              <div className="admin-upload-preview">
+
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                  />
+                ) : (
+                  <span>👤</span>
+                )}
+
               </div>
 
-              <div className="admin-upload-content">
-                <h4>Choose Profile Photo</h4>
+              <div className="admin-upload-text">
+
+                <h4>
+                  {selectedFile
+                    ? selectedFile.name
+                    : "Upload profile photo"}
+                </h4>
 
                 <p>
-                  JPG, PNG or WEBP • Maximum 5 MB
+                  JPG, PNG or WEBP · Maximum 5 MB
                 </p>
 
-                <button
-                  type="button"
-                  className="admin-choose-btn"
-                  onClick={() =>
-                    fileInputRef.current?.click()
-                  }
-                >
-                  Choose Photo
-                </button>
+                <div className="admin-photo-buttons">
+
+                  <button
+                    type="button"
+                    className="admin-secondary-btn"
+                    onClick={() =>
+                      fileInputRef.current?.click()
+                    }
+                  >
+                    📷 Choose Photo
+                  </button>
+
+                  {admin.profileImage &&
+                    !selectedFile && (
+                      <button
+                        type="button"
+                        className="admin-danger-outline"
+                        onClick={
+                          handleRemovePhoto
+                        }
+                        disabled={uploading}
+                      >
+                        Remove
+                      </button>
+                    )}
+
+                </div>
+
               </div>
+
             </div>
 
             {selectedFile && (
               <div className="admin-selected-file">
 
                 <div>
-                  <span className="admin-file-icon">
-                    🖼️
-                  </span>
+                  <span>🖼️</span>
 
                   <div>
                     <strong>
-                      {selectedFile.name}
+                      Selected image
                     </strong>
 
                     <small>
@@ -876,11 +1056,13 @@ function AdminProfile() {
 
                 <button
                   type="button"
-                  onClick={handleCancelPhoto}
-                  title="Cancel selected photo"
+                  onClick={
+                    handleCancelPhoto
+                  }
                 >
                   ✕
                 </button>
+
               </div>
             )}
 
@@ -888,9 +1070,14 @@ function AdminProfile() {
 
               <button
                 type="button"
-                className="admin-save-photo-btn"
-                onClick={handleUploadPhoto}
-                disabled={!selectedFile || uploading}
+                className="admin-primary-btn"
+                onClick={
+                  handleUploadPhoto
+                }
+                disabled={
+                  !selectedFile ||
+                  uploading
+                }
               >
                 {uploading
                   ? "Uploading..."
@@ -900,131 +1087,74 @@ function AdminProfile() {
               {selectedFile && (
                 <button
                   type="button"
-                  className="admin-cancel-photo-btn"
-                  onClick={handleCancelPhoto}
+                  className="admin-cancel-btn"
+                  onClick={
+                    handleCancelPhoto
+                  }
                   disabled={uploading}
                 >
                   Cancel
                 </button>
               )}
 
-              {admin.profileImage && !selectedFile && (
-                <button
-                  type="button"
-                  className="admin-remove-photo-btn"
-                  onClick={handleRemovePhoto}
-                  disabled={uploading}
-                >
-                  🗑️ Remove Photo
-                </button>
-              )}
             </div>
+
           </section>
 
-          {/* =================================================
-              ACCOUNT INFORMATION
-          ================================================= */}
+          {/* SECURITY */}
 
-          <section className="admin-account-info">
-
-            <div className="admin-account-heading">
-              <div>
-                <h3>Account Information</h3>
-                <p>Your NoteHive administrator account.</p>
-              </div>
-
-              <span className="admin-account-status">
-                ● Active
-              </span>
-            </div>
-
-            <div className="admin-info-row">
-              <span>👤 Name</span>
-
-              <strong>
-                {admin.name || "Administrator"}
-              </strong>
-            </div>
-
-            <div className="admin-info-row">
-              <span>📧 Email</span>
-
-              <strong>
-                {admin.email || "Not available"}
-              </strong>
-            </div>
-
-            <div className="admin-info-row">
-              <span>🛡️ Account Type</span>
-
-              <strong>
-                {admin.role || "Admin"}
-              </strong>
-            </div>
-
-            <div className="admin-info-row">
-              <span>📅 Joined</span>
-
-              <strong>
-                {formatDate(admin.createdAt)}
-              </strong>
-            </div>
-
-            <div className="admin-info-row">
-              <span>🔐 Security</span>
-
-              <strong className="admin-security-text">
-                Password Protected
-              </strong>
-            </div>
-          </section>
-
-          {/* =================================================
-              PASSWORD SECTION
-          ================================================= */}
-
-          <section className="admin-security-section">
+          <section className="admin-panel security-panel">
 
             <button
               type="button"
-              className="admin-security-toggle"
+              className="security-header"
               onClick={() =>
                 setShowPasswordSection(
                   (prev) => !prev
                 )
               }
             >
-              <div className="admin-security-toggle-left">
-                <span className="admin-security-icon">
+
+              <div className="security-header-left">
+
+                <div className="admin-panel-icon green">
                   🔐
-                </span>
+                </div>
 
                 <div>
-                  <strong>Change Password</strong>
-
-                  <small>
-                    Keep your admin account secure
-                  </small>
+                  <h3>Security</h3>
+                  <p>
+                    Protect your administrator
+                    account.
+                  </p>
                 </div>
+
               </div>
 
-              <span className="admin-security-arrow">
-                {showPasswordSection ? "⌃" : "⌄"}
+              <span className="security-arrow">
+                {showPasswordSection
+                  ? "⌃"
+                  : "⌄"}
               </span>
+
             </button>
 
             {showPasswordSection && (
               <form
                 className="admin-password-form"
-                onSubmit={handleChangePassword}
+                onSubmit={
+                  handleChangePassword
+                }
               >
 
                 <div className="admin-form-group">
+
                   <label>
                     Current Password
                   </label>
 
                   <div className="admin-input-wrapper">
+
                     <span>🔒</span>
 
                     <input
@@ -1056,17 +1186,21 @@ function AdminProfile() {
                         ? "🙈"
                         : "👁️"}
                     </button>
+
                   </div>
+
                 </div>
 
                 <div className="admin-form-grid">
 
                   <div className="admin-form-group">
+
                     <label>
                       New Password
                     </label>
 
                     <div className="admin-input-wrapper">
+
                       <span>🔑</span>
 
                       <input
@@ -1098,15 +1232,19 @@ function AdminProfile() {
                           ? "🙈"
                           : "👁️"}
                       </button>
+
                     </div>
+
                   </div>
 
                   <div className="admin-form-group">
+
                     <label>
                       Confirm Password
                     </label>
 
                     <div className="admin-input-wrapper">
+
                       <span>🔐</span>
 
                       <input
@@ -1138,37 +1276,190 @@ function AdminProfile() {
                           ? "🙈"
                           : "👁️"}
                       </button>
+
                     </div>
+
                   </div>
+
                 </div>
 
                 <button
                   type="submit"
-                  className="admin-change-password-btn"
-                  disabled={changingPassword}
+                  className="admin-primary-btn"
+                  disabled={
+                    changingPassword
+                  }
                 >
                   {changingPassword
                     ? "Changing Password..."
                     : "🔐 Change Password"}
                 </button>
+
               </form>
             )}
+
           </section>
 
-          {/* =================================================
-              LOGOUT
-          ================================================= */}
+        </main>
+
+        {/* RIGHT SIDEBAR */}
+
+        <aside className="admin-profile-sidebar">
+
+          {/* ACCOUNT CARD */}
+
+          <section className="admin-account-card">
+
+            <div className="admin-account-card-top">
+
+              <div className="admin-small-avatar">
+
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Admin"
+                  />
+                ) : (
+                  <span>👤</span>
+                )}
+
+              </div>
+
+              <div>
+
+                <strong>
+                  {admin.name ||
+                    "Administrator"}
+                </strong>
+
+                <span>
+                  {admin.role ||
+                    "Admin"}
+                </span>
+
+              </div>
+
+            </div>
+
+            <div className="admin-active-status">
+              <span></span>
+              Account Active
+            </div>
+
+          </section>
+
+          {/* ACCOUNT DETAILS */}
+
+          <section className="admin-details-card">
+
+            <div className="admin-card-title">
+              <h3>Account Details</h3>
+              <span>•••</span>
+            </div>
+
+            <div className="admin-detail-item">
+              <div className="detail-icon blue">
+                👤
+              </div>
+
+              <div>
+                <small>Full Name</small>
+                <strong>
+                  {admin.name ||
+                    "Administrator"}
+                </strong>
+              </div>
+            </div>
+
+            <div className="admin-detail-item">
+              <div className="detail-icon purple">
+                📧
+              </div>
+
+              <div>
+                <small>Email Address</small>
+                <strong>
+                  {admin.email ||
+                    "Not available"}
+                </strong>
+              </div>
+            </div>
+
+            <div className="admin-detail-item">
+              <div className="detail-icon orange">
+                🛡️
+              </div>
+
+              <div>
+                <small>Account Type</small>
+                <strong>
+                  {admin.role ||
+                    "Admin"}
+                </strong>
+              </div>
+            </div>
+
+            <div className="admin-detail-item">
+              <div className="detail-icon green">
+                📅
+              </div>
+
+              <div>
+                <small>Joined</small>
+                <strong>
+                  {getJoinDate()}
+                </strong>
+              </div>
+            </div>
+
+            <div className="admin-detail-item">
+              <div className="detail-icon pink">
+                🔐
+              </div>
+
+              <div>
+                <small>Security</small>
+                <strong>
+                  Password Protected
+                </strong>
+              </div>
+            </div>
+
+          </section>
+
+          {/* QUICK ACTION */}
+
+          <section className="admin-quick-card">
+
+            <div className="quick-icon">
+              🐝
+            </div>
+
+            <div>
+              <h3>NoteHive Admin</h3>
+              <p>
+                Your account is protected and
+                managed securely.
+              </p>
+            </div>
+
+          </section>
+
+          {/* LOGOUT */}
 
           <button
             type="button"
             className="admin-profile-logout"
             onClick={handleLogout}
           >
-            🚪 Logout from Admin Account
+            <span>🚪</span>
+            Logout from Admin Account
           </button>
 
-        </div>
+        </aside>
+
       </div>
+
     </div>
   );
 }

@@ -54,6 +54,7 @@ import Terms from "./Components/Terms";
 
 import Settings from "./Components/Settings";
 import Notifications from "./Components/Notifications";
+import Chat from "./Components/Chat/Chat";
 
 // ======================================================
 // ADMIN
@@ -729,6 +730,21 @@ function App() {
             <UserProtectedRoute>
               <UserLayout>
                 <Notifications />
+              </UserLayout>
+            </UserProtectedRoute>
+          }
+        />
+
+        {/* ==================================================
+            💬 USER CHAT
+        ================================================== */}
+
+        <Route
+          path="/chat"
+          element={
+            <UserProtectedRoute>
+              <UserLayout>
+                <Chat />
               </UserLayout>
             </UserProtectedRoute>
           }

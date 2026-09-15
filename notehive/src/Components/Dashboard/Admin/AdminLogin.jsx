@@ -148,7 +148,7 @@ const AdminLogin = () => {
       // Backend sends admin inside data.user
       // =====================================================
 
-      const admin = data.user;
+      const admin = data.admin;
 
       console.log("👑 ADMIN USER DATA:", admin);
 

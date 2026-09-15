@@ -1,6 +1,6 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AdminHeader from "./AdminHeader";
 import "./AdminPinnedNotes.css";
 
 const SERVER_URL = "http://192.168.1.68:5000";
@@ -222,90 +222,57 @@ const AdminPinnedNotes = () => {
   };
 
   // =====================================================
+  // STATS
+  // =====================================================
+
+  const stats = useMemo(() => {
+    const total = notes.length;
+
+    const highPriority = notes.filter(
+      (note) =>
+        note.priority?.toLowerCase() === "high"
+    ).length;
+
+    const mediumPriority = notes.filter(
+      (note) =>
+        note.priority?.toLowerCase() === "medium"
+    ).length;
+
+    const lowPriority = notes.filter(
+      (note) =>
+        note.priority?.toLowerCase() === "low"
+    ).length;
+
+    const completed = notes.filter(
+      (note) => note.completed === true
+    ).length;
+
+    const publicNotes = notes.filter(
+      (note) =>
+        note.visibility?.toLowerCase() === "public"
+    ).length;
+
+    return {
+      total,
+      highPriority,
+      mediumPriority,
+      lowPriority,
+      completed,
+      publicNotes,
+    };
+  }, [notes]);
+
+  // =====================================================
   // LOADING
   // =====================================================
 
   if (loading) {
     return (
       <div className="admin-pinned-layout">
-
-        {/* SIDEBAR */}
-
-        <aside className="admin-sidebar">
-
-          <div className="admin-logo">
-            <span className="admin-logo-bee">
-              🐝
-            </span>
-
-            <span>
-              NOTEHIVE
-            </span>
-          </div>
-
-          <p className="admin-panel-title">
-            ADMIN PANEL
-          </p>
-
-          <nav className="admin-nav">
-
-            <button
-              onClick={() =>
-                navigate("/admin-dashboard")
-              }
-            >
-              <span>📊</span>
-              <span>Dashboard</span>
-            </button>
-
-            <button onClick={handleUsers}>
-              <span>👥</span>
-              <span>Users</span>
-            </button>
-
-            <button onClick={handleNotifications}>
-              <span>🔔</span>
-              <span>Notifications</span>
-            </button>
-
-            <button onClick={handleNotes}>
-              <span>📝</span>
-              <span>Notes</span>
-            </button>
-
-            <button
-              className="active"
-              onClick={handlePinnedNotes}
-            >
-              <span>📌</span>
-              <span>Pinned Notes</span>
-            </button>
-
-            <button onClick={handleFavorites}>
-              <span>⭐</span>
-              <span>Favorites</span>
-            </button>
-
-            <button onClick={handleReports}>
-              <span>📈</span>
-              <span>Reports</span>
-            </button>
-
-          </nav>
-
-          <button
-            className="admin-logout"
-            onClick={handleLogout}
-          >
-            <span>🚪</span>
-            <span>Logout</span>
-          </button>
-
-        </aside>
+        <AdminHeader />
 
         <main className="admin-pinned-main">
-
-          <div className="admin-pinned-loading">
+          <div className="pinned-loading-card">
             <div className="loading-spinner"></div>
 
             <h3>
@@ -313,12 +280,11 @@ const AdminPinnedNotes = () => {
             </h3>
 
             <p>
-              Please wait...
+              Please wait while we fetch your
+              pinned notes.
             </p>
           </div>
-
         </main>
-
       </div>
     );
   }
@@ -330,105 +296,19 @@ const AdminPinnedNotes = () => {
   return (
     <div className="admin-pinned-layout">
 
-      {/* =================================================
-          SIDEBAR
-      ================================================= */}
-
-      <aside className="admin-sidebar">
-
-        {/* LOGO */}
-
-        <div className="admin-logo">
-
-          <span className="admin-logo-bee">
-            🐝
-          </span>
-
-          <span>
-            NOTEHIVE
-          </span>
-
-        </div>
-
-        {/* PANEL TITLE */}
-
-        <p className="admin-panel-title">
-          ADMIN PANEL
-        </p>
-
-        {/* NAVIGATION */}
-
-        <nav className="admin-nav">
-
-          <button
-            onClick={() =>
-              navigate("/admin-dashboard")
-            }
-          >
-            <span>📊</span>
-            <span>Dashboard</span>
-          </button>
-
-          <button onClick={handleUsers}>
-            <span>👥</span>
-            <span>Users</span>
-          </button>
-
-          <button onClick={handleNotifications}>
-            <span>🔔</span>
-            <span>Notifications</span>
-          </button>
-
-          <button onClick={handleNotes}>
-            <span>📝</span>
-            <span>Notes</span>
-          </button>
-
-          <button
-            className="active"
-            onClick={handlePinnedNotes}
-          >
-            <span>📌</span>
-            <span>Pinned Notes</span>
-          </button>
-
-          <button onClick={handleFavorites}>
-            <span>⭐</span>
-            <span>Favorites</span>
-          </button>
-
-          <button onClick={handleReports}>
-            <span>📈</span>
-            <span>Reports</span>
-          </button>
-
-        </nav>
-
-        {/* LOGOUT */}
-
-        <button
-          className="admin-logout"
-          onClick={handleLogout}
-        >
-          <span>🚪</span>
-          <span>Logout</span>
-        </button>
-
-      </aside>
-
-      {/* =================================================
-          MAIN CONTENT
-      ================================================= */}
+      <AdminHeader />
 
       <main className="admin-pinned-main">
 
-        {/* HEADER */}
+        {/* =================================================
+            HERO
+        ================================================= */}
 
-        <header className="admin-pinned-header">
+        <section className="pinned-hero">
 
-          <div>
+          <div className="pinned-hero-text">
 
-            <p className="admin-header-label">
+            <p className="pinned-eyebrow">
               ADMINISTRATION
             </p>
 
@@ -437,61 +317,183 @@ const AdminPinnedNotes = () => {
             </h1>
 
             <p>
-              View and manage all pinned notes
-              from your NoteHive platform.
+              View, manage and organize all
+              pinned notes across your NoteHive
+              platform.
             </p>
 
           </div>
 
-          <div className="pinned-count">
+          <div className="pinned-hero-actions">
 
-            <span>
-              {notes.length}
-            </span>
+            <button
+              className="pinned-refresh-btn"
+              onClick={fetchPinnedNotes}
+            >
+              ↻ Refresh
+            </button>
 
-            <small>
-              Pinned Notes
-            </small>
+            <button
+              className="pinned-dashboard-btn"
+              onClick={() =>
+                navigate("/admin-dashboard")
+              }
+            >
+              ← Dashboard
+            </button>
 
           </div>
 
-        </header>
+        </section>
 
-        {/* BACK / REFRESH ROW */}
+        {/* =================================================
+            STAT CARDS
+        ================================================= */}
 
-        <div className="pinned-toolbar">
+        <section className="pinned-stat-scroll">
 
-          <button
-            className="back-btn"
-            onClick={() =>
-              navigate("/admin-dashboard")
-            }
-          >
-            ← Back to Dashboard
-          </button>
+          <article className="pinned-stat-card total">
+            <div className="pinned-stat-top">
+              <span className="pinned-stat-icon">
+                📌
+              </span>
 
-          <button
-            className="refresh-pinned-btn"
-            onClick={fetchPinnedNotes}
-          >
-            ↻ Refresh
-          </button>
+              <span className="pinned-stat-mini">
+                TOTAL
+              </span>
+            </div>
 
-        </div>
+            <div className="pinned-stat-number">
+              {stats.total}
+            </div>
 
-        {/* ERROR */}
+            <div className="pinned-stat-label">
+              Pinned Notes
+            </div>
+          </article>
+
+          <article className="pinned-stat-card high">
+            <div className="pinned-stat-top">
+              <span className="pinned-stat-icon">
+                🔴
+              </span>
+
+              <span className="pinned-stat-mini">
+                PRIORITY
+              </span>
+            </div>
+
+            <div className="pinned-stat-number">
+              {stats.highPriority}
+            </div>
+
+            <div className="pinned-stat-label">
+              High Priority
+            </div>
+          </article>
+
+          <article className="pinned-stat-card medium">
+            <div className="pinned-stat-top">
+              <span className="pinned-stat-icon">
+                🟡
+              </span>
+
+              <span className="pinned-stat-mini">
+                PRIORITY
+              </span>
+            </div>
+
+            <div className="pinned-stat-number">
+              {stats.mediumPriority}
+            </div>
+
+            <div className="pinned-stat-label">
+              Medium Priority
+            </div>
+          </article>
+
+          <article className="pinned-stat-card low">
+            <div className="pinned-stat-top">
+              <span className="pinned-stat-icon">
+                🟢
+              </span>
+
+              <span className="pinned-stat-mini">
+                PRIORITY
+              </span>
+            </div>
+
+            <div className="pinned-stat-number">
+              {stats.lowPriority}
+            </div>
+
+            <div className="pinned-stat-label">
+              Low Priority
+            </div>
+          </article>
+
+          <article className="pinned-stat-card completed">
+            <div className="pinned-stat-top">
+              <span className="pinned-stat-icon">
+                ✅
+              </span>
+
+              <span className="pinned-stat-mini">
+                STATUS
+              </span>
+            </div>
+
+            <div className="pinned-stat-number">
+              {stats.completed}
+            </div>
+
+            <div className="pinned-stat-label">
+              Completed
+            </div>
+          </article>
+
+          <article className="pinned-stat-card public">
+            <div className="pinned-stat-top">
+              <span className="pinned-stat-icon">
+                🌐
+              </span>
+
+              <span className="pinned-stat-mini">
+                VISIBILITY
+              </span>
+            </div>
+
+            <div className="pinned-stat-number">
+              {stats.publicNotes}
+            </div>
+
+            <div className="pinned-stat-label">
+              Public Notes
+            </div>
+          </article>
+
+        </section>
+
+        {/* =================================================
+            ERROR
+        ================================================= */}
 
         {error && (
+          <div className="pinned-error-card">
 
-          <div className="admin-pinned-error">
+            <div className="pinned-error-icon">
+              ⚠️
+            </div>
 
-            <strong>
-              ⚠️ Error
-            </strong>
+            <div>
+              <h3>
+                Unable to load pinned notes
+              </h3>
 
-            <p>
-              {error}
-            </p>
+              <p>
+                {error}
+              </p>
+            </div>
 
             <button
               onClick={fetchPinnedNotes}
@@ -500,21 +502,25 @@ const AdminPinnedNotes = () => {
             </button>
 
           </div>
-
         )}
 
-        {/* EMPTY */}
+        {/* =================================================
+            EMPTY
+        ================================================= */}
 
         {!error && notes.length === 0 && (
+          <section className="pinned-empty-card">
 
-          <div className="admin-pinned-empty">
-
-            <div className="empty-icon">
+            <div className="pinned-empty-icon">
               📌
             </div>
 
+            <p className="pinned-empty-kicker">
+              NOTEHIVE
+            </p>
+
             <h2>
-              No Pinned Notes
+              No Pinned Notes Yet
             </h2>
 
             <p>
@@ -530,165 +536,238 @@ const AdminPinnedNotes = () => {
               View All Notes
             </button>
 
-          </div>
-
+          </section>
         )}
 
-        {/* NOTES */}
+        {/* =================================================
+            NOTES
+        ================================================= */}
 
         {!error && notes.length > 0 && (
+          <section className="pinned-notes-section">
 
-          <section className="admin-pinned-grid">
+            <div className="pinned-section-header">
 
-            {notes.map((note) => (
-
-              <article
-                className="admin-pinned-card"
-                key={note._id}
-              >
-
-                {/* TOP */}
-
-                <div className="pinned-card-top">
-
-                  <span className="pin-badge">
-                    📌 Pinned
-                  </span>
-
-                  <span
-                    className={`priority-badge ${
-                      note.priority
-                        ? note.priority.toLowerCase()
-                        : "medium"
-                    }`}
-                  >
-                    {note.priority || "Medium"}
-                  </span>
-
-                </div>
-
-                {/* TITLE */}
-
-                <h2>
-                  {note.title || "Untitled Note"}
-                </h2>
-
-                {/* CONTENT */}
-
-                <p className="note-content">
-
-                  {note.content
-                    ? note.content.length > 180
-                      ? `${note.content.substring(
-                          0,
-                          180
-                        )}...`
-                      : note.content
-                    : "No content available."}
-
+              <div>
+                <p>
+                  COLLECTION
                 </p>
 
-                {/* CATEGORY */}
+                <h2>
+                  Pinned Note Collection
+                </h2>
+              </div>
 
-                <div className="note-category">
+              <span>
+                {notes.length} notes
+              </span>
 
-                  <span>
+            </div>
+
+            <div className="pinned-notes-grid">
+
+              {notes.map((note) => (
+
+                <article
+                  className="pinned-note-card"
+                  key={note._id}
+                >
+
+                  {/* CARD HEADER */}
+
+                  <div className="pinned-note-card-top">
+
+                    <span className="pinned-note-badge">
+                      📌 Pinned
+                    </span>
+
+                    <span
+                      className={`pinned-priority-badge ${
+                        note.priority
+                          ? note.priority.toLowerCase()
+                          : "medium"
+                      }`}
+                    >
+                      {note.priority || "Medium"}
+                    </span>
+
+                  </div>
+
+                  {/* TITLE */}
+
+                  <h3>
+                    {note.title ||
+                      "Untitled Note"}
+                  </h3>
+
+                  {/* CONTENT */}
+
+                  <p className="pinned-note-content">
+
+                    {note.content
+                      ? note.content.length > 180
+                        ? `${note.content.substring(
+                            0,
+                            180
+                          )}...`
+                        : note.content
+                      : "No content available."}
+
+                  </p>
+
+                  {/* CATEGORY */}
+
+                  <div className="pinned-note-category">
                     📂
-                  </span>
+                    <span>
+                      {note.category ||
+                        "General"}
+                    </span>
+                  </div>
 
-                  {note.category || "General"}
+                  {/* USER */}
 
-                </div>
+                  <div className="pinned-note-user">
 
-                {/* USER */}
+                    <div className="pinned-user-avatar">
 
-                <div className="note-user">
+                      {note.user?.name
+                        ? note.user.name
+                            .charAt(0)
+                            .toUpperCase()
+                        : "U"}
 
-                  <div className="user-avatar">
+                    </div>
 
-                    {note.user?.name
-                      ? note.user.name
-                          .charAt(0)
-                          .toUpperCase()
-                      : "U"}
+                    <div className="pinned-user-details">
+
+                      <strong>
+                        {note.user?.name ||
+                          "Unknown User"}
+                      </strong>
+
+                      <small>
+                        {note.user?.email ||
+                          "No email"}
+                      </small>
+
+                    </div>
 
                   </div>
 
-                  <div>
+                  {/* META */}
 
-                    <strong>
-                      {note.user?.name ||
-                        "Unknown User"}
-                    </strong>
+                  <div className="pinned-note-meta">
 
-                    <small>
-                      {note.user?.email ||
-                        "No email"}
-                    </small>
+                    <span>
+                      🗓️{" "}
+                      {formatDate(
+                        note.createdAt
+                      )}
+                    </span>
+
+                    {note.completed && (
+                      <span className="completed-badge">
+                        ✓ Completed
+                      </span>
+                    )}
 
                   </div>
 
-                </div>
+                  {/* ACTIONS */}
 
-                {/* DATE */}
+                  <div className="pinned-note-actions">
 
-                <div className="note-date">
+                    <button
+                      className="pinned-view-btn"
+                      onClick={() =>
+                        navigate(
+                          `/admin/manage-notes?note=${note._id}`
+                        )
+                      }
+                    >
+                      👁️ View
+                    </button>
 
-                  Created:{" "}
-                  {formatDate(
-                    note.createdAt
-                  )}
+                    <button
+                      className="pinned-unpin-btn"
+                      onClick={() =>
+                        handleUnpin(
+                          note._id
+                        )
+                      }
+                    >
+                      📌 Unpin
+                    </button>
 
-                </div>
+                    <button
+                      className="pinned-delete-btn"
+                      onClick={() =>
+                        handleDelete(
+                          note._id
+                        )
+                      }
+                    >
+                      🗑️ Delete
+                    </button>
 
-                {/* ACTIONS */}
+                  </div>
 
-                <div className="pinned-actions">
+                </article>
 
-                  <button
-                    className="view-btn"
-                    onClick={() =>
-                      navigate(
-                        `/admin/manage-notes?note=${note._id}`
-                      )
-                    }
-                  >
-                    👁️ View
-                  </button>
+              ))}
 
-                  <button
-                    className="unpin-btn"
-                    onClick={() =>
-                      handleUnpin(
-                        note._id
-                      )
-                    }
-                  >
-                    📌 Unpin
-                  </button>
-
-                  <button
-                    className="delete-btn"
-                    onClick={() =>
-                      handleDelete(
-                        note._id
-                      )
-                    }
-                  >
-                    🗑️ Delete
-                  </button>
-
-                </div>
-
-              </article>
-
-            ))}
+            </div>
 
           </section>
-
         )}
 
       </main>
+
+      {/* =================================================
+          MOBILE BOTTOM NAV
+      ================================================= */}
+
+      <nav className="pinned-mobile-nav">
+
+        <button
+          onClick={() =>
+            navigate("/admin-dashboard")
+          }
+        >
+          <span>📊</span>
+          <small>Home</small>
+        </button>
+
+        <button onClick={handleUsers}>
+          <span>👥</span>
+          <small>Users</small>
+        </button>
+
+        <button onClick={handleNotes}>
+          <span>📝</span>
+          <small>Notes</small>
+        </button>
+
+        <button
+          className="active"
+          onClick={handlePinnedNotes}
+        >
+          <span>📌</span>
+          <small>Pinned</small>
+        </button>
+
+        <button onClick={handleFavorites}>
+          <span>⭐</span>
+          <small>Favorites</small>
+        </button>
+
+        <button onClick={handleReports}>
+          <span>📈</span>
+          <small>Reports</small>
+        </button>
+
+      </nav>
 
     </div>
   );

@@ -1,12 +1,9 @@
-/* =========================================================
-   NOTEHIVE - ADMIN MANAGE NOTES
-   PREMIUM RESPONSIVE ADMIN UI
-   ADMIN HEADER + SIDEBAR + MOBILE APP STYLE
-   ========================================================= */
-
-/* =========================================================
-   GLOBAL
-   ========================================================= */
+/* ============================================================
+   NOTEHIVE - MANAGE NOTES
+   Premium Admin UI
+   Blue • Purple • Pink • Soft Glass
+   Full Screen • Responsive • No Horizontal Scroll
+   ============================================================ */
 
 * {
   box-sizing: border-box;
@@ -15,2115 +12,1836 @@
 html,
 body,
 #root {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
   width: 100%;
+  min-height: 100%;
+  margin: 0;
 }
 
 body {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  background: #f7f5ff;
-  color: #27243a;
+  overflow-x: hidden;
 }
 
-button,
-input,
-select {
-  font: inherit;
-}
-
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-
-/* =========================================================
-   ADMIN PAGE WRAPPER
-   ========================================================= */
-
-.admin-page-wrapper {
-  width: 100%;
-  min-height: 100vh;
-  background:
-    radial-gradient(
-      circle at 10% 10%,
-      rgba(123, 97, 255, 0.08),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 90% 15%,
-      rgba(255, 126, 185, 0.08),
-      transparent 28%
-    ),
-    #f8f7fc;
-}
-
-
-/* =========================================================
+/* ============================================================
    MAIN PAGE
-   ========================================================= */
+   ============================================================ */
 
 .manage-notes-page {
-  width: 100%;
-  min-height: calc(100vh - 76px);
-  display: flex;
   position: relative;
-}
-
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
-
-.admin-sidebar {
-  width: 255px;
-  min-width: 255px;
-  min-height: calc(100vh - 76px);
-
-  padding: 28px 18px 22px;
-
-  display: flex;
-  flex-direction: column;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.96),
-      rgba(248, 246, 255, 0.98)
-    );
-
-  border-right: 1px solid rgba(116, 91, 190, 0.12);
-
-  box-shadow:
-    8px 0 30px rgba(91, 71, 145, 0.05);
-
-  position: sticky;
-  top: 76px;
-
-  align-self: flex-start;
-  z-index: 20;
-}
-
-
-/* =========================================================
-   SIDEBAR LOGO
-   ========================================================= */
-
-.admin-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 8px 10px 16px;
-
-  font-size: 20px;
-  font-weight: 800;
-
-  letter-spacing: 0.5px;
-
-  color: #4c3a86;
-}
-
-.admin-logo-bee {
-  font-size: 30px;
-  line-height: 1;
-}
-
-
-/* =========================================================
-   ADMIN PANEL TITLE
-   ========================================================= */
-
-.admin-panel-title {
-  margin: 4px 10px 16px;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 1.7px;
-
-  color: #9a92b5;
-}
-
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-
-.admin-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.admin-nav button {
   width: 100%;
-  min-height: 46px;
-
-  display: flex;
-  align-items: center;
-  gap: 13px;
-
-  padding: 11px 13px;
-
-  border: 0;
-  border-radius: 13px;
-
-  background: transparent;
-
-  color: #625d77;
-
-  font-size: 14px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  text-align: left;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.admin-nav button span:first-child {
-  width: 24px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 18px;
-}
-
-.admin-nav button:hover {
-  background: rgba(112, 87, 214, 0.08);
-  color: #5945a0;
-  transform: translateX(2px);
-}
-
-.admin-nav button.active {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
   background:
-    linear-gradient(
-      135deg,
-      rgba(111, 87, 214, 0.14),
-      rgba(184, 126, 255, 0.13)
-    );
-
-  color: #59429b;
-
-  box-shadow:
-    inset 3px 0 0 #7555d9;
+    radial-gradient(
+      circle at 8% 8%,
+      rgba(99, 102, 241, 0.14),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 12%,
+      rgba(168, 85, 247, 0.12),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(236, 72, 153, 0.08),
+      transparent 30%
+    ),
+    #f7f8ff;
+  color: #172033;
 }
 
+/* ============================================================
+   CONTENT
+   ============================================================ */
 
-/* =========================================================
-   SIDEBAR LOGOUT
-   ========================================================= */
-
-.admin-logout {
+.manage-notes-content {
   width: 100%;
-  min-height: 46px;
-
-  margin-top: auto;
-
-  display: flex;
-  align-items: center;
-  gap: 13px;
-
-  padding: 11px 13px;
-
-  border: 0;
-  border-radius: 13px;
-
-  background: rgba(239, 102, 136, 0.07);
-
-  color: #c65b79;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  max-width: 1650px;
+  margin: 0 auto;
+  padding: 32px 42px 80px;
 }
 
-.admin-logout:hover {
-  background: rgba(239, 102, 136, 0.13);
-  transform: translateY(-1px);
-}
-
-
-/* =========================================================
-   MAIN CONTENT
-   ========================================================= */
-
-.manage-notes-main {
-  flex: 1;
-  width: calc(100% - 255px);
-
-  min-width: 0;
-
-  padding: 34px 38px 50px;
-
-  overflow: hidden;
-}
-
-
-/* =========================================================
-   PAGE HEADER
-   ========================================================= */
+/* ============================================================
+   HEADER
+   ============================================================ */
 
 .manage-notes-header {
+  width: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
-
-  gap: 25px;
-
+  gap: 24px;
   margin-bottom: 28px;
 }
 
-.manage-notes-header > div {
-  min-width: 0;
-}
-
 .manage-notes-label {
-  margin: 0 0 7px;
-
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  color: #6366f1;
   font-size: 11px;
   font-weight: 800;
-
-  letter-spacing: 1.8px;
-
-  color: #876bd0;
+  letter-spacing: 1.5px;
 }
 
 .manage-notes-header h1 {
   margin: 0;
-
-  font-size: clamp(28px, 3vw, 38px);
-
-  line-height: 1.15;
-
-  font-weight: 800;
-
-  color: #29243d;
+  color: #151b32;
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.05;
+  font-weight: 850;
+  letter-spacing: -1.4px;
 }
 
-.manage-notes-header > div > p:last-child {
+.manage-notes-header p {
   margin: 10px 0 0;
-
-  max-width: 650px;
-
+  color: #69738a;
   font-size: 14px;
   line-height: 1.6;
-
-  color: #827b96;
 }
 
-
-/* =========================================================
-   REFRESH BUTTON
-   ========================================================= */
-
-.notes-refresh-button {
-  flex-shrink: 0;
-
-  min-height: 43px;
-
+.manage-notes-refresh {
+  min-width: 125px;
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #4f46e5;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 8px;
-
-  padding: 10px 17px;
-
-  border: 1px solid rgba(111, 87, 214, 0.14);
-
-  border-radius: 12px;
-
-  background: rgba(255, 255, 255, 0.9);
-
-  color: #604ca0;
-
   font-size: 13px;
-  font-weight: 700;
-
+  font-weight: 800;
   cursor: pointer;
-
   box-shadow:
-    0 5px 18px rgba(81, 62, 140, 0.06);
-
+    0 8px 25px rgba(76, 81, 191, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     background 0.2s ease;
 }
 
-.notes-refresh-button span {
+.manage-notes-refresh:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow:
+    0 12px 30px rgba(76, 81, 191, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.manage-notes-refresh span {
   font-size: 19px;
   line-height: 1;
 }
 
-.notes-refresh-button:hover:not(:disabled) {
-  background: #ffffff;
-
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 9px 25px rgba(81, 62, 140, 0.1);
+.manage-notes-refresh.refreshing span {
+  animation: manageNotesSpin 0.8s linear infinite;
 }
 
-.notes-refresh-button.refreshing span {
-  animation: rotateRefresh 0.8s linear infinite;
-}
-
-.notes-refresh-button:disabled {
+.manage-notes-refresh:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
 
-@keyframes rotateRefresh {
-  from {
-    transform: rotate(0deg);
-  }
-
+@keyframes manageNotesSpin {
   to {
     transform: rotate(360deg);
   }
 }
 
+/* ============================================================
+   SUMMARY CARDS
+   ============================================================ */
 
-/* =========================================================
-   SUMMARY
-   ========================================================= */
-
-.notes-summary {
+.manage-notes-summary {
+  width: 100%;
   display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
-
-  margin-bottom: 27px;
-}
-
-.notes-summary-card {
-  min-height: 100px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 15px;
-
-  padding: 18px;
-
-  border: 1px solid rgba(118, 95, 180, 0.1);
-
-  border-radius: 17px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.96),
-      rgba(250, 248, 255, 0.94)
-    );
-
-  box-shadow:
-    0 7px 24px rgba(83, 65, 135, 0.06);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.notes-summary-card:hover {
-  transform: translateY(-3px);
-
-  box-shadow:
-    0 12px 30px rgba(83, 65, 135, 0.1);
-}
-
-.notes-summary-icon {
-  width: 48px;
-  height: 48px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 14px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #eee9ff,
-      #f8eafd
-    );
-
-  font-size: 23px;
-}
-
-.notes-summary-card span {
-  display: block;
-
-  margin-bottom: 5px;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  color: #8a839f;
-}
-
-.notes-summary-card strong {
-  display: block;
-
-  font-size: 25px;
-  line-height: 1;
-
-  color: #302a45;
-}
-
-
-/* =========================================================
-   TOOLBAR
-   ========================================================= */
-
-.notes-toolbar {
-  display: flex;
-  align-items: center;
-
-  gap: 15px;
-
-  margin-bottom: 15px;
-}
-
-.notes-search {
-  flex: 1;
-  min-width: 0;
-
-  height: 47px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 0 13px;
-
-  border: 1px solid rgba(111, 87, 180, 0.12);
-
-  border-radius: 13px;
-
-  background: rgba(255, 255, 255, 0.92);
-
-  box-shadow:
-    0 5px 18px rgba(81, 62, 140, 0.04);
-
-  transition:
-    border 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.notes-search:focus-within {
-  border-color: rgba(111, 87, 214, 0.35);
-
-  box-shadow:
-    0 0 0 4px rgba(111, 87, 214, 0.06);
-}
-
-.notes-search > span {
-  flex-shrink: 0;
-
-  font-size: 17px;
-}
-
-.notes-search input {
-  width: 100%;
-  height: 100%;
-
-  border: 0;
-  outline: 0;
-
-  background: transparent;
-
-  color: #332d48;
-
-  font-size: 13px;
-}
-
-.notes-search input::placeholder {
-  color: #aaa4b7;
-}
-
-.clear-search {
-  width: 27px;
-  height: 27px;
-
-  flex-shrink: 0;
-
-  border: 0;
-  border-radius: 50%;
-
-  background: #eeeaf7;
-
-  color: #756d87;
-
-  cursor: pointer;
-
-  font-size: 19px;
-  line-height: 1;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-/* =========================================================
-   FILTER
-   ========================================================= */
-
-.notes-filter {
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  flex-shrink: 0;
-}
-
-.notes-filter label {
-  font-size: 12px;
-  font-weight: 700;
-
-  color: #81798f;
-}
-
-.notes-filter select {
-  min-width: 145px;
-  height: 47px;
-
-  padding: 0 34px 0 13px;
-
-  border: 1px solid rgba(111, 87, 180, 0.12);
-
-  border-radius: 13px;
-
-  background: #ffffff;
-
-  color: #4b455e;
-
-  outline: none;
-
-  font-size: 13px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.notes-filter select:focus {
-  border-color: rgba(111, 87, 214, 0.35);
-
-  box-shadow:
-    0 0 0 4px rgba(111, 87, 214, 0.06);
-}
-
-
-/* =========================================================
-   RESULTS INFO
-   ========================================================= */
-
-.notes-results-info {
-  min-height: 35px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 15px;
-
-  margin-bottom: 10px;
-
-  font-size: 12px;
-
-  color: #8a8398;
-}
-
-.notes-results-info strong {
-  color: #51447a;
-  font-size: 14px;
-}
-
-.notes-results-info button {
-  border: 0;
-
-  background: transparent;
-
-  color: #7056c7;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
-.notes-results-info button:hover {
-  text-decoration: underline;
-}
-
-
-/* =========================================================
-   TABLE WRAPPER
-   ========================================================= */
-
-.notes-table-wrapper {
-  width: 100%;
-
-  overflow-x: auto;
-
-  border: 1px solid rgba(113, 91, 175, 0.1);
-
-  border-radius: 18px;
-
-  background: rgba(255, 255, 255, 0.92);
-
-  box-shadow:
-    0 9px 30px rgba(76, 59, 125, 0.06);
-}
-
-
-/* =========================================================
-   TABLE
-   ========================================================= */
-
-.notes-table {
-  width: 100%;
-
-  min-width: 900px;
-}
-
-
-/* =========================================================
-   TABLE HEADER
-   ========================================================= */
-
-.notes-table-header {
-  min-height: 52px;
-
-  display: grid;
-
-  grid-template-columns:
-    1.7fr
-    1.45fr
-    0.9fr
-    0.75fr
-    0.85fr
-    0.85fr;
-
-  align-items: center;
-
-  gap: 15px;
-
-  padding: 0 19px;
-
-  border-bottom: 1px solid rgba(111, 87, 180, 0.09);
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(249, 247, 255, 0.96),
-      rgba(255, 255, 255, 0.96)
-    );
-
-  color: #8b839d;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.8px;
-}
-
-
-/* =========================================================
-   TABLE ROW
-   ========================================================= */
-
-.notes-table-row {
-  min-height: 86px;
-
-  display: grid;
-
-  grid-template-columns:
-    1.7fr
-    1.45fr
-    0.9fr
-    0.75fr
-    0.85fr
-    0.85fr;
-
-  align-items: center;
-
-  gap: 15px;
-
-  padding: 12px 19px;
-
-  border-bottom: 1px solid rgba(111, 87, 180, 0.07);
-
-  background: #ffffff;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.notes-table-row:last-child {
-  border-bottom: 0;
-}
-
-.notes-table-row:hover {
-  background: #fbfaff;
-}
-
-
-/* =========================================================
-   NOTE INFO
-   ========================================================= */
-
-.note-info {
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-}
-
-.note-mini-icon {
-  width: 43px;
-  height: 43px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 12px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #eeeaff,
-      #f8eaf9
-    );
-
-  font-size: 20px;
-}
-
-.note-info > div:last-child {
-  min-width: 0;
-}
-
-.note-info h3 {
-  margin: 0 0 4px;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  font-size: 13px;
-  font-weight: 750;
-
-  color: #373148;
-}
-
-.note-info p {
-  margin: 0;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  max-width: 260px;
-
-  font-size: 11px;
-
-  color: #9992a6;
-}
-
-
-/* =========================================================
-   USER
-   ========================================================= */
-
-.note-user {
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 9px;
-}
-
-.user-avatar-small {
-  width: 35px;
-  height: 35px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background:
-    linear-gradient(
-      135deg,
-      #dcd4ff,
-      #f1d4ed
-    );
-
-  color: #65509b;
-
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.note-user > div:last-child {
-  min-width: 0;
-}
-
-.note-user strong {
-  display: block;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  color: #4a435c;
-}
-
-.note-user span {
-  display: block;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  margin-top: 2px;
-
-  font-size: 10px;
-
-  color: #a19aaa;
-}
-
-
-/* =========================================================
-   CATEGORY
-   ========================================================= */
-
-.note-category {
-  min-width: 0;
-}
-
-.category-text {
-  display: inline-block;
-
-  max-width: 100%;
-
-  padding: 6px 9px;
-
-  border-radius: 8px;
-
-  background: #f3f0fa;
-
-  color: #6c6480;
-
-  font-size: 10px;
-  font-weight: 700;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   STATUS
-   ========================================================= */
-
-.note-status {
-  display: flex;
-  align-items: center;
-
-  gap: 5px;
-
-  flex-wrap: wrap;
-}
-
-.status-badge {
-  min-width: 28px;
-  height: 28px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0 7px;
-
-  border-radius: 8px;
-
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.status-badge.pinned {
-  background: #fff3d9;
-  color: #c48a20;
-}
-
-.status-badge.favorite {
-  background: #ffe8f0;
-  color: #cf6687;
-}
-
-.status-badge.completed {
-  background: #e5f8ed;
-  color: #4c9c70;
-}
-
-.status-none {
-  color: #c3becb;
-  font-size: 15px;
-}
-
-
-/* =========================================================
-   CREATED
-   ========================================================= */
-
-.note-created {
-  color: #888193;
-
-  font-size: 11px;
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   ACTIONS
-   ========================================================= */
-
-.note-actions {
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-}
-
-.note-actions button {
-  width: 31px;
-  height: 31px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 0;
-  border-radius: 9px;
-
-  cursor: pointer;
-
-  font-size: 14px;
-
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.note-actions button:hover {
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 5px 12px rgba(70, 53, 117, 0.1);
-}
-
-.view-note-btn {
-  background: #eeeaff;
-  color: #6953bd;
-}
-
-.edit-note-btn {
-  background: #fff1dc;
-  color: #c28731;
-}
-
-.delete-note-btn {
-  background: #ffe8ee;
-  color: #cc607e;
-}
-
-
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
-
-.notes-empty {
-  width: 100%;
-
-  margin-top: 18px;
-
-  padding: 55px 25px;
-
-  text-align: center;
-
-  border: 1px solid rgba(111, 87, 180, 0.1);
-
-  border-radius: 18px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.97),
-      rgba(250, 248, 255, 0.95)
-    );
-
-  box-shadow:
-    0 8px 25px rgba(76, 59, 125, 0.05);
-}
-
-.notes-empty-icon {
-  width: 62px;
-  height: 62px;
-
-  margin: 0 auto 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 18px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #eeeaff,
-      #f9e8f5
-    );
-
-  font-size: 27px;
-}
-
-.notes-empty h2 {
-  margin: 0 0 8px;
-
-  font-size: 20px;
-
-  color: #393249;
-}
-
-.notes-empty p {
-  max-width: 480px;
-
-  margin: 0 auto;
-
-  font-size: 13px;
-  line-height: 1.6;
-
-  color: #938c9e;
-}
-
-.try-again-button {
-  margin-top: 18px;
-
-  padding: 10px 20px;
-
-  border: 0;
-  border-radius: 10px;
-
-  background: #7258c7;
-
-  color: #ffffff;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 6px 16px rgba(114, 88, 199, 0.18);
-}
-
-
-/* =========================================================
-   LOADING
-   ========================================================= */
-
-.notes-loading {
-  min-height: 65vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-direction: column;
-
-  text-align: center;
-}
-
-.notes-loader {
-  width: 55px;
-  height: 55px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-bottom: 17px;
-
-  border-radius: 50%;
-
-  background:
-    linear-gradient(
-      135deg,
-      #eeeaff,
-      #f7e9f6
-    );
-
-  color: #7258c7;
-
-  font-size: 27px;
-
-  animation: loadingRotate 0.9s linear infinite;
-}
-
-.notes-loading h2 {
-  margin: 0 0 7px;
-
-  font-size: 20px;
-
-  color: #3a334b;
-}
-
-.notes-loading p {
-  margin: 0;
-
-  font-size: 13px;
-
-  color: #9992a4;
-}
-
-@keyframes loadingRotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-/* =========================================================
-   NOTE VIEW MODAL OVERLAY
-   ========================================================= */
-
-.note-modal-overlay {
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 9999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-
-  background: rgba(36, 29, 57, 0.48);
-
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-}
-
-
-/* =========================================================
-   MODAL
-   ========================================================= */
-
-.note-view-modal {
-  width: min(720px, 100%);
-
-  max-height: min(760px, 90vh);
-
-  display: flex;
-  flex-direction: column;
-
-  overflow: hidden;
-
-  border: 1px solid rgba(255, 255, 255, 0.65);
-
-  border-radius: 22px;
-
-  background:
-    linear-gradient(
-      145deg,
-      #ffffff,
-      #faf8ff
-    );
-
-  box-shadow:
-    0 30px 80px rgba(38, 28, 65, 0.25);
-
-  animation: modalAppear 0.22s ease;
-}
-
-@keyframes modalAppear {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-
-/* =========================================================
-   MODAL HEADER
-   ========================================================= */
-
-.note-modal-header {
-  min-height: 85px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  padding: 18px 22px;
-
-  border-bottom: 1px solid rgba(111, 87, 180, 0.09);
-}
-
-.note-modal-header > div {
-  min-width: 0;
-}
-
-.note-modal-header span {
-  display: block;
-
-  margin-bottom: 5px;
-
-  color: #876bd0;
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 1.5px;
-}
-
-.note-modal-header h2 {
-  margin: 0;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  font-size: 21px;
-
-  color: #322c43;
-}
-
-.modal-close {
-  width: 36px;
-  height: 36px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 0;
-  border-radius: 10px;
-
-  background: #f2eff8;
-
-  color: #716a7e;
-
-  font-size: 24px;
-
-  cursor: pointer;
-}
-
-.modal-close:hover {
-  background: #eae6f3;
-}
-
-
-/* =========================================================
-   MODAL BODY
-   ========================================================= */
-
-.note-modal-body {
-  padding: 22px;
-
-  overflow-y: auto;
-}
-
-
-/* =========================================================
-   MODAL META
-   ========================================================= */
-
-.modal-meta {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 12px;
-
   margin-bottom: 22px;
 }
 
-.modal-meta > div {
-  padding: 13px;
-
-  border-radius: 12px;
-
-  background: #f7f4fc;
+.manage-note-summary-card {
+  min-width: 0;
+  min-height: 100px;
+  padding: 18px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow:
+    0 10px 30px rgba(49, 46, 129, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.modal-meta span {
-  display: block;
+.manage-note-summary-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.22);
+  box-shadow:
+    0 16px 34px rgba(49, 46, 129, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
 
+.manage-note-summary-card.active {
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow:
+    0 14px 34px rgba(79, 70, 229, 0.13),
+    inset 0 0 0 1px rgba(99, 102, 241, 0.08);
+}
+
+.manage-note-summary-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.12),
+      rgba(168, 85, 247, 0.12)
+    );
+  font-size: 22px;
+}
+
+.manage-note-summary-card span {
+  display: block;
   margin-bottom: 5px;
-
-  color: #9790a4;
-
-  font-size: 10px;
-  font-weight: 600;
+  color: #7b8499;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.modal-meta strong {
+.manage-note-summary-card strong {
   display: block;
+  color: #1c2440;
+  font-size: 25px;
+  line-height: 1;
+  font-weight: 850;
+}
 
-  overflow: hidden;
+/* ============================================================
+   ERROR
+   ============================================================ */
 
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.manage-notes-error {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 17px 20px;
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  border-radius: 17px;
+  background: rgba(254, 242, 242, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
 
-  color: #4c455b;
+.manage-notes-error strong {
+  color: #b91c1c;
+  font-size: 14px;
+}
 
+.manage-notes-error p {
+  margin: 4px 0 0;
+  color: #7f1d1d;
   font-size: 12px;
 }
 
-
-/* =========================================================
-   MODAL CONTENT
-   ========================================================= */
-
-.modal-note-content {
-  padding: 18px;
-
-  border-radius: 15px;
-
-  background: #ffffff;
-
-  border: 1px solid rgba(111, 87, 180, 0.08);
+.manage-notes-error button {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 11px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.modal-note-content h3 {
-  margin: 0 0 10px;
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
 
-  font-size: 13px;
-
-  color: #514968;
-}
-
-.modal-note-content p {
-  margin: 0;
-
-  white-space: pre-wrap;
-  word-break: break-word;
-
-  font-size: 13px;
-  line-height: 1.75;
-
-  color: #6f687b;
-}
-
-
-/* =========================================================
-   MODAL STATUSES
-   ========================================================= */
-
-.modal-statuses {
+.manage-notes-toolbar {
+  width: 100%;
+  min-height: 72px;
+  padding: 12px;
+  margin-bottom: 13px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   display: flex;
-  flex-wrap: wrap;
-
-  gap: 8px;
-
-  margin-top: 17px;
+  align-items: center;
+  gap: 12px;
+  box-shadow:
+    0 10px 30px rgba(49, 46, 129, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
-.modal-statuses span {
-  padding: 7px 10px;
+.manage-notes-search {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
 
+.manage-notes-search > span {
+  position: absolute;
+  left: 15px;
+  z-index: 1;
+  font-size: 17px;
+  pointer-events: none;
+}
+
+.manage-notes-search input {
+  width: 100%;
+  height: 48px;
+  padding: 0 46px 0 43px;
+  border: 1px solid #e6e8f1;
+  border-radius: 14px;
+  outline: none;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 13px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.manage-notes-search input::placeholder {
+  color: #9aa2b4;
+}
+
+.manage-notes-search input:focus {
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+}
+
+.manage-notes-clear-search {
+  position: absolute;
+  right: 11px;
+  width: 29px;
+  height: 29px;
+  border: 0;
   border-radius: 9px;
+  background: #f0f1f7;
+  color: #64748b;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
 
-  background: #f1eef8;
+.manage-notes-filter {
+  flex: 0 0 190px;
+}
 
-  color: #6c637b;
+.manage-notes-filter select {
+  width: 100%;
+  height: 48px;
+  padding: 0 40px 0 15px;
+  border: 1px solid #e6e8f1;
+  border-radius: 14px;
+  outline: none;
+  background: #ffffff;
+  color: #27304a;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
 
+.manage-notes-filter select:focus {
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+}
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+
+.manage-notes-results {
+  min-height: 30px;
+  margin: 0 3px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.manage-notes-results > span {
+  color: #737d91;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.manage-notes-results button {
+  border: 0;
+  background: transparent;
+  color: #635bff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ============================================================
+   TABLE CARD
+   ============================================================ */
+
+.manage-notes-table-card {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 18px 45px rgba(49, 46, 129, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.manage-notes-table {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.manage-notes-table-header,
+.manage-notes-table-row {
+  min-width: 1060px;
+  display: grid;
+  grid-template-columns:
+    minmax(270px, 1.8fr)
+    minmax(190px, 1.25fr)
+    minmax(130px, 0.9fr)
+    minmax(165px, 1.05fr)
+    105px
+    100px;
+  align-items: center;
+}
+
+.manage-notes-table-header {
+  min-height: 52px;
+  padding: 0 20px;
+  border-bottom: 1px solid #eceef5;
+  background: rgba(247, 248, 255, 0.85);
+  color: #8991a4;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+.manage-notes-table-row {
+  min-height: 91px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #eef0f6;
+  transition: background 0.18s ease;
+}
+
+.manage-notes-table-row:last-child {
+  border-bottom: 0;
+}
+
+.manage-notes-table-row:hover {
+  background: rgba(99, 102, 241, 0.025);
+}
+
+/* ============================================================
+   NOTE INFO
+   ============================================================ */
+
+.manage-note-info {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.manage-note-mini-icon {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff,
+      #f5e9ff
+    );
+  font-size: 19px;
+}
+
+.manage-note-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.manage-note-text strong {
+  overflow: hidden;
+  color: #202840;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.manage-note-text span {
+  max-width: 300px;
+  overflow: hidden;
+  color: #8b93a5;
+  font-size: 11px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   USER
+   ============================================================ */
+
+.manage-note-user {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.manage-note-user-avatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #a855f7
+    );
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 850;
+  box-shadow: 0 5px 13px rgba(99, 102, 241, 0.18);
+}
+
+.manage-note-user-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manage-note-user-text strong {
+  overflow: hidden;
+  color: #283149;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.manage-note-user-text span {
+  overflow: hidden;
+  color: #9299aa;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   CATEGORY
+   ============================================================ */
+
+.manage-note-category-cell {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.manage-note-category-cell > span {
+  max-width: 120px;
+  overflow: hidden;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #f4f5fa;
+  color: #596276;
+  font-size: 10px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-priority {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.note-priority.low {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.note-priority.medium {
+  background: #fff7ed;
+  color: #d97706;
+}
+
+.note-priority.high {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+.manage-note-status-cell {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.note-status,
+.note-visibility {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 145px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.note-status.pinned {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.note-status.favorite {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+.note-status.completed {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.note-status.active {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.note-visibility {
+  background: #f5f5f8;
+  color: #737b8e;
+}
+
+/* ============================================================
+   DATE
+   ============================================================ */
+
+.manage-note-date {
+  color: #747d91;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.manage-note-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.manage-view-btn,
+.manage-delete-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e7e9f1;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.manage-view-btn {
+  color: #4f46e5;
+}
+
+.manage-delete-btn {
+  color: #dc2626;
+}
+
+.manage-view-btn:hover {
+  transform: translateY(-2px);
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.manage-delete-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.manage-delete-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.manage-notes-empty {
+  width: 100%;
+  min-height: 330px;
+  padding: 50px 25px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.manage-notes-empty-icon {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 16px;
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff,
+      #f8eaff
+    );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+
+.manage-notes-empty h3 {
+  margin: 0;
+  color: #26304a;
+  font-size: 18px;
+}
+
+.manage-notes-empty p {
+  margin: 8px 0 18px;
+  color: #8b94a7;
+  font-size: 13px;
+}
+
+.manage-notes-empty button {
+  height: 40px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 11px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.manage-notes-loading {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.manage-notes-loader {
+  width: 76px;
+  height: 76px;
+  margin-bottom: 20px;
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff,
+      #f5e8ff
+    );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  animation: manageNotesBee 1.4s ease-in-out infinite;
+}
+
+@keyframes manageNotesBee {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+.manage-notes-loading h2 {
+  margin: 0;
+  color: #252d46;
+  font-size: 21px;
+}
+
+.manage-notes-loading p {
+  margin: 8px 0 0;
+  color: #8992a5;
+  font-size: 13px;
+}
+
+/* ============================================================
+   MOBILE NAV
+   ============================================================ */
+
+.manage-notes-mobile-nav {
+  display: none;
+}
+
+/* ============================================================
+   MODAL OVERLAY
+   ============================================================ */
+
+.manage-note-modal-overlay {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  padding: 25px;
+  background: rgba(15, 23, 42, 0.56);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+
+.manage-note-modal {
+  position: relative;
+  width: min(900px, 100%);
+  max-height: calc(100dvh - 50px);
+  margin: auto;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 26px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(248, 249, 255, 0.98)
+    );
+
+  box-shadow:
+    0 35px 90px rgba(15, 23, 42, 0.28),
+    0 10px 30px rgba(79, 70, 229, 0.08);
+
+  scrollbar-width: thin;
+  scrollbar-color: #c9cdef transparent;
+}
+
+.manage-note-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.manage-note-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.manage-note-modal::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+  background: #c9cdef;
+}
+
+/* ============================================================
+   MODAL HEADER
+   ============================================================ */
+
+.manage-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+
+  min-height: 94px;
+  padding: 22px 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #eceef5;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.manage-modal-header span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6366f1;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1.4px;
+}
+
+.manage-modal-header h2 {
+  max-width: 680px;
+  margin: 0;
+  color: #1e263d;
+  font-size: clamp(20px, 2.3vw, 28px);
+  line-height: 1.25;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.manage-modal-close {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border: 1px solid #e6e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #677085;
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+
+.manage-modal-close:hover {
+  transform: rotate(4deg);
+  background: #f5f6fb;
+}
+
+/* ============================================================
+   MODAL BODY
+   ============================================================ */
+
+.manage-modal-body {
+  padding: 25px;
+}
+
+.manage-modal-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.manage-modal-meta > div {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #eceef5;
+  border-radius: 15px;
+  background: #ffffff;
+}
+
+.manage-modal-meta span {
+  display: block;
+  margin-bottom: 6px;
+  color: #9098a9;
   font-size: 10px;
   font-weight: 700;
 }
 
+.manage-modal-meta strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #303950;
+  font-size: 12px;
+  font-weight: 800;
+}
 
-/* =========================================================
+/* ============================================================
+   MODAL CONTENT
+   ============================================================ */
+
+.manage-modal-content {
+  padding: 21px;
+  border: 1px solid #e9ebf3;
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #fafaff
+    );
+}
+
+.manage-modal-content h3 {
+  margin: 0 0 13px;
+  color: #29334b;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.manage-modal-content p {
+  margin: 0;
+  color: #59647a;
+  font-size: 13px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   MODAL STATUSES
+   ============================================================ */
+
+.manage-modal-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.manage-modal-statuses span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 31px;
+  padding: 0 11px;
+  border-radius: 9px;
+  background: #f1f2f8;
+  color: #667085;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* ============================================================
    MODAL FOOTER
-   ========================================================= */
+   ============================================================ */
 
-.note-modal-footer {
-  min-height: 70px;
+.manage-modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+
+  min-height: 76px;
+  padding: 15px 25px;
 
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 10px;
 
-  gap: 9px;
+  border-top: 1px solid #eceef5;
 
-  padding: 14px 22px;
+  background:
+    rgba(255, 255, 255, 0.96);
 
-  border-top: 1px solid rgba(111, 87, 180, 0.09);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-.modal-delete-btn,
-.modal-close-btn {
-  min-height: 39px;
-
-  padding: 9px 15px;
-
-  border: 0;
-
-  border-radius: 10px;
-
+.manage-modal-delete,
+.manage-modal-close-btn {
+  height: 42px;
+  padding: 0 17px;
+  border-radius: 11px;
   font-size: 12px;
-  font-weight: 700;
-
+  font-weight: 800;
   cursor: pointer;
 }
 
-.modal-delete-btn {
-  background: #ffe8ee;
-  color: #c45a78;
+.manage-modal-delete {
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #dc2626;
 }
 
-.modal-close-btn {
-  background: #eeeafd;
-  color: #6550a4;
+.manage-modal-close-btn {
+  border: 1px solid #e2e5ef;
+  background: #ffffff;
+  color: #4b5568;
 }
 
+.manage-modal-delete:hover {
+  background: #fee2e2;
+}
 
-/* =========================================================
+.manage-modal-close-btn:hover {
+  background: #f5f6fa;
+}
+
+/* ============================================================
    TABLET
-   ========================================================= */
+   ============================================================ */
 
-@media (max-width: 1150px) {
-
-  .manage-notes-main {
-    padding: 30px 25px 45px;
+@media (max-width: 1200px) {
+  .manage-notes-content {
+    padding: 28px 28px 70px;
   }
 
-  .notes-summary {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+  .manage-notes-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .notes-table {
-    min-width: 850px;
+  .manage-notes-table {
+    overflow-x: auto;
   }
 }
 
+/* ============================================================
+   MOBILE / SMALL LAPTOP
+   ============================================================ */
 
-/* =========================================================
-   SMALL LAPTOP / TABLET
-   ========================================================= */
-
-@media (max-width: 850px) {
-
-  .admin-sidebar {
-    width: 220px;
-    min-width: 220px;
+@media (max-width: 900px) {
+  .manage-notes-content {
+    padding: 24px 20px 95px;
   }
 
-  .manage-notes-main {
-    width: calc(100% - 220px);
-
-    padding: 25px 18px 40px;
+  .manage-notes-header {
+    align-items: flex-start;
   }
 
-  .admin-nav button {
-    font-size: 13px;
+  .manage-notes-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .manage-notes-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manage-notes-filter {
+    flex: none;
+    width: 100%;
+  }
+
+  .manage-notes-table-card {
+    border-radius: 20px;
+  }
+
+  .manage-notes-table {
+    display: block;
+    overflow: visible;
+  }
+
+  .manage-notes-table-header {
+    display: none;
+  }
+
+  .manage-notes-table-row {
+    min-width: 0;
+    width: 100%;
+    padding: 17px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 17px;
+  }
+
+  .manage-note-info {
+    grid-column: 1 / -1;
+  }
+
+  .manage-note-text span {
+    max-width: 100%;
+  }
+
+  .manage-note-date {
+    justify-self: end;
+  }
+
+  .manage-note-actions {
+    justify-self: end;
+  }
+
+  .manage-notes-mobile-nav {
+    position: fixed;
+    z-index: 5000;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+
+    min-height: 66px;
+    padding: 7px;
+
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px;
+
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 19px;
+
+    background:
+      rgba(255, 255, 255, 0.9);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow:
+      0 15px 45px rgba(15, 23, 42, 0.17);
+  }
+
+  .manage-notes-mobile-nav button {
+    min-width: 0;
+    border: 0;
+    border-radius: 13px;
+    background: transparent;
+    color: #7b8498;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+  }
+
+  .manage-notes-mobile-nav button span {
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  .manage-notes-mobile-nav button small {
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 8px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .manage-notes-mobile-nav button.active {
+    background:
+      linear-gradient(
+        135deg,
+        rgba(99, 102, 241, 0.13),
+        rgba(168, 85, 247, 0.13)
+      );
+    color: #5547d9;
+  }
+}
+
+/* ============================================================
+   PHONE
+   ============================================================ */
+
+@media (max-width: 600px) {
+  .manage-notes-content {
+    padding: 20px 13px 92px;
+  }
+
+  .manage-notes-header {
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
   }
 
   .manage-notes-header h1 {
     font-size: 29px;
   }
 
-  .notes-summary {
-    gap: 12px;
-  }
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-  .manage-notes-page {
-    min-height: calc(100vh - 64px);
-
-    display: block;
-  }
-
-  /* Sidebar mobile par hide */
-  .admin-sidebar {
-    display: none;
-  }
-
-  .manage-notes-main {
-    width: 100%;
-
-    padding: 19px 13px 35px;
-  }
-
-  /* Header */
-  .manage-notes-header {
-    align-items: stretch;
-
-    flex-direction: column;
-
-    gap: 14px;
-
-    margin-bottom: 20px;
-  }
-
-  .manage-notes-label {
-    font-size: 9px;
-
-    letter-spacing: 1.5px;
-  }
-
-  .manage-notes-header h1 {
-    font-size: 27px;
-  }
-
-  .manage-notes-header > div > p:last-child {
-    margin-top: 8px;
-
+  .manage-notes-header p {
     font-size: 12px;
-
-    line-height: 1.5;
   }
 
-  .notes-refresh-button {
+  .manage-notes-refresh {
     width: 100%;
   }
 
-
-  /* Summary */
-
-  .notes-summary {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-
+  .manage-notes-summary {
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
-
-    margin-bottom: 19px;
   }
 
-  .notes-summary-card {
-    min-height: 82px;
-
+  .manage-note-summary-card {
+    min-height: 84px;
     padding: 13px;
-
     gap: 10px;
-
-    border-radius: 14px;
+    border-radius: 16px;
   }
 
-  .notes-summary-icon {
-    width: 39px;
-    height: 39px;
-
+  .manage-note-summary-icon {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
     border-radius: 11px;
-
     font-size: 18px;
   }
 
-  .notes-summary-card span {
-    margin-bottom: 4px;
-
-    font-size: 9px;
+  .manage-note-summary-card span {
+    font-size: 10px;
   }
 
-  .notes-summary-card strong {
-    font-size: 21px;
+  .manage-note-summary-card strong {
+    font-size: 20px;
   }
 
-
-  /* Toolbar */
-
-  .notes-toolbar {
-    flex-direction: column;
-
-    align-items: stretch;
-
-    gap: 10px;
-
-    margin-bottom: 12px;
+  .manage-notes-toolbar {
+    padding: 9px;
+    border-radius: 16px;
   }
 
-  .notes-search {
-    width: 100%;
-
+  .manage-notes-search input,
+  .manage-notes-filter select {
     height: 45px;
   }
 
-  .notes-filter {
-    width: 100%;
-
-    justify-content: space-between;
+  .manage-notes-results {
+    margin-bottom: 10px;
   }
 
-  .notes-filter select {
-    flex: 1;
-
-    min-width: 0;
-
-    height: 44px;
+  .manage-notes-table-card {
+    border-radius: 17px;
   }
 
-
-  /* Results */
-
-  .notes-results-info {
-    min-height: 31px;
-
-    margin-bottom: 9px;
-  }
-
-
-  /* =====================================================
-     MOBILE NOTE CARDS
-     ===================================================== */
-
-  .notes-table-wrapper {
-    overflow: visible;
-
-    border: 0;
-
-    border-radius: 0;
-
-    background: transparent;
-
-    box-shadow: none;
-  }
-
-  .notes-table {
-    min-width: 0;
-
-    width: 100%;
-  }
-
-  .notes-table-header {
-    display: none;
-  }
-
-  .notes-table-row {
-    width: 100%;
-
-    min-height: 0;
-
-    display: grid;
-
-    grid-template-columns:
-      minmax(0, 1fr)
-      auto;
-
-    gap: 12px;
-
-    margin-bottom: 11px;
-
+  .manage-notes-table-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
     padding: 15px;
-
-    border: 1px solid rgba(111, 87, 180, 0.1);
-
-    border-radius: 16px;
-
-    background: #ffffff;
-
-    box-shadow:
-      0 5px 18px rgba(76, 59, 125, 0.055);
   }
 
-  .notes-table-row:last-child {
-    border-bottom: 1px solid rgba(111, 87, 180, 0.1);
+  .manage-note-info {
+    gap: 10px;
   }
 
-  .notes-table-row:hover {
-    background: #ffffff;
-  }
-
-
-  /* Note */
-
-  .note-info {
-    grid-column: 1 / -1;
-
-    width: 100%;
-  }
-
-  .note-mini-icon {
-    width: 43px;
-    height: 43px;
-
-    border-radius: 12px;
-  }
-
-  .note-info h3 {
-    font-size: 13px;
-  }
-
-  .note-info p {
-    max-width: 100%;
-
-    font-size: 10px;
-  }
-
-
-  /* User */
-
-  .note-user {
-    grid-column: 1 / -1;
-
-    width: 100%;
-
-    padding-top: 9px;
-
-    border-top: 1px solid rgba(111, 87, 180, 0.07);
-  }
-
-  .user-avatar-small {
-    width: 34px;
-    height: 34px;
-  }
-
-
-  /* Category */
-
-  .note-category {
-    grid-column: 1;
-
-    align-self: center;
-  }
-
-
-  /* Status */
-
-  .note-status {
-    grid-column: 2;
-
-    justify-content: flex-end;
-  }
-
-
-  /* Created */
-
-  .note-created {
-    grid-column: 1;
-
-    padding-top: 5px;
-
-    font-size: 10px;
-  }
-
-
-  /* Actions */
-
-  .note-actions {
-    grid-column: 2;
-
-    justify-content: flex-end;
-  }
-
-  .note-actions button {
-    width: 32px;
-    height: 32px;
-  }
-
-
-  /* Empty */
-
-  .notes-empty {
-    padding: 42px 18px;
-
-    border-radius: 16px;
-  }
-
-  .notes-empty-icon {
-    width: 55px;
-    height: 55px;
-
-    border-radius: 16px;
-
-    font-size: 24px;
-  }
-
-  .notes-empty h2 {
-    font-size: 18px;
-  }
-
-  .notes-empty p {
-    font-size: 12px;
-  }
-
-
-  /* Modal */
-
-  .note-modal-overlay {
-    align-items: flex-end;
-
-    padding: 0;
-  }
-
-  .note-view-modal {
-    width: 100%;
-
-    max-height: 92vh;
-
-    border-radius: 22px 22px 0 0;
-  }
-
-  .note-modal-header {
-    min-height: 75px;
-
-    padding: 16px;
-  }
-
-  .note-modal-header h2 {
-    font-size: 18px;
-  }
-
-  .note-modal-body {
-    padding: 16px;
-  }
-
-  .modal-meta {
-    grid-template-columns:
-      1fr 1fr;
-
-    gap: 9px;
-
-    margin-bottom: 15px;
-  }
-
-  .modal-meta > div:last-child {
-    grid-column: 1 / -1;
-  }
-
-  .modal-note-content {
-    padding: 14px;
-  }
-
-  .modal-note-content p {
-    font-size: 12px;
-    line-height: 1.65;
-  }
-
-  .note-modal-footer {
-    padding: 12px 16px;
-
-    justify-content: stretch;
-  }
-
-  .modal-delete-btn,
-  .modal-close-btn {
-    flex: 1;
-  }
-}
-
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 420px) {
-
-  .manage-notes-main {
-    padding: 16px 10px 30px;
-  }
-
-  .manage-notes-header h1 {
-    font-size: 24px;
-  }
-
-  .notes-summary {
-    gap: 8px;
-  }
-
-  .notes-summary-card {
-    min-height: 75px;
-
-    padding: 10px;
-
-    gap: 8px;
-  }
-
-  .notes-summary-icon {
-    width: 34px;
-    height: 34px;
-
-    font-size: 16px;
-  }
-
-  .notes-summary-card strong {
-    font-size: 19px;
-  }
-
-  .notes-summary-card span {
-    font-size: 8px;
-  }
-
-  .notes-table-row {
-    padding: 13px;
-
-    border-radius: 14px;
-  }
-
-  .note-info {
-    gap: 9px;
-  }
-
-  .note-mini-icon {
-    width: 39px;
-    height: 39px;
-
+  .manage-note-mini-icon {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    border-radius: 11px;
     font-size: 17px;
   }
 
-  .note-info h3 {
+  .manage-note-text strong {
     font-size: 12px;
   }
 
-  .note-info p {
-    font-size: 9px;
+  .manage-note-text span {
+    font-size: 10px;
   }
 
-  .note-user strong {
-    font-size: 11px;
-  }
-
-  .note-user span {
-    font-size: 9px;
-  }
-
-  .note-actions {
-    gap: 4px;
-  }
-
-  .note-actions button {
-    width: 29px;
-    height: 29px;
-
+  .manage-note-user-avatar {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 10px;
     font-size: 12px;
   }
-}
 
+  .manage-note-user-text strong {
+    font-size: 10px;
+  }
 
-/* =========================================================
-   VERY SMALL MOBILE
-   ========================================================= */
+  .manage-note-user-text span {
+    font-size: 9px;
+  }
 
-@media (max-width: 350px) {
+  .manage-note-date {
+    font-size: 10px;
+  }
 
-  .notes-summary-card {
-    flex-direction: column;
-
-    align-items: flex-start;
-
+  .manage-note-actions {
     gap: 5px;
   }
 
-  .notes-summary-icon {
-    width: 31px;
-    height: 31px;
+  .manage-view-btn,
+  .manage-delete-btn {
+    width: 33px;
+    height: 33px;
+    border-radius: 9px;
   }
 
-  .note-status {
-    gap: 3px;
+  .manage-note-modal-overlay {
+    padding: 10px;
+    align-items: center;
   }
 
-  .status-badge {
-    min-width: 24px;
-    height: 25px;
+  .manage-note-modal {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    border-radius: 21px;
+  }
 
-    padding: 0 5px;
+  .manage-modal-header {
+    min-height: 78px;
+    padding: 17px;
+  }
 
-    font-size: 10px;
+  .manage-modal-header h2 {
+    font-size: 19px;
+  }
+
+  .manage-modal-close {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .manage-modal-body {
+    padding: 16px;
+  }
+
+  .manage-modal-meta {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin-bottom: 13px;
+  }
+
+  .manage-modal-meta > div {
+    padding: 12px;
+  }
+
+  .manage-modal-content {
+    padding: 15px;
+  }
+
+  .manage-modal-content p {
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .manage-modal-footer {
+    min-height: auto;
+    padding: 12px 16px;
+    flex-direction: column-reverse;
+  }
+
+  .manage-modal-delete,
+  .manage-modal-close-btn {
+    width: 100%;
+  }
+
+  .manage-notes-error {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manage-notes-error button {
+    width: 100%;
   }
 }
 
+/* ============================================================
+   VERY SMALL PHONES
+   ============================================================ */
 
-/* =========================================================
-   TOUCH DEVICES
-   ========================================================= */
+@media (max-width: 390px) {
+  .manage-notes-content {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 
-@media (hover: none) {
+  .manage-notes-summary {
+    gap: 8px;
+  }
 
-  .admin-nav button:hover,
-  .admin-logout:hover,
-  .notes-summary-card:hover,
-  .notes-refresh-button:hover:not(:disabled),
-  .note-actions button:hover {
-    transform: none;
+  .manage-note-summary-card {
+    padding: 10px;
+  }
+
+  .manage-note-summary-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .manage-notes-mobile-nav {
+    left: 6px;
+    right: 6px;
+  }
+
+  .manage-notes-mobile-nav button small {
+    font-size: 7px;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.2);
+  outline-offset: 2px;
+}
+/* ============================================================
+   MANAGE NOTES - ATTACHMENTS
+   ============================================================ */
+
+.manage-note-attachments-count {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.10);
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  color: #6366f1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* ============================================================
+   MODAL ATTACHMENTS
+   ============================================================ */
+
+.manage-modal-attachments {
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.75);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+}
+
+.manage-modal-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.manage-modal-section-heading > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.manage-modal-section-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(99, 102, 241, 0.10);
+  font-size: 20px;
+}
+
+.manage-modal-section-heading h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.manage-modal-section-heading p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.manage-attachment-count {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 9px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+/* ============================================================
+   NO ATTACHMENTS
+   ============================================================ */
+
+.manage-no-attachments {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px dashed #cbd5e1;
+}
+
+.manage-no-attachments > span {
+  font-size: 25px;
+}
+
+.manage-no-attachments strong {
+  display: block;
+  color: #334155;
+  font-size: 13px;
+}
+
+.manage-no-attachments p {
+  margin: 3px 0 0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+
+/* ============================================================
+   ATTACHMENT LIST
+   ============================================================ */
+
+.manage-attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.manage-attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 15px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.manage-attachment-item:hover {
+  transform: translateY(-1px);
+  border-color: #c7d2fe;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+
+/* ============================================================
+   FILE PREVIEW
+   ============================================================ */
+
+.manage-attachment-preview {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.manage-attachment-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.manage-attachment-file-icon {
+  font-size: 25px;
+}
+
+
+/* ============================================================
+   FILE INFO
+   ============================================================ */
+
+.manage-attachment-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manage-attachment-info strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.manage-attachment-info span {
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+
+/* ============================================================
+   ATTACHMENT ACTIONS
+   ============================================================ */
+
+.manage-attachment-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.manage-attachment-open,
+.manage-attachment-download {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px;
+  border-radius: 9px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.manage-attachment-open:hover,
+.manage-attachment-download:hover {
+  background: #f8fafc;
+  border-color: #c7d2fe;
+  transform: translateY(-1px);
+}
+
+.manage-attachment-open:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .manage-modal-attachments {
+    padding: 14px;
+    margin-top: 18px;
+  }
+
+  .manage-attachment-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .manage-attachment-info {
+    min-width: calc(100% - 70px);
+    padding-top: 4px;
+  }
+
+  .manage-attachment-actions {
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .manage-attachment-open,
+  .manage-attachment-download {
+    flex: 1;
+  }
+}
+
+@media (max-width: 430px) {
+  .manage-modal-section-heading h3 {
+    font-size: 14px;
+  }
+
+  .manage-modal-section-heading p {
+    font-size: 10px;
+  }
+
+  .manage-attachment-preview {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+  }
+
+  .manage-attachment-file-icon {
+    font-size: 22px;
   }
 }

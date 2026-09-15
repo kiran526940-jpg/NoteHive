@@ -8,8 +8,6 @@ console.log(
 );
 
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -17,6 +15,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const bcrypt = require("bcryptjs");
+const http = require("http");
+const { Server } = require("socket.io");
+const Message = require("./models/Message");
 
 // ============================================================
 // ENV
@@ -30,31 +31,24 @@ dotenv.config();
 
 const app = express();
 
-const server = http.createServer(app);
+const httpServer = http.createServer(app);
 
-const io = new Server(server, {
+const io = new Server(httpServer, {
   cors: {
     origin: true,
     credentials: true,
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+    ],
   },
-});
-
-io.on("connection", (socket) => {
-  console.log("🟢 Socket connected:", socket.id);
-
-  socket.on("join-admin", () => {
-    socket.join("admins");
-    console.log("👑 Admin joined notification room:", socket.id);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("🔴 Socket disconnected:", socket.id);
-  });
 });
 
 const PORT =
   process.env.PORT || 5000;
-
 const MONGO_URI =
   process.env.MONGO_URI;
 
@@ -852,7 +846,216 @@ async function createActivity(
     );
   }
 }
+// ============================================================
+// SOCKET.IO - REAL-TIME FEATURES
+// ============================================================
 
+io.on("connection", (socket) => {
+  console.log("🟢 Socket connected:", socket.id);
+
+  // ==========================================================
+  // ADMIN NOTIFICATION ROOM
+  // ==========================================================
+
+  socket.on("join-admin", () => {
+    socket.join("admin-room");
+
+    console.log(
+      `👑 Admin joined notification room: ${socket.id}`
+    );
+  });
+
+  // ==========================================================
+  // USER REAL-TIME ROOM
+  // ==========================================================
+
+  socket.on("join-user", (userId) => {
+    if (!userId) {
+      return;
+    }
+
+    const roomName = `user-${userId}`;
+
+    socket.join(roomName);
+
+    console.log(
+      `👤 User joined room ${roomName}: ${socket.id}`
+    );
+  });
+
+  // ==========================================================
+  // CHAT - REAL-TIME MESSAGE
+  // ==========================================================
+
+  socket.on("send-message", async (data, callback) => {
+    try {
+      console.log("📨 send-message received:", data);
+
+      const {
+        sender,
+        receiver,
+        message,
+      } = data || {};
+
+      // --------------------------------------------------------
+      // VALIDATION
+      // --------------------------------------------------------
+
+      if (
+        !sender ||
+        !receiver ||
+        !message?.trim()
+      ) {
+        console.log(
+          "❌ send-message validation failed"
+        );
+
+        if (typeof callback === "function") {
+          callback({
+            success: false,
+            message:
+              "Sender, receiver and message are required.",
+          });
+        }
+
+        return;
+      }
+
+      if (
+        !mongoose.Types.ObjectId.isValid(sender) ||
+        !mongoose.Types.ObjectId.isValid(receiver)
+      ) {
+        console.log(
+          "❌ Invalid sender or receiver:",
+          sender,
+          receiver
+        );
+
+        if (typeof callback === "function") {
+          callback({
+            success: false,
+            message:
+              "Invalid sender or receiver ID.",
+          });
+        }
+
+        return;
+      }
+
+      // --------------------------------------------------------
+      // SAVE MESSAGE IN MONGODB
+      // --------------------------------------------------------
+
+      const newMessage =
+        await Message.create({
+          sender,
+          receiver,
+          message: message.trim(),
+          read: false,
+        });
+
+      console.log(
+        "💾 Message saved:",
+        newMessage._id.toString()
+      );
+
+      // --------------------------------------------------------
+      // POPULATE USER DETAILS
+      // --------------------------------------------------------
+
+      const populatedMessage =
+        await Message.findById(
+          newMessage._id
+        )
+          .populate(
+            "sender",
+            "name email profileImage"
+          )
+          .populate(
+            "receiver",
+            "name email profileImage"
+          );
+
+      // --------------------------------------------------------
+      // ROOM NAMES
+      // --------------------------------------------------------
+
+      const receiverRoom =
+        `user-${receiver}`;
+
+      const senderRoom =
+        `user-${sender}`;
+
+      console.log(
+        "📤 Sending to receiver room:",
+        receiverRoom
+      );
+
+      console.log(
+        "📤 Sending to sender room:",
+        senderRoom
+      );
+
+      // --------------------------------------------------------
+      // SEND TO RECEIVER
+      // --------------------------------------------------------
+
+      io.to(receiverRoom).emit(
+        "receive-message",
+        populatedMessage
+      );
+
+      // --------------------------------------------------------
+      // SEND BACK TO SENDER
+      // --------------------------------------------------------
+
+      io.to(senderRoom).emit(
+        "message-sent",
+        populatedMessage
+      );
+
+      // --------------------------------------------------------
+      // ACKNOWLEDGEMENT
+      // --------------------------------------------------------
+
+      if (typeof callback === "function") {
+        callback({
+          success: true,
+          message:
+            "Message sent successfully.",
+          data: populatedMessage,
+        });
+      }
+
+      console.log(
+        "✅ Real-time message delivered"
+      );
+    } catch (error) {
+      console.error(
+        "❌ Socket send message error:",
+        error
+      );
+
+      if (typeof callback === "function") {
+        callback({
+          success: false,
+          message:
+            "Unable to send message.",
+        });
+      }
+    }
+  });
+
+  // ==========================================================
+  // DISCONNECT
+  // ==========================================================
+
+  socket.on("disconnect", (reason) => {
+    console.log(
+      `🔴 Socket disconnected: ${socket.id} | ${reason}`
+    );
+  });
+});
 // ============================================================
 // HEALTH CHECK
 // ============================================================
@@ -5513,7 +5716,175 @@ app.get("/api/admin/users", async (req, res) => {
   }
 });
 
+// ============================================================
+// CHAT - MESSAGE APIs
+// ============================================================
 
+// GET CHAT MESSAGES BETWEEN TWO USERS
+app.get("/api/messages/:userId/:otherUserId", async (req, res) => {
+  try {
+    const { userId, otherUserId } = req.params;
+
+    if (
+      !mongoose.Types.ObjectId.isValid(userId) ||
+      !mongoose.Types.ObjectId.isValid(otherUserId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID.",
+      });
+    }
+
+    const messages = await Message.find({
+      $or: [
+        {
+          sender: userId,
+          receiver: otherUserId,
+        },
+        {
+          sender: otherUserId,
+          receiver: userId,
+        },
+      ],
+    })
+      .sort({ createdAt: 1 })
+      .populate("sender", "name email profileImage")
+      .populate("receiver", "name email profileImage");
+
+    res.json({
+      success: true,
+      messages,
+    });
+  } catch (error) {
+    console.error("Get chat messages error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load messages.",
+    });
+  }
+});
+
+
+// SEND A MESSAGE
+app.post("/api/messages", async (req, res) => {
+  try {
+    const { sender, receiver, message } = req.body;
+
+    if (!sender || !receiver || !message?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Sender, receiver and message are required.",
+      });
+    }
+
+    if (
+      !mongoose.Types.ObjectId.isValid(sender) ||
+      !mongoose.Types.ObjectId.isValid(receiver)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid sender or receiver ID.",
+      });
+    }
+
+    const newMessage = await Message.create({
+      sender,
+      receiver,
+      message: message.trim(),
+      read: false,
+    });
+
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate("sender", "name email profileImage")
+      .populate("receiver", "name email profileImage");
+
+    res.status(201).json({
+      success: true,
+      message: "Message sent successfully.",
+      data: populatedMessage,
+    });
+  } catch (error) {
+    console.error("Send message error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to send message.",
+    });
+  }
+});
+
+
+// MARK CHAT MESSAGES AS READ
+app.patch(
+  "/api/messages/:userId/:otherUserId/read",
+  async (req, res) => {
+    try {
+      const { userId, otherUserId } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(userId) ||
+        !mongoose.Types.ObjectId.isValid(otherUserId)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid user ID.",
+        });
+      }
+
+      await Message.updateMany(
+        {
+          sender: otherUserId,
+          receiver: userId,
+          read: false,
+        },
+        {
+          $set: {
+            read: true,
+          },
+        }
+      );
+
+      res.json({
+        success: true,
+        message: "Messages marked as read.",
+      });
+    } catch (error) {
+      console.error("Mark messages read error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Unable to mark messages as read.",
+      });
+    }
+  }
+);
+// ============================================================
+// CHAT - GET USERS LIST
+// ============================================================
+
+app.get("/api/users/chat-list", async (req, res) => {
+  try {
+    const users = await User.find({
+      role: "user",
+      status: "approved",
+    })
+      .select("_id name email profileImage bio profession")
+      .sort({ name: 1 });
+
+    res.json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.error("Chat users error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load chat users.",
+    });
+  }
+});
 // ============================================================
 // GLOBAL ERROR HANDLER
 // ============================================================
@@ -5580,7 +5951,7 @@ mongoose
     // START SERVER
     // --------------------------------------------------------
 
-    server.listen(PORT, "0.0.0.0", () => {
+    httpServer.listen(PORT, "0.0.0.0", () => {
       console.log("====================================");
       console.log(`🚀 NoteHive server running on port ${PORT}`);
       console.log(
@@ -5599,3 +5970,5 @@ mongoose
     console.error("====================================");
   });
 
+
+  
