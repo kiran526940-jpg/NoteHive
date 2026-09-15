@@ -1,5 +1,5 @@
 import React from "react";
-import "./SaveAnywhere.css";
+import "./saveanywhere.css";
 const API_URL = "http://192.168.1.68:5000/api";
 function SaveAnywhere() {
   return (
