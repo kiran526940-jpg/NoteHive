@@ -139,7 +139,6 @@ function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Pin API error:", data);
         alert(data.message || "Unable to update pin.");
         return;
       }
@@ -190,7 +189,6 @@ function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Favorite API error:", data);
         alert(data.message || "Unable to update favorite.");
         return;
       }
@@ -223,9 +221,7 @@ function Dashboard() {
       "Are you sure you want to delete this note?"
     );
 
-    if (!confirmDelete) {
-      return;
-    }
+    if (!confirmDelete) return;
 
     if (!userId) {
       alert("Please login again.");
@@ -243,7 +239,6 @@ function Dashboard() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Delete error:", data);
         alert(data.message || "Unable to delete note.");
         return;
       }
@@ -258,7 +253,7 @@ function Dashboard() {
   };
 
   // =====================================================
-  // FORMAT DATE
+  // DATE
   // =====================================================
 
   const formatDate = (date) => {
@@ -276,21 +271,6 @@ function Dashboard() {
   };
 
   // =====================================================
-  // LOGOUT
-  // =====================================================
-
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("notehive_userId");
-    localStorage.removeItem("notehive_userName");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("name");
-    localStorage.removeItem("userRole");
-
-    navigate("/login");
-  };
-
-  // =====================================================
   // UI
   // =====================================================
 
@@ -298,24 +278,34 @@ function Dashboard() {
     <div className="dashboard-page">
 
       {/* =================================================
-          HERO / WELCOME
+          APP HERO
       ================================================= */}
 
       <section className="dashboard-hero">
+
+        <div className="hero-glow hero-glow-one"></div>
+        <div className="hero-glow hero-glow-two"></div>
+
         <div className="dashboard-hero-content">
-          <div>
-            <span className="dashboard-welcome">
-              Welcome back 👋
-            </span>
+
+          <div className="hero-text">
+
+            <div className="hero-mini-badge">
+              <span className="hero-mini-dot"></span>
+              Your workspace
+            </div>
 
             <h1>
-              Hello, {userName}
+              Hello,{" "}
+              <span>{userName}</span>
+              <span className="hero-wave">👋</span>
             </h1>
 
             <p>
-              Organize your thoughts, manage your notes and
-              keep everything in one place.
+              Capture your ideas, organize your thoughts,
+              and keep everything in one beautiful place.
             </p>
+
           </div>
 
           <button
@@ -323,52 +313,68 @@ function Dashboard() {
             type="button"
             onClick={() => navigate("/create-note")}
           >
-            <span>＋</span>
-            Create Note
+            <span className="create-note-plus">＋</span>
+
+            <span>
+              <small>Start writing</small>
+              New Note
+            </span>
+
+            <span className="create-note-arrow">→</span>
           </button>
+
         </div>
+
       </section>
 
       {/* =================================================
-          STATISTICS
+          STATS
       ================================================= */}
 
       <section className="dashboard-stats">
 
-        <div className="stat-card">
+        <div className="stat-card stat-blue">
           <div className="stat-icon">📝</div>
 
-          <div>
+          <div className="stat-info">
             <span>Total Notes</span>
             <strong>{totalNotes}</strong>
           </div>
+
+          <div className="stat-decoration">01</div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card stat-purple">
           <div className="stat-icon">📌</div>
 
-          <div>
-            <span>Pinned Notes</span>
+          <div className="stat-info">
+            <span>Pinned</span>
             <strong>{pinnedNotes}</strong>
           </div>
+
+          <div className="stat-decoration">02</div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card stat-pink">
           <div className="stat-icon">⭐</div>
 
-          <div>
+          <div className="stat-info">
             <span>Favorites</span>
             <strong>{favoriteNotes}</strong>
           </div>
+
+          <div className="stat-decoration">03</div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon">✅</div>
+        <div className="stat-card stat-green">
+          <div className="stat-icon">✓</div>
 
-          <div>
+          <div className="stat-info">
             <span>Completed</span>
             <strong>{completedNotes}</strong>
           </div>
+
+          <div className="stat-decoration">04</div>
         </div>
 
       </section>
@@ -380,72 +386,70 @@ function Dashboard() {
       <section className="quick-actions-section">
 
         <div className="section-heading">
+
           <div>
             <span className="section-small-title">
-              Quick Access
+              QUICK ACCESS
             </span>
 
             <h2>
-              What would you like to do?
+              What do you want to do?
             </h2>
           </div>
+
+          <div className="section-heading-mark">
+            ✦
+          </div>
+
         </div>
 
         <div className="quick-actions-grid">
 
-          {/* CREATE NOTE */}
-
           <button
             type="button"
-            className="quick-action-card"
+            className="quick-action-card quick-create"
             onClick={() => navigate("/create-note")}
           >
             <div className="quick-action-icon">
-              📝
+              ＋
             </div>
 
             <div className="quick-action-content">
               <strong>Create Note</strong>
-
               <span>
-                Create a new note and save your ideas
+                Write down your ideas
               </span>
             </div>
 
             <span className="quick-action-arrow">
-              →
+              ↗
             </span>
           </button>
 
-          {/* EXPLORE NOTES */}
-
           <button
             type="button"
-            className="quick-action-card"
+            className="quick-action-card quick-explore"
             onClick={() => navigate("/explore-notes")}
           >
             <div className="quick-action-icon">
-              🔍
+              🔎
             </div>
 
             <div className="quick-action-content">
-              <strong>Explore Notes</strong>
-
+              <strong>Explore</strong>
               <span>
-                Discover notes shared by the community
+                Discover shared notes
               </span>
             </div>
 
             <span className="quick-action-arrow">
-              →
+              ↗
             </span>
           </button>
 
-          {/* PINNED NOTES */}
-
           <button
             type="button"
-            className="quick-action-card"
+            className="quick-action-card quick-pinned"
             onClick={() => navigate("/pinned-notes")}
           >
             <div className="quick-action-icon">
@@ -454,22 +458,19 @@ function Dashboard() {
 
             <div className="quick-action-content">
               <strong>Pinned Notes</strong>
-
               <span>
-                Quickly access your important notes
+                Your important notes
               </span>
             </div>
 
             <span className="quick-action-arrow">
-              →
+              ↗
             </span>
           </button>
 
-          {/* FAVORITE NOTES */}
-
           <button
             type="button"
-            className="quick-action-card"
+            className="quick-action-card quick-favorite"
             onClick={() => navigate("/favorite-notes")}
           >
             <div className="quick-action-icon">
@@ -477,23 +478,23 @@ function Dashboard() {
             </div>
 
             <div className="quick-action-content">
-              <strong>Favorite Notes</strong>
-
+              <strong>Favorites</strong>
               <span>
-                View notes you marked as favorite
+                Notes you love
               </span>
             </div>
 
             <span className="quick-action-arrow">
-              →
+              ↗
             </span>
           </button>
 
         </div>
+
       </section>
 
       {/* =================================================
-          MY NOTES
+          NOTES
       ================================================= */}
 
       <section className="dashboard-notes-section">
@@ -502,11 +503,11 @@ function Dashboard() {
 
           <div>
             <span className="section-small-title">
-              Your Workspace
+              YOUR NOTES
             </span>
 
             <h2>
-              My Recent Notes
+              Recent Notes
             </h2>
           </div>
 
@@ -515,7 +516,8 @@ function Dashboard() {
             className="view-all-btn"
             onClick={() => navigate("/my-notes")}
           >
-            View All →
+            View all
+            <span>→</span>
           </button>
 
         </div>
@@ -525,7 +527,7 @@ function Dashboard() {
         <div className="dashboard-search-wrapper">
 
           <span className="dashboard-search-icon">
-            🔍
+            ⌕
           </span>
 
           <input
@@ -552,20 +554,22 @@ function Dashboard() {
         {/* LOADING */}
 
         {loading ? (
+
           <div className="dashboard-empty-state">
+
             <div className="loading-spinner"></div>
 
             <h3>
-              Loading your notes...
+              Loading your notes
             </h3>
 
             <p>
-              Please wait while we fetch your notes.
+              Getting everything ready for you...
             </p>
-          </div>
-        ) : filteredNotes.length === 0 ? (
 
-          /* EMPTY */
+          </div>
+
+        ) : filteredNotes.length === 0 ? (
 
           <div className="dashboard-empty-state">
 
@@ -576,22 +580,20 @@ function Dashboard() {
             <h3>
               {searchText
                 ? "No notes found"
-                : "No notes yet"}
+                : "Your notebook is empty"}
             </h3>
 
             <p>
               {searchText
-                ? "Try searching with another keyword."
-                : "Create your first note and start organizing your ideas."}
+                ? "Try another keyword."
+                : "Create your first note and start capturing your ideas."}
             </p>
 
             {!searchText && (
               <button
                 type="button"
                 className="empty-create-btn"
-                onClick={() =>
-                  navigate("/create-note")
-                }
+                onClick={() => navigate("/create-note")}
               >
                 ＋ Create Your First Note
               </button>
@@ -600,8 +602,6 @@ function Dashboard() {
           </div>
 
         ) : (
-
-          /* NOTES */
 
           <div className="dashboard-notes-grid">
 
@@ -612,29 +612,23 @@ function Dashboard() {
                 key={note._id}
               >
 
-                {/* CARD TOP */}
+                <div className="note-card-color"></div>
 
                 <div className="note-card-top">
 
-                  <div className="note-category">
+                  <span className="note-category">
                     {note.category || "General"}
-                  </div>
+                  </span>
 
                   <div className="note-card-actions">
 
                     <button
                       type="button"
-                      title={
-                        note.pinned
-                          ? "Unpin note"
-                          : "Pin note"
-                      }
-                      onClick={() =>
-                        togglePin(note)
-                      }
+                      title={note.pinned ? "Unpin note" : "Pin note"}
+                      onClick={() => togglePin(note)}
                       className={
                         note.pinned
-                          ? "active-action"
+                          ? "active-action pin-active"
                           : ""
                       }
                     >
@@ -648,12 +642,10 @@ function Dashboard() {
                           ? "Remove favorite"
                           : "Add favorite"
                       }
-                      onClick={() =>
-                        toggleFavorite(note)
-                      }
+                      onClick={() => toggleFavorite(note)}
                       className={
                         note.favorite
-                          ? "active-action"
+                          ? "active-action favorite-active"
                           : ""
                       }
                     >
@@ -663,50 +655,36 @@ function Dashboard() {
                     <button
                       type="button"
                       title="Delete note"
-                      onClick={() =>
-                        deleteNote(note._id)
-                      }
+                      onClick={() => deleteNote(note._id)}
                     >
-                      🗑️
+                      🗑
                     </button>
 
                   </div>
 
                 </div>
 
-                {/* TITLE */}
-
                 <h3>
                   {note.title || "Untitled Note"}
                 </h3>
 
-                {/* CONTENT */}
-
                 <p className="note-card-content">
                   {note.content
                     ? note.content.length > 150
-                      ? `${note.content.substring(
-                          0,
-                          150
-                        )}...`
+                      ? `${note.content.substring(0, 150)}...`
                       : note.content
                     : "No content available."}
                 </p>
 
-                {/* FOOTER */}
-
                 <div className="note-card-footer">
 
-                  <span>
-                    {formatDate(
-                      note.updatedAt ||
-                        note.createdAt
-                    )}
+                  <span className="note-date">
+                    ◷ {formatDate(note.updatedAt || note.createdAt)}
                   </span>
 
                   {note.completed && (
                     <span className="completed-badge">
-                      ✓ Completed
+                      ✓ Done
                     </span>
                   )}
 

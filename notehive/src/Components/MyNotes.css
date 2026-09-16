@@ -1,47 +1,152 @@
 /* =========================================================
    NOTEHIVE - MY NOTES
-   PREMIUM BLUE + WHITE
+   PREMIUM GLASSMORPHISM
+   BLUE + PURPLE + PINK
    DESKTOP + MOBILE APP RESPONSIVE
-========================================================= */
+   ========================================================= */
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
+
 .mynotes-page {
+  position: relative;
+
   min-height: 100vh;
   width: 100%;
-  background: #f8fafc;
+
+  padding: 30px 38px 75px;
+
+  overflow-x: hidden;
+
   color: #1e293b;
+
   font-family:
     Inter,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  padding: 35px 42px 70px;
-  overflow-x: hidden;
+
+  background:
+    radial-gradient(
+      circle at 8% 5%,
+      rgba(91, 124, 255, 0.22),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(181, 91, 255, 0.18),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(255, 104, 190, 0.13),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      #eef4ff 0%,
+      #f7f4ff 48%,
+      #fff5fa 100%
+    );
+}
+
+/* background glow */
+
+.mynotes-page::before,
+.mynotes-page::after {
+  content: "";
+
+  position: fixed;
+
+  z-index: 0;
+
+  pointer-events: none;
+
+  border-radius: 50%;
+
+  filter: blur(80px);
+}
+
+.mynotes-page::before {
+  width: 260px;
+  height: 260px;
+
+  top: 110px;
+  left: -120px;
+
+  background: rgba(91, 124, 255, 0.14);
+}
+
+.mynotes-page::after {
+  width: 300px;
+  height: 300px;
+
+  right: -130px;
+  bottom: 50px;
+
+  background: rgba(201, 91, 255, 0.13);
+}
+
+/* =========================================================
+   COMMON GLASS
+   ========================================================= */
+
+.mynotes-top,
+.notes-controls,
+.professional-note-card,
+.notes-empty {
+  position: relative;
+
+  z-index: 1;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.62),
+      rgba(255, 255, 255, 0.34)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.78);
+
+  box-shadow:
+    0 18px 50px rgba(54, 72, 130, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
+
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 /* =========================================================
    TOP HEADER
-========================================================= */
+   ========================================================= */
 
 .mynotes-top {
   width: 100%;
   max-width: 1450px;
-  margin: 0 auto 28px;
 
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #f8fbff 100%
-  );
+  margin: 0 auto 24px;
 
-  border: 1px solid #e8eef5;
-  border-radius: 24px;
+  padding: 29px 32px;
 
-  padding: 35px 40px;
+  border-radius: 27px;
 
   display: flex;
   align-items: center;
@@ -49,46 +154,108 @@
 
   gap: 25px;
 
-  box-shadow:
-    0 8px 30px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.mynotes-top::before {
+  content: "";
+
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  right: -80px;
+  top: -100px;
+
+  border-radius: 50%;
+
+  background: rgba(104, 123, 255, 0.15);
+
+  filter: blur(10px);
+
+  pointer-events: none;
+}
+
+.mynotes-top::after {
+  content: "";
+
+  position: absolute;
+
+  width: 150px;
+  height: 150px;
+
+  right: 180px;
+  bottom: -100px;
+
+  border-radius: 50%;
+
+  background: rgba(220, 90, 240, 0.10);
+
+  pointer-events: none;
 }
 
 /* =========================================================
    HEADING
-========================================================= */
+   ========================================================= */
 
 .mynotes-heading {
+  position: relative;
+  z-index: 2;
+
   display: flex;
   align-items: center;
-  gap: 18px;
+
+  gap: 17px;
+
   min-width: 0;
 }
 
 .heading-icon {
-  width: 62px;
-  height: 62px;
-  min-width: 62px;
+  width: 61px;
+  height: 61px;
+
+  min-width: 61px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #f1f6ff;
-  border: 1px solid #dce8ff;
-  border-radius: 17px;
+  border-radius: 18px;
 
   font-size: 28px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.82),
+      rgba(226, 234, 255, 0.54)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.86);
+
+  box-shadow:
+    0 12px 28px rgba(79, 100, 180, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.mynotes-heading > div:last-child {
+  min-width: 0;
 }
 
 .mynotes-heading span {
   display: block;
+
   margin-bottom: 5px;
 
-  color: #4f7cff;
+  color: #5969db;
 
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 1.2px;
+
+  letter-spacing: 1.4px;
+
+  text-transform: uppercase;
 }
 
 .mynotes-heading h1 {
@@ -96,10 +263,13 @@
 
   color: #172033;
 
-  font-size: 35px;
+  font-size: 34px;
+
   line-height: 1.15;
+
   font-weight: 800;
-  letter-spacing: -0.7px;
+
+  letter-spacing: -0.8px;
 }
 
 .mynotes-heading p {
@@ -107,22 +277,35 @@
 
   color: #718096;
 
-  font-size: 14px;
+  font-size: 13px;
+
   line-height: 1.5;
 }
 
 /* =========================================================
    NEW NOTE BUTTON
-========================================================= */
+   ========================================================= */
 
 .new-note-btn {
-  min-height: 48px;
+  position: relative;
+  z-index: 2;
+
+  min-height: 49px;
+
   padding: 0 20px;
 
-  border: none;
-  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
 
-  background: #4f7cff;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #566ff4,
+      #745fe7,
+      #9a5bdd
+    );
+
   color: #ffffff;
 
   display: flex;
@@ -132,17 +315,18 @@
   gap: 8px;
 
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 750;
 
   cursor: pointer;
+
   white-space: nowrap;
 
   box-shadow:
-    0 7px 18px rgba(79, 124, 255, 0.2);
+    0 12px 27px rgba(82, 91, 215, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
 
   transition:
     transform 0.2s ease,
-    background 0.2s ease,
     box-shadow 0.2s ease;
 }
 
@@ -152,40 +336,40 @@
 }
 
 .new-note-btn:hover {
-  background: #416de7;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 
   box-shadow:
-    0 11px 25px rgba(79, 124, 255, 0.28);
+    0 18px 32px rgba(82, 91, 215, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.40);
+}
+
+.new-note-btn:active {
+  transform: scale(0.97);
 }
 
 /* =========================================================
    CONTROLS
-========================================================= */
+   ========================================================= */
 
 .notes-controls {
   width: 100%;
   max-width: 1450px;
 
-  margin: 0 auto 25px;
-  padding: 22px;
+  margin: 0 auto 21px;
 
-  background: #ffffff;
+  padding: 19px;
 
-  border: 1px solid #e8eef5;
-  border-radius: 20px;
-
-  box-shadow:
-    0 6px 25px rgba(15, 23, 42, 0.035);
+  border-radius: 21px;
 }
 
 /* =========================================================
    SEARCH
-========================================================= */
+   ========================================================= */
 
 .notes-search-box {
   width: 100%;
-  height: 56px;
+
+  height: 53px;
 
   position: relative;
 }
@@ -193,13 +377,14 @@
 .notes-search-box > span {
   position: absolute;
 
-  left: 18px;
+  left: 17px;
   top: 50%;
 
   transform: translateY(-50%);
 
-  font-size: 21px;
-  color: #64748b;
+  font-size: 19px;
+
+  color: #667085;
 
   z-index: 2;
 
@@ -212,35 +397,49 @@
 
   padding: 0 50px;
 
-  border: 1px solid #dce4ed;
-  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.82);
 
-  background: #f9fbfd;
+  border-radius: 15px;
+
+  background: rgba(255, 255, 255, 0.48);
+
   color: #1e293b;
 
-  font-size: 14px;
+  font-size: 13px;
 
   outline: none;
 
-  transition: 0.25s;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 8px 20px rgba(70, 80, 140, 0.04);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .notes-search-box input::placeholder {
-  color: #94a3b8;
+  color: #929bad;
 }
 
 .notes-search-box input:focus {
-  background: #ffffff;
-  border-color: #9bb7ff;
+  background: rgba(255, 255, 255, 0.68);
+
+  border-color: rgba(104, 116, 235, 0.45);
 
   box-shadow:
-    0 0 0 4px rgba(79, 124, 255, 0.08);
+    0 0 0 4px rgba(91, 108, 230, 0.08),
+    0 10px 25px rgba(70, 80, 140, 0.06);
 }
 
 .clear-search {
   position: absolute;
 
-  right: 14px;
+  right: 11px;
   top: 50%;
 
   transform: translateY(-50%);
@@ -248,11 +447,13 @@
   width: 29px;
   height: 29px;
 
-  border: none;
-  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.65);
 
-  background: #e8edf4;
-  color: #64748b;
+  border-radius: 10px;
+
+  background: rgba(107, 116, 220, 0.10);
+
+  color: #6971d4;
 
   font-size: 18px;
 
@@ -265,68 +466,87 @@
 
 /* =========================================================
    FILTERS
-========================================================= */
+   ========================================================= */
 
 .notes-filters {
   display: flex;
+
   flex-wrap: wrap;
 
   align-items: center;
 
-  gap: 9px;
+  gap: 8px;
 
-  margin-top: 18px;
+  margin-top: 15px;
 }
 
 .notes-filters button {
-  border: 1px solid #e1e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.76);
 
-  background: #ffffff;
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.44);
 
-  padding: 9px 16px;
+  color: #697386;
+
+  padding: 8px 15px;
 
   border-radius: 50px;
 
-  font-size: 12px;
-  font-weight: 650;
+  font-size: 11px;
+
+  font-weight: 700;
 
   cursor: pointer;
+
+  white-space: nowrap;
+
+  box-shadow:
+    0 5px 13px rgba(70, 80, 140, 0.035);
 
   transition:
     color 0.2s ease,
     background 0.2s ease,
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  white-space: nowrap;
+    transform 0.2s ease;
 }
 
 .notes-filters button:hover {
-  border-color: #a8bfff;
-  background: #f7f9ff;
-  color: #4f7cff;
+  border-color: rgba(111, 124, 235, 0.35);
+
+  background: rgba(255, 255, 255, 0.68);
+
+  color: #5d6bd8;
+
+  transform: translateY(-1px);
 }
 
 .notes-filters button.active {
-  background: #4f7cff;
-  border-color: #4f7cff;
+  background:
+    linear-gradient(
+      135deg,
+      #5c73ef,
+      #7961df
+    );
+
+  border-color: transparent;
 
   color: #ffffff;
 
   box-shadow:
-    0 5px 15px rgba(79, 124, 255, 0.2);
+    0 8px 19px rgba(83, 94, 216, 0.22);
 }
 
 /* =========================================================
    INFO BAR
-========================================================= */
+   ========================================================= */
 
 .notes-info {
+  position: relative;
+  z-index: 1;
+
   width: 100%;
   max-width: 1450px;
 
-  margin: 0 auto 20px;
+  margin: 0 auto 16px;
 
   display: flex;
   align-items: center;
@@ -338,33 +558,40 @@
 .notes-info > div {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+
+  gap: 5px;
 }
 
 .notes-info strong {
-  color: #172033;
+  color: #20283b;
 
-  font-size: 22px;
+  font-size: 21px;
+
   font-weight: 800;
 }
 
 .notes-info > div span {
-  color: #94a3b8;
-  font-size: 13px;
+  color: #8993a6;
+
+  font-size: 12px;
 }
 
 .notes-info > span {
-  color: #94a3b8;
+  color: #8993a6;
 
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+
+  font-weight: 650;
 }
 
 /* =========================================================
    NOTES GRID
-========================================================= */
+   ========================================================= */
 
 .professional-notes-grid {
+  position: relative;
+  z-index: 1;
+
   width: 100%;
   max-width: 1450px;
 
@@ -375,55 +602,76 @@
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 22px;
+  gap: 18px;
 }
 
 /* =========================================================
    NOTE CARD
-========================================================= */
+   ========================================================= */
 
 .professional-note-card {
   position: relative;
 
   min-width: 0;
-  min-height: 345px;
 
-  padding: 22px;
+  min-height: 335px;
 
-  background: #ffffff;
+  padding: 20px;
 
-  border: 1px solid #e7edf4;
-  border-radius: 18px;
+  border-radius: 21px;
 
   display: flex;
   flex-direction: column;
 
-  box-shadow:
-    0 5px 20px rgba(15, 23, 42, 0.035);
+  overflow: hidden;
 
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
     border-color 0.25s ease;
+}
 
-  overflow: hidden;
+.professional-note-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 120px;
+  height: 120px;
+
+  right: -60px;
+  bottom: -70px;
+
+  border-radius: 50%;
+
+  background: rgba(96, 115, 230, 0.07);
+
+  pointer-events: none;
 }
 
 .professional-note-card:hover {
   transform: translateY(-5px);
 
-  border-color: #d7e2ff;
+  border-color: rgba(137, 151, 240, 0.35);
 
   box-shadow:
-    0 15px 35px rgba(15, 23, 42, 0.08);
+    0 25px 48px rgba(54, 72, 130, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 /* =========================================================
    PINNED CARD
-========================================================= */
+   ========================================================= */
 
 .professional-note-card.is-pinned {
-  border-color: #dce6ff;
+  border-color: rgba(92, 121, 235, 0.32);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(244, 248, 255, 0.70),
+      rgba(255, 255, 255, 0.36)
+    );
 }
 
 .professional-note-card.is-pinned::before {
@@ -432,55 +680,61 @@
   position: absolute;
 
   top: 0;
-  left: 22px;
-  right: 22px;
+  left: 20px;
+  right: 20px;
 
-  height: 3px;
+  height: 4px;
 
-  background: #4f7cff;
+  background:
+    linear-gradient(
+      90deg,
+      #5873ef,
+      #7e62e4
+    );
 
-  border-radius: 0 0 5px 5px;
+  border-radius: 0 0 8px 8px;
 }
 
 /* =========================================================
    FAVORITE CARD
-========================================================= */
+   ========================================================= */
 
 .professional-note-card.is-favorite {
   background:
     linear-gradient(
-      135deg,
-      #ffffff 0%,
-      #fffdf8 100%
+      145deg,
+      rgba(255, 255, 255, 0.68),
+      rgba(255, 249, 236, 0.52)
     );
 }
 
 /* =========================================================
    CARD TOP
-========================================================= */
+   ========================================================= */
 
 .card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 10px;
 
-  margin-bottom: 17px;
+  margin-bottom: 14px;
 }
 
 .note-date {
-  color: #94a3b8;
+  color: #929bad;
 
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+
+  font-weight: 650;
 
   white-space: nowrap;
 }
 
 /* =========================================================
    CARD MENU
-========================================================= */
+   ========================================================= */
 
 .card-menu {
   display: flex;
@@ -490,49 +744,61 @@
 }
 
 .card-menu button {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
 
-  border: 1px solid #e3e9f0;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+
   border-radius: 9px;
 
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.48);
+
   color: #64748b;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 16px;
+  font-size: 15px;
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  box-shadow:
+    0 5px 12px rgba(70, 80, 140, 0.04);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .card-menu button:hover {
-  border-color: #b8c9ff;
-  background: #f7f9ff;
+  border-color: rgba(107, 121, 230, 0.30);
 
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.75);
+
+  transform: translateY(-2px);
 }
 
 /* =========================================================
    NOTE TITLE
-========================================================= */
+   ========================================================= */
 
 .professional-note-card h2 {
-  margin: 0 0 11px;
+  margin: 0 0 9px;
 
-  color: #172033;
+  color: #20283b;
 
-  font-size: 19px;
-  line-height: 1.4;
+  font-size: 18px;
 
-  font-weight: 700;
+  line-height: 1.35;
+
+  font-weight: 750;
 
   display: -webkit-box;
+
   -webkit-line-clamp: 2;
+
   -webkit-box-orient: vertical;
 
   overflow: hidden;
@@ -542,18 +808,21 @@
 
 /* =========================================================
    NOTE CONTENT
-========================================================= */
+   ========================================================= */
 
 .professional-note-card > p {
   margin: 0;
 
-  color: #718096;
+  color: #707b90;
 
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13px;
+
+  line-height: 1.65;
 
   display: -webkit-box;
+
   -webkit-line-clamp: 4;
+
   -webkit-box-orient: vertical;
 
   overflow: hidden;
@@ -563,62 +832,71 @@
 
 /* =========================================================
    META
-========================================================= */
+   ========================================================= */
 
 .note-meta {
   display: flex;
+
   align-items: center;
 
-  gap: 8px;
+  gap: 7px;
+
   flex-wrap: wrap;
 
-  margin-top: 17px;
+  margin-top: 15px;
 }
 
 .note-meta .note-category,
 .note-meta .note-priority {
   display: inline-flex;
+
   align-items: center;
 
   gap: 4px;
 
   padding: 6px 9px;
 
-  border-radius: 7px;
+  border-radius: 8px;
 
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9px;
+
+  font-weight: 750;
+
+  border: 1px solid rgba(255, 255, 255, 0.65);
 }
 
 .note-meta .note-category {
-  background: #f1f6ff;
-  color: #4f7cff;
+  background: rgba(91, 119, 238, 0.10);
+
+  color: #5c6ed7;
 }
 
 .note-meta .note-priority {
-  background: #fff7e8;
-  color: #d98a00;
+  background: rgba(255, 184, 75, 0.11);
+
+  color: #c88719;
 }
 
 /* =========================================================
    ATTACHMENTS
-========================================================= */
+   ========================================================= */
 
 .note-attachments {
-  margin-top: 16px;
+  margin-top: 14px;
 
-  padding-top: 14px;
+  padding-top: 12px;
 
-  border-top: 1px solid #edf1f5;
+  border-top: 1px solid rgba(120, 130, 160, 0.13);
 }
 
 .attachment-heading {
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 
-  color: #64748b;
+  color: #697386;
 
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+
+  font-weight: 750;
 }
 
 .note-file {
@@ -627,20 +905,24 @@
   display: flex;
   align-items: center;
 
-  gap: 9px;
+  gap: 8px;
 
-  padding: 8px 9px;
+  padding: 7px 8px;
 
   margin-bottom: 6px;
 
-  border: 1px solid #edf1f5;
-  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
 
-  background: #fafbfd;
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.40);
 
   text-decoration: none;
 
-  transition: 0.2s;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .note-file:last-child {
@@ -648,8 +930,11 @@
 }
 
 .note-file:hover {
-  border-color: #cbd9ff;
-  background: #f7f9ff;
+  border-color: rgba(115, 130, 230, 0.28);
+
+  background: rgba(255, 255, 255, 0.68);
+
+  transform: translateX(2px);
 }
 
 .note-file > span {
@@ -662,11 +947,14 @@
   align-items: center;
   justify-content: center;
 
-  border-radius: 7px;
+  border-radius: 8px;
 
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.72);
 
-  font-size: 15px;
+  font-size: 14px;
+
+  box-shadow:
+    0 4px 10px rgba(70, 80, 140, 0.04);
 }
 
 .note-file > div {
@@ -687,33 +975,33 @@
 
   white-space: nowrap;
 
-  color: #475569;
+  color: #4b5567;
 
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .note-file small {
-  color: #94a3b8;
-  font-size: 9px;
+  color: #929bad;
+
+  font-size: 8px;
 }
 
 /* =========================================================
    CARD BOTTOM
-========================================================= */
+   ========================================================= */
 
 .card-bottom {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
 
-  gap: 12px;
+  gap: 10px;
 
   margin-top: auto;
 
-  padding-top: 15px;
+  padding-top: 13px;
 
-  border-top: 1px solid #edf1f5;
+  border-top: 1px solid rgba(120, 130, 160, 0.13);
 }
 
 .note-status {
@@ -730,13 +1018,17 @@
 .note-status span {
   padding: 5px 7px;
 
-  border-radius: 6px;
+  border-radius: 7px;
 
-  background: #f4f6f9;
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.48);
 
-  font-size: 9px;
-  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+
+  color: #687386;
+
+  font-size: 8px;
+
+  font-weight: 750;
 }
 
 .card-actions {
@@ -747,50 +1039,52 @@
 }
 
 .card-actions button {
-  width: 32px;
-  height: 32px;
+  width: 31px;
+  height: 31px;
 
-  border: 1px solid #e3e9f0;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
 
-  background: #ffffff;
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.46);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 14px;
+  font-size: 13px;
 
   cursor: pointer;
 
-  transition: 0.2s;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .card-actions button:hover {
-  border-color: #b8c9ff;
-  background: #f7f9ff;
+  border-color: rgba(107, 121, 230, 0.30);
 
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.75);
+
+  transform: translateY(-2px);
 }
 
 /* =========================================================
    EMPTY STATE
-========================================================= */
+   ========================================================= */
 
 .notes-empty {
   width: 100%;
   max-width: 1450px;
 
-  min-height: 350px;
+  min-height: 330px;
 
   margin: 0 auto;
 
   padding: 40px 25px;
 
-  background: #ffffff;
-
-  border: 1px solid #e7edf4;
-  border-radius: 18px;
+  border-radius: 22px;
 
   display: flex;
   flex-direction: column;
@@ -799,26 +1093,33 @@
   justify-content: center;
 
   text-align: center;
-
-  box-shadow:
-    0 5px 20px rgba(15, 23, 42, 0.025);
 }
 
 .empty-note-icon {
-  width: 70px;
-  height: 70px;
+  width: 68px;
+  height: 68px;
 
-  margin-bottom: 16px;
+  margin-bottom: 15px;
 
-  border-radius: 50%;
+  border-radius: 21px;
 
-  background: #f1f6ff;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.80),
+      rgba(225, 233, 255, 0.52)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.82);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 30px;
+  font-size: 29px;
+
+  box-shadow:
+    0 12px 28px rgba(70, 90, 160, 0.10);
 }
 
 .notes-empty h2 {
@@ -827,7 +1128,8 @@
   color: #334155;
 
   font-size: 20px;
-  font-weight: 750;
+
+  font-weight: 800;
 }
 
 .notes-empty p {
@@ -835,39 +1137,53 @@
 
   margin: 8px 0 20px;
 
-  color: #94a3b8;
+  color: #8993a6;
 
-  font-size: 13px;
+  font-size: 12px;
+
   line-height: 1.6;
 }
 
 .notes-empty > button {
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
 
-  background: #4f7cff;
+  background:
+    linear-gradient(
+      135deg,
+      #5b73ef,
+      #795fde
+    );
+
   color: #ffffff;
 
   padding: 11px 18px;
 
-  border-radius: 10px;
+  border-radius: 12px;
 
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+
+  font-weight: 750;
 
   cursor: pointer;
 
-  transition: 0.2s;
+  box-shadow:
+    0 10px 23px rgba(82, 91, 215, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .notes-empty > button:hover {
-  background: #416de7;
-
   transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 28px rgba(82, 91, 215, 0.29);
 }
 
 /* =========================================================
    MODAL OVERLAY
-========================================================= */
+   ========================================================= */
 
 .note-overlay {
   position: fixed;
@@ -878,9 +1194,10 @@
 
   padding: 25px;
 
-  background: rgba(15, 23, 42, 0.38);
+  background: rgba(15, 23, 42, 0.40);
 
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   display: flex;
 
@@ -892,7 +1209,7 @@
 
 /* =========================================================
    MODAL
-========================================================= */
+   ========================================================= */
 
 .professional-modal {
   width: 100%;
@@ -903,14 +1220,22 @@
 
   overflow-y: auto;
 
-  background: #ffffff;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(247, 249, 255, 0.94)
+    );
 
-  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
 
-  padding: 32px;
+  border-radius: 24px;
+
+  padding: 30px;
 
   box-shadow:
-    0 30px 80px rgba(15, 23, 42, 0.2);
+    0 30px 90px rgba(15, 23, 42, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
 
   animation: modalAppear 0.2s ease;
 
@@ -920,18 +1245,24 @@
 @keyframes modalAppear {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.98);
+
+    transform:
+      translateY(12px)
+      scale(0.98);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
 
 /* =========================================================
    MODAL HEADER
-========================================================= */
+   ========================================================= */
 
 .modal-heading {
   display: flex;
@@ -941,11 +1272,11 @@
 
   gap: 20px;
 
-  padding-bottom: 20px;
+  padding-bottom: 18px;
 
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 
-  border-bottom: 1px solid #edf1f5;
+  border-bottom: 1px solid rgba(120, 130, 160, 0.13);
 }
 
 .modal-heading span {
@@ -953,12 +1284,15 @@
 
   margin-bottom: 5px;
 
-  color: #4f7cff;
+  color: #5b6cdb;
 
-  font-size: 10px;
+  font-size: 9px;
+
   font-weight: 800;
 
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
+
+  text-transform: uppercase;
 }
 
 .modal-heading h2 {
@@ -966,7 +1300,8 @@
 
   color: #172033;
 
-  font-size: 25px;
+  font-size: 24px;
+
   line-height: 1.3;
 
   font-weight: 800;
@@ -982,10 +1317,11 @@
 
   border-radius: 50%;
 
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.75);
+
   color: #64748b;
 
-  font-size: 22px;
+  font-size: 21px;
 
   display: flex;
   align-items: center;
@@ -993,20 +1329,23 @@
 
   cursor: pointer;
 
-  transition: 0.2s;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .modal-close:hover {
-  background: #f4f6f9;
-  color: #334155;
+  background: #f3f5fa;
+
+  transform: rotate(4deg);
 }
 
 /* =========================================================
    FORM
-========================================================= */
+   ========================================================= */
 
 .input-group {
-  margin-bottom: 18px;
+  margin-bottom: 17px;
 }
 
 .input-group > label:not(.checkbox-label):not(.file-upload-box) {
@@ -1016,8 +1355,9 @@
 
   color: #475569;
 
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+
+  font-weight: 750;
 }
 
 .input-group input[type="text"],
@@ -1027,9 +1367,10 @@
 
   border: 1px solid #dce4ed;
 
-  border-radius: 11px;
+  border-radius: 12px;
 
-  background: #f9fbfd;
+  background: rgba(248, 250, 253, 0.85);
+
   color: #1e293b;
 
   font-family: inherit;
@@ -1038,7 +1379,10 @@
 
   outline: none;
 
-  transition: 0.2s;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .input-group input[type="text"] {
@@ -1068,7 +1412,7 @@
 .input-group input[type="text"]:focus,
 .input-group textarea:focus,
 .input-group select:focus {
-  border-color: #9bb7ff;
+  border-color: #9caeff;
 
   background: #ffffff;
 
@@ -1078,7 +1422,7 @@
 
 /* =========================================================
    CHECKBOX
-========================================================= */
+   ========================================================= */
 
 .checkbox-label {
   display: flex !important;
@@ -1091,50 +1435,54 @@
 
   color: #475569;
 
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+
+  font-weight: 650;
 }
 
 .checkbox-label input {
   width: 17px;
   height: 17px;
 
-  accent-color: #4f7cff;
+  accent-color: #5b73ef;
 
   cursor: pointer;
 }
 
 /* =========================================================
    FILE UPLOAD
-========================================================= */
+   ========================================================= */
 
 .file-upload-box {
   min-height: 105px;
 
   width: 100%;
 
-  padding: 20px;
+  padding: 19px;
 
-  border: 1px dashed #cbd7e6;
+  border: 1px dashed #bdcbe3;
 
   border-radius: 13px;
 
-  background: #f9fbfd;
+  background:
+    rgba(248, 250, 253, 0.72);
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  gap: 13px;
+  gap: 12px;
 
   cursor: pointer;
 
-  transition: 0.2s;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
 .file-upload-box:hover {
-  border-color: #9bb7ff;
+  border-color: #91a8ef;
 
   background: #f7f9ff;
 }
@@ -1147,12 +1495,16 @@
   width: 43px;
   height: 43px;
 
-  border-radius: 11px;
+  border-radius: 12px;
 
-  background: #edf3ff;
+  background:
+    linear-gradient(
+      145deg,
+      #edf2ff,
+      #f6edff
+    );
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
@@ -1172,20 +1524,20 @@
 .upload-text strong {
   color: #475569;
 
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .upload-text span {
   color: #94a3b8;
 
-  font-size: 10px;
+  font-size: 9px;
 
   line-height: 1.5;
 }
 
 /* =========================================================
    SELECTED FILES
-========================================================= */
+   ========================================================= */
 
 .selected-files {
   margin-top: 10px;
@@ -1204,19 +1556,19 @@
 
   gap: 9px;
 
-  padding: 9px 10px;
+  padding: 8px 10px;
 
-  border: 1px solid #e8edf3;
+  border: 1px solid rgba(255, 255, 255, 0.78);
 
-  border-radius: 9px;
+  border-radius: 10px;
 
-  background: #fafbfd;
+  background: rgba(248, 250, 253, 0.72);
 
   min-width: 0;
 }
 
 .selected-file > span {
-  font-size: 17px;
+  font-size: 16px;
 
   flex-shrink: 0;
 }
@@ -1234,7 +1586,7 @@
 .selected-file strong {
   color: #475569;
 
-  font-size: 11px;
+  font-size: 10px;
 
   overflow: hidden;
 
@@ -1246,19 +1598,19 @@
 .selected-file small {
   color: #94a3b8;
 
-  font-size: 9px;
+  font-size: 8px;
 }
 
 /* =========================================================
    MODAL ACTIONS
-========================================================= */
+   ========================================================= */
 
 .modal-actions {
   display: flex;
 
   justify-content: flex-end;
 
-  gap: 10px;
+  gap: 9px;
 
   padding-top: 7px;
 }
@@ -1268,47 +1620,52 @@
 
   padding: 0 18px;
 
-  border-radius: 10px;
+  border-radius: 11px;
 
-  font-size: 13px;
+  font-size: 12px;
 
-  font-weight: 700;
+  font-weight: 750;
 
   cursor: pointer;
 
-  transition: 0.2s;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .modal-cancel {
   border: 1px solid #dce4ed;
 
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.72);
 
   color: #64748b;
 }
 
 .modal-cancel:hover {
   background: #f7f9fb;
-
-  color: #334155;
 }
 
 .modal-save {
-  border: 1px solid #4f7cff;
+  border: 1px solid transparent;
 
-  background: #4f7cff;
+  background:
+    linear-gradient(
+      135deg,
+      #5b73ef,
+      #795fde
+    );
 
   color: #ffffff;
 
   box-shadow:
-    0 6px 16px rgba(79, 124, 255, 0.18);
+    0 8px 18px rgba(79, 99, 220, 0.20);
 }
 
 .modal-save:hover {
-  background: #416de7;
+  transform: translateY(-2px);
 
   box-shadow:
-    0 9px 22px rgba(79, 124, 255, 0.25);
+    0 12px 24px rgba(79, 99, 220, 0.27);
 }
 
 .modal-actions button:disabled {
@@ -1318,17 +1675,15 @@
 }
 
 /* =========================================================
-   SCROLLBAR
-========================================================= */
+   MODAL SCROLLBAR
+   ========================================================= */
 
 .professional-modal::-webkit-scrollbar {
-  width: 7px;
+  width: 6px;
 }
 
 .professional-modal::-webkit-scrollbar-track {
-  background: #f5f7fa;
-
-  border-radius: 10px;
+  background: transparent;
 }
 
 .professional-modal::-webkit-scrollbar-thumb {
@@ -1339,11 +1694,11 @@
 
 /* =========================================================
    TABLET
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 1150px) {
   .mynotes-page {
-    padding: 30px 28px 65px;
+    padding: 26px 26px 70px;
   }
 
   .professional-notes-grid {
@@ -1352,75 +1707,85 @@
   }
 
   .mynotes-top {
-    padding: 30px;
+    padding: 27px;
   }
 }
 
 /* =========================================================
    MOBILE
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 800px) {
   .mynotes-page {
-    min-height: calc(100vh - 70px);
+    min-height: 100vh;
+
+    width: 100%;
 
     padding:
-      18px
-      16px
+      14px
+      12px
       105px;
 
     overflow-x: hidden;
   }
 
-  /* ---------- TOP ---------- */
+  /* ---------------------------------------------------------
+     TOP
+     --------------------------------------------------------- */
 
   .mynotes-top {
-    padding: 22px 20px;
+    width: 100%;
 
-    margin-bottom: 16px;
+    padding: 19px 17px;
 
-    border-radius: 19px;
+    margin-bottom: 13px;
 
-    align-items: stretch;
+    border-radius: 21px;
 
     flex-direction: column;
 
-    gap: 18px;
+    align-items: stretch;
+
+    gap: 15px;
   }
 
   .mynotes-heading {
-    gap: 13px;
+    gap: 12px;
 
     align-items: center;
   }
 
   .heading-icon {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
 
-    min-width: 52px;
+    min-width: 50px;
 
-    border-radius: 14px;
+    border-radius: 15px;
 
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .mynotes-heading span {
-    font-size: 9px;
+    font-size: 8px;
 
     margin-bottom: 3px;
+
+    letter-spacing: 1.1px;
   }
 
   .mynotes-heading h1 {
-    font-size: 27px;
+    font-size: 26px;
 
-    letter-spacing: -0.4px;
+    letter-spacing: -0.5px;
   }
 
   .mynotes-heading p {
-    margin-top: 5px;
+    margin-top: 4px;
 
-    font-size: 12px;
+    font-size: 11px;
+
+    line-height: 1.45;
   }
 
   .new-note-btn {
@@ -1428,47 +1793,53 @@
 
     min-height: 48px;
 
-    border-radius: 12px;
+    border-radius: 14px;
 
-    font-size: 13px;
+    font-size: 12px;
   }
 
-  /* ---------- CONTROLS ---------- */
+  /* ---------------------------------------------------------
+     CONTROLS
+     --------------------------------------------------------- */
 
   .notes-controls {
-    padding: 14px;
+    padding: 12px;
 
-    margin-bottom: 18px;
+    margin-bottom: 15px;
 
-    border-radius: 17px;
+    border-radius: 18px;
   }
 
   .notes-search-box {
-    height: 50px;
+    height: 48px;
   }
 
   .notes-search-box > span {
-    left: 15px;
+    left: 14px;
 
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .notes-search-box input {
-    padding: 0 45px;
+    padding: 0 43px;
 
-    border-radius: 12px;
+    border-radius: 13px;
 
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .clear-search {
-    right: 10px;
+    right: 8px;
 
     width: 27px;
     height: 27px;
+
+    border-radius: 9px;
   }
 
-  /* ---------- FILTERS ---------- */
+  /* ---------------------------------------------------------
+     FILTERS
+     --------------------------------------------------------- */
 
   .notes-filters {
     flex-wrap: nowrap;
@@ -1477,12 +1848,12 @@
 
     gap: 7px;
 
-    margin-top: 13px;
+    margin-top: 11px;
 
     padding:
       2px
       1px
-      6px;
+      5px;
 
     scrollbar-width: none;
 
@@ -1496,17 +1867,19 @@
   .notes-filters button {
     flex-shrink: 0;
 
-    padding: 9px 13px;
+    min-height: 35px;
 
-    font-size: 11px;
+    padding: 8px 12px;
 
-    min-height: 37px;
+    font-size: 10px;
   }
 
-  /* ---------- INFO ---------- */
+  /* ---------------------------------------------------------
+     INFO
+     --------------------------------------------------------- */
 
   .notes-info {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 
     padding: 0 2px;
 
@@ -1514,159 +1887,184 @@
 
     flex-direction: column;
 
-    gap: 3px;
+    gap: 2px;
   }
 
   .notes-info strong {
-    font-size: 20px;
+    font-size: 19px;
   }
 
   .notes-info > div span {
-    font-size: 12px;
-  }
-
-  .notes-info > span {
     font-size: 11px;
   }
 
-  /* ---------- GRID ---------- */
-
-  .professional-notes-grid {
-    grid-template-columns: 1fr;
-
-    gap: 14px;
+  .notes-info > span {
+    font-size: 9px;
   }
 
-  /* ---------- CARD ---------- */
+  /* ---------------------------------------------------------
+     GRID
+     --------------------------------------------------------- */
+
+  .professional-notes-grid {
+    width: 100%;
+
+    grid-template-columns: 1fr;
+
+    gap: 11px;
+  }
+
+  /* ---------------------------------------------------------
+     NOTE CARD
+     --------------------------------------------------------- */
 
   .professional-note-card {
     width: 100%;
 
     min-height: 0;
 
-    padding: 18px;
+    padding: 16px;
 
-    border-radius: 17px;
+    border-radius: 19px;
 
-    box-shadow:
-      0 4px 18px rgba(15, 23, 42, 0.045);
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.66),
+        rgba(255, 255, 255, 0.38)
+      );
   }
 
   .professional-note-card:hover {
     transform: none;
 
     box-shadow:
-      0 4px 18px rgba(15, 23, 42, 0.045);
+      0 15px 35px rgba(54, 72, 130, 0.10),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   .professional-note-card.is-pinned::before {
-    left: 18px;
-    right: 18px;
+    left: 16px;
+
+    right: 16px;
+
+    height: 3px;
   }
 
   .card-top {
-    margin-bottom: 13px;
+    margin-bottom: 11px;
+
+    gap: 7px;
   }
 
   .note-date {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .card-menu {
-    gap: 5px;
+    gap: 4px;
   }
 
   .card-menu button {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
 
     border-radius: 9px;
 
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .professional-note-card h2 {
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 
-    font-size: 18px;
+    font-size: 17px;
 
     line-height: 1.35;
   }
 
   .professional-note-card > p {
-    font-size: 13px;
+    font-size: 12px;
 
-    line-height: 1.65;
+    line-height: 1.6;
 
     -webkit-line-clamp: 5;
   }
 
-  .note-meta {
-    margin-top: 13px;
+  /* ---------------------------------------------------------
+     META
+     --------------------------------------------------------- */
 
-    gap: 6px;
+  .note-meta {
+    margin-top: 12px;
+
+    gap: 5px;
   }
 
   .note-meta .note-category,
   .note-meta .note-priority {
-    padding: 6px 8px;
+    padding: 5px 7px;
 
-    font-size: 9px;
+    font-size: 8px;
+
+    border-radius: 7px;
   }
 
-  /* ---------- ATTACHMENTS ---------- */
+  /* ---------------------------------------------------------
+     ATTACHMENTS
+     --------------------------------------------------------- */
 
   .note-attachments {
-    margin-top: 13px;
+    margin-top: 12px;
 
-    padding-top: 12px;
+    padding-top: 11px;
   }
 
   .attachment-heading {
     margin-bottom: 7px;
 
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .note-file {
-    padding: 8px;
+    padding: 7px;
 
-    gap: 8px;
+    gap: 7px;
 
     border-radius: 9px;
   }
 
   .note-file > span {
-    width: 31px;
-    height: 31px;
+    width: 30px;
+    height: 30px;
 
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .note-file strong {
-    max-width: calc(100vw - 105px);
+    max-width:
+      calc(100vw - 105px);
 
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .note-file small {
     font-size: 8px;
   }
 
-  /* ---------- CARD BOTTOM ---------- */
+  /* ---------------------------------------------------------
+     CARD BOTTOM
+     --------------------------------------------------------- */
 
   .card-bottom {
-    margin-top: 16px;
+    margin-top: 14px;
 
-    padding-top: 12px;
+    padding-top: 11px;
 
-    gap: 8px;
-
-    align-items: center;
+    gap: 7px;
   }
 
   .note-status {
-    max-width: 70%;
+    max-width: 68%;
 
     gap: 4px;
   }
@@ -1674,37 +2072,43 @@
   .note-status span {
     padding: 5px 6px;
 
-    font-size: 8px;
+    font-size: 7px;
   }
 
   .card-actions {
-    gap: 5px;
+    gap: 4px;
   }
 
   .card-actions button {
-    width: 35px;
-    height: 35px;
+    width: 34px;
+    height: 34px;
 
     border-radius: 9px;
 
-    font-size: 14px;
+    font-size: 13px;
   }
 
-  /* ---------- EMPTY ---------- */
+  /* ---------------------------------------------------------
+     EMPTY
+     --------------------------------------------------------- */
 
   .notes-empty {
-    min-height: 300px;
+    min-height: 285px;
 
-    padding: 35px 20px;
+    padding: 30px 18px;
 
-    border-radius: 17px;
+    border-radius: 19px;
   }
 
   .empty-note-icon {
-    width: 62px;
-    height: 62px;
+    width: 60px;
+    height: 60px;
 
-    font-size: 27px;
+    margin-bottom: 13px;
+
+    border-radius: 19px;
+
+    font-size: 26px;
   }
 
   .notes-empty h2 {
@@ -1712,9 +2116,9 @@
   }
 
   .notes-empty p {
-    font-size: 12px;
+    font-size: 11px;
 
-    margin-bottom: 18px;
+    margin-bottom: 17px;
   }
 
   .notes-empty > button {
@@ -1722,18 +2126,20 @@
 
     max-width: 280px;
 
-    min-height: 44px;
+    min-height: 43px;
+
+    border-radius: 12px;
   }
 
   /* =======================================================
      MOBILE MODAL
-  ======================================================= */
+     ======================================================= */
 
   .note-overlay {
     padding:
-      max(10px, env(safe-area-inset-top))
-      10px
-      max(10px, env(safe-area-inset-bottom));
+      max(8px, env(safe-area-inset-top))
+      8px
+      max(8px, env(safe-area-inset-bottom));
 
     align-items: center;
 
@@ -1745,133 +2151,152 @@
 
     max-width: 100%;
 
-    max-height: calc(100vh - 20px);
+    max-height:
+      calc(100vh - 16px);
 
-    padding: 21px 17px;
+    padding:
+      20px
+      16px;
 
-    border-radius: 18px;
+    border-radius: 19px;
   }
 
   .modal-heading {
-    gap: 12px;
+    gap: 10px;
 
-    padding-bottom: 16px;
+    padding-bottom: 15px;
 
-    margin-bottom: 18px;
+    margin-bottom: 17px;
   }
 
   .modal-heading span {
-    font-size: 9px;
+    font-size: 8px;
 
     margin-bottom: 3px;
   }
 
   .modal-heading h2 {
-    font-size: 21px;
+    font-size: 20px;
   }
 
   .modal-close {
-    width: 35px;
-    height: 35px;
+    width: 34px;
+    height: 34px;
 
-    font-size: 21px;
+    font-size: 20px;
   }
 
-  /* ---------- FORM ---------- */
+  /* ---------------------------------------------------------
+     FORM
+     --------------------------------------------------------- */
 
   .input-group {
-    margin-bottom: 15px;
+    margin-bottom: 14px;
   }
 
   .input-group > label:not(.checkbox-label):not(.file-upload-box) {
     margin-bottom: 6px;
 
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .input-group input[type="text"] {
-    height: 46px;
+    height: 45px;
 
     padding: 0 12px;
 
-    font-size: 13px;
+    font-size: 12px;
+
+    border-radius: 11px;
   }
 
   .input-group textarea {
-    min-height: 130px;
+    min-height: 125px;
 
     padding: 11px 12px;
 
-    font-size: 13px;
+    font-size: 12px;
+
+    border-radius: 11px;
   }
 
   .input-group select {
-    height: 46px;
+    height: 45px;
 
     padding: 0 12px;
 
-    font-size: 13px;
+    font-size: 12px;
+
+    border-radius: 11px;
   }
 
   .checkbox-label {
-    font-size: 12px;
+    font-size: 11px;
   }
 
-  /* ---------- FILE UPLOAD ---------- */
+  /* ---------------------------------------------------------
+     FILE UPLOAD
+     --------------------------------------------------------- */
 
   .file-upload-box {
-    min-height: 95px;
+    min-height: 92px;
 
-    padding: 14px;
+    padding: 13px;
 
     border-radius: 12px;
 
-    gap: 10px;
+    gap: 9px;
   }
 
   .upload-icon {
-    width: 40px;
-    height: 40px;
+    width: 39px;
+    height: 39px;
 
-    min-width: 40px;
+    min-width: 39px;
+
+    border-radius: 10px;
 
     font-size: 18px;
   }
 
   .upload-text strong {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .upload-text span {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .selected-file {
-    padding: 8px;
+    padding: 7px 8px;
   }
 
   .selected-file strong {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .selected-file small {
     font-size: 8px;
   }
 
-  /* ---------- MODAL BUTTONS ---------- */
+  /* ---------------------------------------------------------
+     MODAL BUTTONS
+     --------------------------------------------------------- */
 
   .modal-actions {
     flex-direction: column;
 
-    gap: 8px;
+    gap: 7px;
 
-    padding-top: 4px;
+    padding-top: 3px;
   }
 
   .modal-actions button {
     width: 100%;
 
-    min-height: 46px;
+    min-height: 45px;
+
+    border-radius: 11px;
   }
 
   .modal-save {
@@ -1881,33 +2306,33 @@
 
 /* =========================================================
    SMALL MOBILE
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 550px) {
   .mynotes-page {
     padding:
-      14px
       11px
+      10px
       105px;
   }
 
   .mynotes-top {
-    padding: 20px 17px;
+    padding: 18px 15px;
 
-    border-radius: 17px;
+    border-radius: 18px;
 
-    gap: 15px;
+    gap: 14px;
   }
 
   .mynotes-heading {
-    gap: 11px;
+    gap: 10px;
   }
 
   .heading-icon {
-    width: 47px;
-    height: 47px;
+    width: 46px;
+    height: 46px;
 
-    min-width: 47px;
+    min-width: 46px;
 
     border-radius: 13px;
 
@@ -1915,170 +2340,60 @@
   }
 
   .mynotes-heading h1 {
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .mynotes-heading p {
-    font-size: 11px;
+    font-size: 10px;
 
     line-height: 1.4;
   }
 
   .new-note-btn {
-    min-height: 46px;
+    min-height: 45px;
+
+    border-radius: 13px;
   }
 
   .notes-controls {
-    padding: 12px;
-
-    border-radius: 15px;
-  }
-
-  .notes-search-box {
-    height: 47px;
-  }
-
-  .notes-search-box input {
-    font-size: 12px;
-
-    padding-left: 42px;
-  }
-
-  .notes-filters button {
-    padding: 8px 12px;
-
-    font-size: 10px;
-
-    min-height: 35px;
-  }
-
-  .professional-note-card {
-    padding: 16px;
-
-    border-radius: 15px;
-  }
-
-  .professional-note-card.is-pinned::before {
-    left: 16px;
-    right: 16px;
-  }
-
-  .card-menu button {
-    width: 34px;
-    height: 34px;
-  }
-
-  .professional-note-card h2 {
-    font-size: 17px;
-  }
-
-  .professional-note-card > p {
-    font-size: 12px;
-
-    line-height: 1.6;
-  }
-
-  .note-meta .note-category,
-  .note-meta .note-priority {
-    font-size: 8px;
-
-    padding: 5px 7px;
-  }
-
-  .note-status {
-    max-width: 62%;
-  }
-
-  .card-actions button {
-    width: 34px;
-    height: 34px;
-  }
-
-  .note-file strong {
-    max-width: calc(100vw - 95px);
-  }
-
-  /* ---------- SMALL MODAL ---------- */
-
-  .note-overlay {
-    padding: 7px;
-  }
-
-  .professional-modal {
-    max-height: calc(100vh - 14px);
-
-    padding:
-      18px
-      15px;
+    padding: 11px;
 
     border-radius: 16px;
   }
 
-  .modal-heading h2 {
-    font-size: 19px;
+  .notes-search-box {
+    height: 46px;
   }
 
-  .modal-heading {
-    padding-bottom: 14px;
+  .notes-search-box input {
+    font-size: 11px;
 
-    margin-bottom: 16px;
+    padding-left: 40px;
   }
 
-  .input-group textarea {
-    min-height: 115px;
-  }
+  .notes-filters button {
+    padding: 8px 11px;
 
-  .file-upload-box {
-    min-height: 88px;
+    font-size: 9px;
 
-    padding: 12px;
-  }
-
-  .upload-icon {
-    width: 36px;
-    height: 36px;
-
-    min-width: 36px;
-  }
-
-  .upload-text span {
-    font-size: 8px;
-  }
-}
-
-/* =========================================================
-   VERY SMALL PHONES
-========================================================= */
-
-@media (max-width: 380px) {
-  .mynotes-page {
-    padding-left: 9px;
-    padding-right: 9px;
-  }
-
-  .mynotes-top {
-    padding: 18px 14px;
-  }
-
-  .heading-icon {
-    width: 43px;
-    height: 43px;
-
-    min-width: 43px;
-
-    font-size: 19px;
-  }
-
-  .mynotes-heading h1 {
-    font-size: 22px;
-  }
-
-  .mynotes-heading p {
-    font-size: 10px;
+    min-height: 34px;
   }
 
   .professional-note-card {
-    padding: 14px;
+    padding: 15px;
+
+    border-radius: 17px;
+  }
+
+  .professional-note-card.is-pinned::before {
+    left: 15px;
+
+    right: 15px;
+  }
+
+  .card-menu button {
+    width: 33px;
+    height: 33px;
   }
 
   .professional-note-card h2 {
@@ -2087,20 +2402,136 @@
 
   .professional-note-card > p {
     font-size: 11px;
+
+    line-height: 1.6;
   }
 
-  .card-menu button {
-    width: 32px;
-    height: 32px;
+  .note-meta .note-category,
+  .note-meta .note-priority {
+    font-size: 7px;
 
-    font-size: 14px;
+    padding: 5px 7px;
+  }
+
+  .note-status {
+    max-width: 61%;
   }
 
   .card-actions button {
-    width: 32px;
-    height: 32px;
+    width: 33px;
+    height: 33px;
+  }
+
+  .note-file strong {
+    max-width:
+      calc(100vw - 95px);
+  }
+
+  /* small modal */
+
+  .note-overlay {
+    padding: 6px;
+  }
+
+  .professional-modal {
+    max-height:
+      calc(100vh - 12px);
+
+    padding:
+      18px
+      14px;
+
+    border-radius: 17px;
+  }
+
+  .modal-heading h2 {
+    font-size: 19px;
+  }
+
+  .modal-heading {
+    padding-bottom: 13px;
+
+    margin-bottom: 15px;
+  }
+
+  .input-group textarea {
+    min-height: 112px;
+  }
+
+  .file-upload-box {
+    min-height: 86px;
+
+    padding: 11px;
+  }
+
+  .upload-icon {
+    width: 35px;
+    height: 35px;
+
+    min-width: 35px;
+  }
+
+  .upload-text span {
+    font-size: 7px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+  .mynotes-page {
+    padding-left: 8px;
+
+    padding-right: 8px;
+  }
+
+  .mynotes-top {
+    padding: 17px 13px;
+  }
+
+  .heading-icon {
+    width: 42px;
+    height: 42px;
+
+    min-width: 42px;
+
+    font-size: 19px;
+  }
+
+  .mynotes-heading h1 {
+    font-size: 21px;
+  }
+
+  .mynotes-heading p {
+    font-size: 9px;
+  }
+
+  .professional-note-card {
+    padding: 13px;
+  }
+
+  .professional-note-card h2 {
+    font-size: 15px;
+  }
+
+  .professional-note-card > p {
+    font-size: 10px;
+  }
+
+  .card-menu button {
+    width: 31px;
+    height: 31px;
 
     font-size: 13px;
+  }
+
+  .card-actions button {
+    width: 31px;
+    height: 31px;
+
+    font-size: 12px;
   }
 
   .modal-heading h2 {
@@ -2110,7 +2541,7 @@
 
 /* =========================================================
    TOUCH DEVICES
-========================================================= */
+   ========================================================= */
 
 @media (hover: none) and (pointer: coarse) {
   .professional-note-card:hover {
@@ -2136,7 +2567,7 @@
 
 /* =========================================================
    SAFE AREA
-========================================================= */
+   ========================================================= */
 
 @supports (padding: env(safe-area-inset-bottom)) {
   @media (max-width: 800px) {
@@ -2146,5 +2577,21 @@
           105px + env(safe-area-inset-bottom)
         );
     }
+  }
+}
+
+/* =========================================================
+   REDUCE MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
   }
 }
