@@ -1,8 +1,7 @@
-css
 /* =========================================================
    NOTEHIVE SETTINGS
    CLEAN + PREMIUM + RESPONSIVE UI
-   DESKTOP UNCHANGED
+   DESKTOP + TABLET + MOBILE
    MOBILE = 3-DOT USER PANEL
    ========================================================= */
 
@@ -33,7 +32,19 @@ css
 
   padding: 28px 32px 50px;
 
-  background: #f4f7fa;
+  background:
+    radial-gradient(
+      circle at 8% 5%,
+      rgba(37, 99, 235, 0.045),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 15%,
+      rgba(124, 58, 237, 0.035),
+      transparent 28%
+    ),
+    #f4f7fa;
+
   color: var(--text);
 
   font-family:
@@ -46,6 +57,8 @@ css
     sans-serif;
 
   overflow-x: hidden;
+
+  -webkit-font-smoothing: antialiased;
 }
 
 /* =========================================================
@@ -79,8 +92,8 @@ css
 
   font-size: 10px;
   font-weight: 800;
-
   letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .settings-eyebrow::before {
@@ -89,9 +102,14 @@ css
   width: 6px;
   height: 6px;
 
+  flex: 0 0 6px;
+
   border-radius: 50%;
 
   background: var(--primary);
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.08);
 }
 
 .settings-header h1 {
@@ -101,21 +119,23 @@ css
 
   font-size: 30px;
   font-weight: 750;
+  line-height: 1.15;
 
   letter-spacing: -0.035em;
 }
 
 .settings-header p {
-  margin: 5px 0 0;
+  margin: 6px 0 0;
 
   color: var(--text-secondary);
 
   font-size: 13px;
+  line-height: 1.5;
 }
 
 /* =========================================================
    MOBILE 3-DOT MENU
-   HIDDEN ON DESKTOP
+   DESKTOP HIDDEN
    ========================================================= */
 
 .mobile-settings-menu {
@@ -143,14 +163,13 @@ css
   border: 1px solid #e4e8ee;
   border-radius: 12px;
 
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.96);
+
   color: #344054;
 
   font-family: inherit;
-
   font-size: 25px;
   font-weight: 700;
-
   line-height: 1;
 
   cursor: pointer;
@@ -167,7 +186,6 @@ css
 
 .mobile-settings-menu-btn:hover {
   background: #f8fafc;
-
   border-color: #d5dce5;
 
   box-shadow:
@@ -189,6 +207,7 @@ css
   right: 0;
 
   width: 245px;
+  max-width: calc(100vw - 28px);
 
   padding: 8px;
 
@@ -221,7 +240,6 @@ css
 .mobile-settings-title {
   display: flex;
   align-items: center;
-
   gap: 10px;
 
   padding: 8px 9px 10px;
@@ -234,6 +252,8 @@ css
   display: flex;
   align-items: center;
   justify-content: center;
+
+  flex: 0 0 34px;
 
   border-radius: 9px;
 
@@ -249,7 +269,6 @@ css
 
   font-size: 10px;
   font-weight: 800;
-
   letter-spacing: 0.09em;
 }
 
@@ -290,7 +309,6 @@ css
   color: #667085;
 
   font-family: inherit;
-
   font-size: 12px;
   font-weight: 600;
 
@@ -322,13 +340,11 @@ css
 
 .mobile-settings-nav:hover {
   background: #f7f9fc;
-
   color: #344054;
 }
 
 .mobile-settings-nav.active {
   color: var(--primary);
-
   background: #eff6ff;
 }
 
@@ -364,6 +380,9 @@ css
 
   font-size: 12px;
   font-weight: 600;
+
+  box-shadow:
+    0 2px 6px rgba(15, 23, 42, 0.025);
 }
 
 .settings-message.success {
@@ -396,18 +415,19 @@ css
 
   display: grid;
 
-  grid-template-columns: 245px minmax(0, 1fr);
+  grid-template-columns:
+    245px minmax(0, 1fr);
 
   background: var(--white);
 
   border: 1px solid #e4e9ef;
-
   border-radius: 13px;
 
   overflow: hidden;
 
   box-shadow:
-    0 4px 18px rgba(15, 23, 42, 0.045);
+    0 4px 18px rgba(15, 23, 42, 0.045),
+    0 1px 3px rgba(15, 23, 42, 0.025);
 }
 
 /* =========================================================
@@ -429,7 +449,6 @@ css
 
   font-size: 9px;
   font-weight: 800;
-
   letter-spacing: 0.12em;
 }
 
@@ -461,7 +480,6 @@ css
   color: #667085;
 
   font-family: inherit;
-
   font-size: 13px;
   font-weight: 600;
 
@@ -471,18 +489,17 @@ css
 
   transition:
     background 0.18s ease,
-    color 0.18s ease;
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .settings-nav:hover {
   background: #f1f5f9;
-
   color: #344054;
 }
 
 .settings-nav.active {
   color: var(--primary);
-
   background: #edf4ff;
 }
 
@@ -492,7 +509,6 @@ css
   position: absolute;
 
   left: 0;
-
   top: 10px;
   bottom: 10px;
 
@@ -519,7 +535,13 @@ css
 
   font-size: 14px;
 
-  transition: 0.18s ease;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.settings-nav:hover .settings-nav-icon {
+  transform: translateY(-1px);
 }
 
 .settings-nav.active .settings-nav-icon {
@@ -568,7 +590,6 @@ css
   background: #ffffff;
 
   border: 0;
-
   border-radius: 0;
 
   box-shadow: none;
@@ -599,8 +620,8 @@ css
 
   font-size: 9px;
   font-weight: 800;
-
   letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .settings-card-header h2 {
@@ -611,6 +632,8 @@ css
   font-size: 20px;
   font-weight: 750;
 
+  line-height: 1.25;
+
   letter-spacing: -0.025em;
 }
 
@@ -620,7 +643,6 @@ css
   color: var(--text-secondary);
 
   font-size: 12px;
-
   line-height: 1.6;
 }
 
@@ -644,12 +666,20 @@ css
   border-radius: 10px;
 
   background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(236, 72, 153, 0.24),
+      transparent 26%
+    ),
     linear-gradient(
       125deg,
       #1d4ed8 0%,
-      #2563eb 48%,
+      #2563eb 45%,
       #4f46e5 100%
     );
+
+  box-shadow:
+    0 8px 22px rgba(37, 99, 235, 0.12);
 }
 
 .profile-cover::before {
@@ -690,7 +720,6 @@ css
   z-index: 2;
 
   display: flex;
-
   flex-direction: column;
 }
 
@@ -754,7 +783,12 @@ css
 
   border-radius: 50%;
 
-  background: #dbeafe;
+  background:
+    linear-gradient(
+      135deg,
+      #dbeafe,
+      #ede9fe
+    );
 
   color: var(--primary);
 
@@ -788,6 +822,9 @@ css
   border-radius: 50%;
 
   background: #22c55e;
+
+  box-shadow:
+    0 0 0 2px rgba(34, 197, 94, 0.12);
 }
 
 .profile-info {
@@ -805,9 +842,7 @@ css
   font-weight: 750;
 
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
 
@@ -829,9 +864,7 @@ css
   font-size: 10px;
 
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
 
@@ -867,7 +900,12 @@ css
 
   border-radius: 50%;
 
-  background: #edf4ff;
+  background:
+    linear-gradient(
+      135deg,
+      #edf4ff,
+      #f5f3ff
+    );
 
   color: var(--primary);
 
@@ -886,7 +924,6 @@ css
 
 .profile-photo-content {
   min-width: 0;
-
   flex: 1;
 }
 
@@ -905,7 +942,6 @@ css
   color: #98a2b3;
 
   font-size: 10px;
-
   line-height: 1.5;
 }
 
@@ -933,7 +969,11 @@ css
 
   cursor: pointer;
 
-  transition: 0.18s ease;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .photo-btn {
@@ -946,7 +986,6 @@ css
 
 .photo-btn:hover {
   background: #edf4ff;
-
   border-color: #b9d3f7;
 }
 
@@ -980,7 +1019,6 @@ css
 
   font-size: 9px;
   font-weight: 800;
-
   letter-spacing: 0.1em;
 }
 
@@ -1047,7 +1085,6 @@ css
   outline: none;
 
   border: 1px solid #dfe5eb;
-
   border-radius: 7px;
 
   background: #fff;
@@ -1055,12 +1092,12 @@ css
   color: #344054;
 
   font-family: inherit;
-
   font-size: 12px;
 
   transition:
     border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    box-shadow 0.18s ease,
+    background 0.18s ease;
 }
 
 .form-group textarea {
@@ -1097,6 +1134,8 @@ css
   background: #f8fafc;
 
   color: #98a2b3;
+
+  cursor: not-allowed;
 }
 
 .bio-counter {
@@ -1210,7 +1249,6 @@ css
   overflow: hidden;
 
   border: 1px solid #e1e7ed;
-
   border-radius: 7px;
 
   background: #f8fafc;
@@ -1247,7 +1285,12 @@ css
 
   border-radius: 7px;
 
-  background: var(--primary);
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
 
   color: #fff;
 
@@ -1258,15 +1301,27 @@ css
 
   cursor: pointer;
 
+  box-shadow:
+    0 5px 14px rgba(37, 99, 235, 0.16);
+
   transition:
     background 0.18s ease,
-    transform 0.18s ease;
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .primary-btn:hover {
-  background: var(--primary-dark);
+  background:
+    linear-gradient(
+      135deg,
+      #1d4ed8,
+      #4338ca
+    );
 
   transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 18px rgba(37, 99, 235, 0.22);
 }
 
 .primary-btn:active {
@@ -1279,6 +1334,8 @@ css
   cursor: not-allowed;
 
   transform: none;
+
+  box-shadow: none;
 }
 
 /* =========================================================
@@ -1330,7 +1387,6 @@ css
   color: #98a2b3;
 
   font-size: 10px;
-
   line-height: 1.5;
 }
 
@@ -1365,7 +1421,7 @@ css
 
   cursor: pointer;
 
-  transition: 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .slider::before {
@@ -1386,7 +1442,8 @@ css
   box-shadow:
     0 1px 4px rgba(0, 0, 0, 0.18);
 
-  transition: 0.2s ease;
+  transition:
+    transform 0.2s ease;
 }
 
 .switch input:checked + .slider {
@@ -1425,7 +1482,6 @@ css
   padding: 12px;
 
   border: 1px solid #e2e7ed;
-
   border-radius: 9px;
 
   background: #fff;
@@ -1436,19 +1492,31 @@ css
 
   cursor: pointer;
 
-  transition: 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .theme-option:hover {
   border-color: #b9d3f7;
 
   background: #fbfdff;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 14px rgba(15, 23, 42, 0.045);
 }
 
 .theme-option.selected {
   border-color: #8db7f5;
 
   background: #f6faff;
+
+  box-shadow:
+    0 4px 12px rgba(37, 99, 235, 0.06);
 }
 
 .theme-preview {
@@ -1590,10 +1658,14 @@ css
   padding: 17px;
 
   border: 1px solid #f3d3d1;
-
   border-radius: 9px;
 
-  background: #fffafa;
+  background:
+    linear-gradient(
+      135deg,
+      #fffafa,
+      #fffdfd
+    );
 }
 
 .danger-zone h3 {
@@ -1629,7 +1701,6 @@ css
   flex: 0 0 auto;
 
   border: 1px solid #f0b8b4;
-
   border-radius: 7px;
 
   background: #fff;
@@ -1643,7 +1714,11 @@ css
 
   cursor: pointer;
 
-  transition: 0.18s ease;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .danger-btn:hover {
@@ -1652,6 +1727,8 @@ css
   background: #d92d20;
 
   border-color: #d92d20;
+
+  transform: translateY(-1px);
 }
 
 /* =========================================================
@@ -1662,22 +1739,29 @@ css
   --text: #f2f4f7;
   --text-secondary: #98a2b3;
   --text-muted: #667085;
-
   --border: #293548;
   --white: #151d2b;
 
-  background: #0d1522;
+  background:
+    radial-gradient(
+      circle at 10% 5%,
+      rgba(37, 99, 235, 0.08),
+      transparent 30%
+    ),
+    #0d1522;
+}
+
+.theme-dark .settings-header h1 {
+  color: #f2f4f7;
 }
 
 .theme-dark .settings-layout {
   background: #151d2b;
-
   border-color: #293548;
 }
 
 .theme-dark .settings-sidebar {
   background: #111a28;
-
   border-color: #293548;
 }
 
@@ -1713,6 +1797,12 @@ css
 .theme-dark .form-group textarea,
 .theme-dark .form-group select {
   color: #f2f4f7;
+}
+
+.theme-dark .settings-header p,
+.theme-dark .settings-card-header p,
+.theme-dark .settings-row-content p {
+  color: #98a2b3;
 }
 
 .theme-dark .form-group input,
@@ -1751,19 +1841,29 @@ css
   background: #151d2b;
 }
 
+.theme-dark .profile-stat strong {
+  color: #f2f4f7;
+}
+
+.theme-dark .profile-stat small {
+  color: #98a2b3;
+}
+
 .theme-dark .theme-option {
   border-color: #344054;
 }
 
 .theme-dark .theme-option.selected {
   background: #192d49;
-
   border-color: #4b83d1;
+}
+
+.theme-dark .theme-option:hover {
+  background: #1b2940;
 }
 
 .theme-dark .danger-zone {
   background: #25191b;
-
   border-color: #5b2929;
 }
 
@@ -1841,6 +1941,23 @@ css
    TABLET
    ========================================================= */
 
+@media (max-width: 1100px) {
+  .settings-page {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .settings-layout {
+    grid-template-columns:
+      225px minmax(0, 1fr);
+  }
+
+  .settings-card {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+}
+
 @media (max-width: 900px) {
   .settings-page {
     padding: 22px 18px 40px;
@@ -1868,6 +1985,8 @@ css
 @media (max-width: 700px) {
   .settings-page {
     min-height: 100vh;
+
+    width: 100%;
 
     padding: 0 0 30px;
 
@@ -1915,9 +2034,9 @@ css
   .settings-header p {
     margin-top: 4px;
 
-    font-size: 11px;
-
     max-width: 245px;
+
+    font-size: 11px;
   }
 
   /* -------------------------------------------------------
@@ -2048,6 +2167,8 @@ css
     height: 105px;
 
     padding: 16px;
+
+    border-radius: 9px;
   }
 
   .profile-cover strong {
@@ -2357,6 +2478,80 @@ css
 }
 
 /* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .settings-header {
+    min-height: 100px;
+
+    padding-top: 24px;
+    padding-bottom: 15px;
+  }
+
+  .settings-header h1 {
+    font-size: 24px;
+  }
+
+  .settings-header p {
+    max-width: 225px;
+  }
+
+  .mobile-settings-menu-btn {
+    width: 39px;
+    height: 39px;
+  }
+
+  .settings-card {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .profile-cover {
+    height: 100px;
+  }
+
+  .profile-box {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .profile-avatar-wrapper,
+  .profile-avatar {
+    width: 66px;
+    height: 66px;
+  }
+
+  .profile-avatar {
+    font-size: 22px;
+  }
+
+  .profile-info {
+    padding-top: 20px;
+  }
+
+  .profile-info h2 {
+    font-size: 15px;
+  }
+
+  .profile-info p {
+    font-size: 9px;
+  }
+
+  .profile-email {
+    font-size: 8px;
+  }
+
+  .photo-actions {
+    flex-wrap: wrap;
+  }
+
+  .profile-stat {
+    min-height: 60px;
+  }
+}
+
+/* =========================================================
    VERY SMALL PHONES
    ========================================================= */
 
@@ -2408,6 +2603,10 @@ css
     height: 63px;
   }
 
+  .profile-avatar {
+    font-size: 21px;
+  }
+
   .profile-info h2 {
     font-size: 15px;
   }
@@ -2431,6 +2630,134 @@ css
   .profile-stat small {
     font-size: 8px;
   }
+
+  .theme-preview {
+    width: 64px;
+    height: 48px;
+
+    flex-basis: 64px;
+  }
+}
+
+/* =========================================================
+   EXTRA SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 320px) {
+  .settings-header {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .settings-header h1 {
+    font-size: 21px;
+  }
+
+  .settings-header p {
+    max-width: 180px;
+
+    font-size: 9px;
+  }
+
+  .mobile-settings-menu-btn {
+    width: 36px;
+    height: 36px;
+
+    font-size: 21px;
+  }
+
+  .settings-card {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .profile-cover {
+    height: 94px;
+  }
+
+  .profile-box {
+    gap: 9px;
+
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .profile-avatar-wrapper,
+  .profile-avatar {
+    width: 58px;
+    height: 58px;
+  }
+
+  .profile-avatar {
+    font-size: 19px;
+  }
+
+  .profile-info {
+    padding-top: 18px;
+  }
+
+  .profile-info h2 {
+    font-size: 14px;
+  }
+
+  .profile-info p {
+    font-size: 8px;
+  }
+
+  .profile-email {
+    font-size: 7px;
+  }
+
+  .profile-stat {
+    padding: 7px;
+
+    gap: 6px;
+  }
+
+  .profile-stat-icon {
+    width: 26px;
+    height: 26px;
+
+    flex-basis: 26px;
+
+    font-size: 11px;
+  }
+
+  .profile-stat strong {
+    font-size: 10px;
+  }
+
+  .profile-stat small {
+    font-size: 7px;
+  }
+
+  .theme-option {
+    gap: 8px;
+  }
+
+  .theme-preview {
+    width: 58px;
+    height: 45px;
+
+    flex-basis: 58px;
+  }
+}
+
+/* =========================================================
+   TOUCH DEVICES
+   ========================================================= */
+
+@media (hover: none) {
+  .settings-nav:hover,
+  .theme-option:hover,
+  .primary-btn:hover,
+  .danger-btn:hover,
+  .photo-btn:hover,
+  .remove-photo-btn:hover,
+  .mobile-settings-menu-btn:hover,
+  .mobile-settings-nav:hover {
+    transform: none;
+  }
 }
 
 /* =========================================================
@@ -2453,3 +2780,17 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
