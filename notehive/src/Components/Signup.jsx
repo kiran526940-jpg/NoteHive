@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Signup.css";
 import { API_URL } from "../config/api";
-
+const SERVER_URL = "https://notehive-backend-g1pc.onrender.com";
 const Signup = () => {
   const navigate = useNavigate();
 

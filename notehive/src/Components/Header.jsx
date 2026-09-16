@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import {
   Link,
@@ -37,14 +36,13 @@ const Header = () => {
   // CHAT
   // ======================================================
 
-  const [chatUnreadCount, setChatUnreadCount] =
-    useState(() => {
-      return Number(
-        localStorage.getItem(
-          "notehive_chat_unread_count"
-        ) || 0
-      );
-    });
+  const [chatUnreadCount, setChatUnreadCount] = useState(() => {
+    return Number(
+      localStorage.getItem(
+        "notehive_chat_unread_count"
+      ) || 0
+    );
+  });
 
   const [chatPopup, setChatPopup] = useState(null);
 
@@ -169,12 +167,6 @@ const Header = () => {
     socket.on(
       "receive-message",
       (messageData) => {
-         console.log(
-    "💬 GLOBAL HEADER MESSAGE RECEIVED:",
-    newMessage
-  );
-  if (!newMessage) return;
-
         try {
           console.log(
             "💬 Global message received:",
@@ -390,19 +382,15 @@ const Header = () => {
     const senderId =
       chatPopup.senderId;
 
-    // Tell Chat page which user to open
     localStorage.setItem(
       "notehive_open_chat_user",
       String(senderId)
     );
 
-    // Remove popup
     setChatPopup(null);
 
-    // Open chat
     navigate("/chat");
 
-    // Clear total unread count
     setChatUnreadCount(0);
 
     localStorage.setItem(
@@ -771,11 +759,11 @@ const Header = () => {
             {isLoggedIn && (
               <>
 
-                {/* NOTIFICATION */}
+                {/* DESKTOP NOTIFICATION */}
 
                 <button
                   type="button"
-                  className="header-notification-btn"
+                  className="header-notification-btn desktop-only-notification"
                   onClick={
                     handleNotifications
                   }
@@ -942,40 +930,6 @@ const Header = () => {
 
             <span className="mobile-nav-label">
               Chat
-            </span>
-          </button>
-
-          {/* NOTIFICATIONS */}
-
-          <button
-            type="button"
-            className={`mobile-nav-item mobile-notification-item ${
-              isActive(
-                "/notifications"
-              )
-                ? "mobile-nav-active"
-                : ""
-            }`}
-            onClick={
-              handleNotifications
-            }
-          >
-            <span className="mobile-nav-icon">
-              🔔
-            </span>
-
-            {unreadNotifications >
-              0 && (
-              <span className="mobile-notification-badge">
-                {unreadNotifications >
-                99
-                  ? "99+"
-                  : unreadNotifications}
-              </span>
-            )}
-
-            <span className="mobile-nav-label">
-              Alerts
             </span>
           </button>
 

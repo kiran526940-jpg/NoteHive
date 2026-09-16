@@ -1,0 +1,200 @@
+﻿
+                    <div className="details-badges">
+                      <span className="details-role">
+                        ðŸ‘¤ {userDetails.user.role || "user"}
+                      </span>
+
+                      <span
+                        className={`details-status ${String(
+                          userDetails.user.status
+                        ).toLowerCase()}`}
+                      >
+                        <i></i>
+                        {userDetails.user.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* STATS */}
+                <div className="user-details-stats">
+                  <div className="detail-stat total">
+                    <span className="detail-stat-icon">ðŸ“</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.totalNotes}
+                      </strong>
+                      <span>Total Notes</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-stat pinned">
+                    <span className="detail-stat-icon">ðŸ“Œ</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.pinnedNotes}
+                      </strong>
+                      <span>Pinned Notes</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-stat favorite">
+                    <span className="detail-stat-icon">â­</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.favoriteNotes}
+                      </strong>
+                      <span>Favorites</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-stat completed">
+                    <span className="detail-stat-icon">âœ…</span>
+                    <div>
+                      <strong>
+                        {userDetails.stats.completedNotes}
+                      </strong>
+                      <span>Completed</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* INFORMATION */}
+                <div className="details-section">
+                  <div className="details-section-title">
+                    <span>ðŸ‘¤</span>
+                    <h3>Profile Information</h3>
+                  </div>
+
+                  <div className="details-info-grid">
+                    <div className="details-info-item">
+                      <span>Full Name</span>
+                      <strong>
+                        {userDetails.user.name || "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Email</span>
+                      <strong>
+                        {userDetails.user.email || "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Profession</span>
+                      <strong>
+                        {userDetails.user.profession ||
+                          "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Location</span>
+                      <strong>
+                        {userDetails.user.location ||
+                          "Not added"}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Joined</span>
+                      <strong>
+                        {formatDate(
+                          userDetails.user.createdAt
+                        )}
+                      </strong>
+                    </div>
+
+                    <div className="details-info-item">
+                      <span>Account Status</span>
+                      <strong className="capitalize">
+                        {userDetails.user.status || "pending"}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* WEBSITE */}
+                {userDetails.user.website && (
+                  <div className="details-website">
+                    <span>ðŸŒ</span>
+                    <div>
+                      <small>Website</small>
+                      <a
+                        href={userDetails.user.website}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(event) =>
+                          event.stopPropagation()
+                        }
+                      >
+                        {userDetails.user.website}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* BIO */}
+                {userDetails.user.bio && (
+                  <div className="details-bio">
+                    <div className="details-section-title">
+                      <span>ðŸ’¬</span>
+                      <h3>About User</h3>
+                    </div>
+
+                    <p>{userDetails.user.bio}</p>
+                  </div>
+                )}
+
+                {/* ACTIONS */}
+                {!isMainAdmin(selectedUser) && (
+                  <div className="details-actions">
+                    {getStatus(selectedUser) === "pending" && (
+                      <>
+                        <button
+                          type="button"
+                          className="details-approve-btn"
+                          disabled={actionLoading === selectedUser._id}
+                          onClick={(event) =>
+                            handleApprove(event, selectedUser)
+                          }
+                        >
+                          âœ“ Approve User
+                        </button>
+
+                        <button
+                          type="button"
+                          className="details-reject-btn"
+                          disabled={actionLoading === selectedUser._id}
+                          onClick={(event) =>
+                            handleReject(event, selectedUser)
+                          }
+                        >
+                          Ã— Reject User
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      type="button"
+                      className="details-delete-btn"
+                      disabled={actionLoading === selectedUser._id}
+                      onClick={(event) =>
+                        handleDelete(event, selectedUser)
+                      }
+                    >
+                      ðŸ—‘ Delete User
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ManageUsers;
