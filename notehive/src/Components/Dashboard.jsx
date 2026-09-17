@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
@@ -14,18 +15,84 @@ function Dashboard() {
   const userId = localStorage.getItem("notehive_userId");
 
   // =====================================================
-  // GET USER NAME
+  // GET LOGGED-IN USER NAME
   // =====================================================
 
   useEffect(() => {
-    const storedName =
-      localStorage.getItem("notehive_userName") ||
-      localStorage.getItem("userName") ||
-      localStorage.getItem("name");
+    const loadUserName = () => {
+      try {
+        // -------------------------------------------------
+        // 1. MAIN USER OBJECT
+        // -------------------------------------------------
 
-    if (storedName) {
-      setUserName(storedName);
-    }
+        const storedUser = localStorage.getItem("notehive_user");
+
+        if (storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+
+            if (user?.name) {
+              setUserName(user.name);
+              return;
+            }
+          } catch (error) {
+            console.error(
+              "Invalid notehive_user data:",
+              error
+            );
+          }
+        }
+
+        // -------------------------------------------------
+        // 2. FALLBACK LOCAL STORAGE KEYS
+        // -------------------------------------------------
+
+        const storedName =
+          localStorage.getItem("notehive_userName") ||
+          localStorage.getItem("userName") ||
+          localStorage.getItem("name");
+
+        if (storedName) {
+          setUserName(storedName);
+          return;
+        }
+
+        // -------------------------------------------------
+        // 3. DEFAULT
+        // -------------------------------------------------
+
+        setUserName("User");
+      } catch (error) {
+        console.error(
+          "Unable to get logged-in user name:",
+          error
+        );
+
+        setUserName("User");
+      }
+    };
+
+    loadUserName();
+
+    // -----------------------------------------------------
+    // UPDATE NAME WHEN LOCAL STORAGE CHANGES
+    // -----------------------------------------------------
+
+    const handleStorageChange = () => {
+      loadUserName();
+    };
+
+    window.addEventListener(
+      "storage",
+      handleStorageChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        "storage",
+        handleStorageChange
+      );
+    };
   }, []);
 
   // =====================================================
@@ -624,7 +691,11 @@ function Dashboard() {
 
                     <button
                       type="button"
-                      title={note.pinned ? "Unpin note" : "Pin note"}
+                      title={
+                        note.pinned
+                          ? "Unpin note"
+                          : "Pin note"
+                      }
                       onClick={() => togglePin(note)}
                       className={
                         note.pinned
@@ -679,7 +750,10 @@ function Dashboard() {
                 <div className="note-card-footer">
 
                   <span className="note-date">
-                    ◷ {formatDate(note.updatedAt || note.createdAt)}
+                    ◷{" "}
+                    {formatDate(
+                      note.updatedAt || note.createdAt
+                    )}
                   </span>
 
                   {note.completed && (
