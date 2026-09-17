@@ -1,8 +1,10 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SERVER_URL } from "../config/api";
 import "./Settings.css";
 
-const API_URL = "http://192.168.1.68:5000/api";
+const API_URL = `${SERVER_URL}/api`;
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -27,16 +29,11 @@ const Settings = () => {
   });
 
   // ============================================================
-  // ACTIVE SECTION
+  // NAVIGATION
   // ============================================================
 
   const [activeSection, setActiveSection] = useState("profile");
-
-  // ============================================================
-  // MOBILE MENU
-  // ============================================================
-
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
 
   // ============================================================
   // PROFILE
@@ -50,10 +47,8 @@ const Settings = () => {
   const [profileLocation, setProfileLocation] = useState("");
   const [profileWebsite, setProfileWebsite] = useState("");
 
-  const [profileSaving, setProfileSaving] = useState(false);
-
   // ============================================================
-  // PROFILE STATS
+  // STATS
   // ============================================================
 
   const [profileStats, setProfileStats] = useState({
@@ -73,10 +68,8 @@ const Settings = () => {
     updates: true,
   });
 
-  const [notificationSaving, setNotificationSaving] = useState(false);
-
   // ============================================================
-  // APPEARANCE
+  // THEME
   // ============================================================
 
   const [theme, setTheme] = useState("light");
@@ -89,6 +82,12 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // ============================================================
+  // LOADING
+  // ============================================================
+
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [notificationSaving, setNotificationSaving] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
 
   // ============================================================
@@ -98,23 +97,64 @@ const Settings = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // ============================================================
-  // CLEAR MESSAGE
-  // ============================================================
-
   const clearMessages = () => {
     setSuccessMessage("");
     setErrorMessage("");
   };
 
   // ============================================================
-  // MOBILE SECTION CHANGE
+  // THEME
   // ============================================================
 
-  const handleMobileSectionChange = (section) => {
-    clearMessages();
-    setActiveSection(section);
-    setMobileMenuOpen(false);
+  const applyTheme = (selectedTheme) => {
+    setTheme(selectedTheme);
+
+    try {
+      const oldSettings = JSON.parse(
+        localStorage.getItem("notehive_settings") || "{}"
+      );
+
+      localStorage.setItem(
+        "notehive_settings",
+        JSON.stringify({
+          ...oldSettings,
+          theme: selectedTheme,
+        })
+      );
+    } catch (error) {
+      console.error("Theme storage error:", error);
+    }
+
+    document.body.classList.remove(
+      "theme-light",
+      "theme-dark",
+      "theme-system"
+    );
+
+    document.body.classList.add(`theme-${selectedTheme}`);
+  };
+
+  const loadTheme = () => {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem("notehive_settings") || "{}"
+      );
+
+      const selectedTheme = saved.theme || "light";
+
+      setTheme(selectedTheme);
+
+      document.body.classList.remove(
+        "theme-light",
+        "theme-dark",
+        "theme-system"
+      );
+
+      document.body.classList.add(`theme-${selectedTheme}`);
+    } catch (error) {
+      setTheme("light");
+      document.body.classList.add("theme-light");
+    }
   };
 
   // ============================================================
@@ -122,79 +162,66 @@ const Settings = () => {
   // ============================================================
 
   const fetchUser = async () => {
-    if (!userId) {
-      setErrorMessage("User session not found.");
-      return;
-    }
+    if (!userId) return;
 
     try {
       const response = await fetch(`${API_URL}/users/${userId}`);
-
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Unable to fetch profile."
-        );
+        throw new Error(data.message || "Unable to fetch profile.");
       }
 
-      const fetchedUser = data.user || data;
+      const u = data.user || data;
 
-      setUser({
-        ...fetchedUser,
-        profession: fetchedUser.profession || "",
-        location: fetchedUser.location || "",
-        website: fetchedUser.website || "",
-      });
+      const normalized = {
+        ...u,
+        profession: u.profession || "",
+        location: u.location || "",
+        website: u.website || "",
+      };
 
-      setProfileName(fetchedUser.name || "");
-      setProfileEmail(fetchedUser.email || "");
-      setProfileBio(fetchedUser.bio || "");
-      setProfileImage(fetchedUser.profileImage || "");
-      setProfileProfession(fetchedUser.profession || "");
-      setProfileLocation(fetchedUser.location || "");
-      setProfileWebsite(fetchedUser.website || "");
+      setUser(normalized);
+
+      setProfileName(normalized.name || "");
+      setProfileEmail(normalized.email || "");
+      setProfileBio(normalized.bio || "");
+      setProfileImage(normalized.profileImage || "");
+      setProfileProfession(normalized.profession || "");
+      setProfileLocation(normalized.location || "");
+      setProfileWebsite(normalized.website || "");
 
       localStorage.setItem(
         "notehive_user",
-        JSON.stringify(fetchedUser)
+        JSON.stringify(normalized)
       );
     } catch (error) {
       console.error("Fetch user error:", error);
 
       try {
-        const storedUser = JSON.parse(
+        const stored = JSON.parse(
           localStorage.getItem("notehive_user") || "{}"
         );
 
-        if (storedUser.name || storedUser.email) {
-          setUser(storedUser);
+        if (stored.name || stored.email) {
+          setUser(stored);
 
-          setProfileName(storedUser.name || "");
-          setProfileEmail(storedUser.email || "");
-          setProfileBio(storedUser.bio || "");
-          setProfileImage(storedUser.profileImage || "");
-
-          setProfileProfession(
-            storedUser.profession || ""
-          );
-
-          setProfileLocation(
-            storedUser.location || ""
-          );
-
-          setProfileWebsite(
-            storedUser.website || ""
-          );
+          setProfileName(stored.name || "");
+          setProfileEmail(stored.email || "");
+          setProfileBio(stored.bio || "");
+          setProfileImage(stored.profileImage || "");
+          setProfileProfession(stored.profession || "");
+          setProfileLocation(stored.location || "");
+          setProfileWebsite(stored.website || "");
         }
-      } catch {
-        // ignore
+      } catch (storageError) {
+        console.error("Stored user error:", storageError);
       }
     }
   };
 
   // ============================================================
-  // FETCH PROFILE STATS
+  // PROFILE STATS
   // ============================================================
 
   const fetchProfileStats = async () => {
@@ -213,23 +240,18 @@ const Settings = () => {
 
       setProfileStats({
         notes: notes.length,
-        pinned: notes.filter(
-          (note) => note.pinned === true
-        ).length,
+        pinned: notes.filter((note) => note.pinned === true).length,
         favorites: notes.filter(
           (note) => note.favorite === true
         ).length,
       });
     } catch (error) {
-      console.error(
-        "Profile stats error:",
-        error
-      );
+      console.error("Profile stats error:", error);
     }
   };
 
   // ============================================================
-  // FETCH NOTIFICATION SETTINGS
+  // NOTIFICATION SETTINGS
   // ============================================================
 
   const fetchNotificationSettings = async () => {
@@ -244,48 +266,15 @@ const Settings = () => {
 
       const data = await response.json();
 
-      const settings = data.settings || data;
-
       setNotificationSettings((previous) => ({
         ...previous,
-        ...settings,
+        ...(data.settings || data),
       }));
     } catch (error) {
       console.error(
         "Notification settings error:",
         error
       );
-    }
-  };
-
-  // ============================================================
-  // LOAD THEME
-  // ============================================================
-
-  const loadTheme = () => {
-    try {
-      const savedSettings = JSON.parse(
-        localStorage.getItem(
-          "notehive_settings"
-        ) || "{}"
-      );
-
-      const savedTheme =
-        savedSettings.theme || "light";
-
-      setTheme(savedTheme);
-
-      document.body.classList.remove(
-        "theme-light",
-        "theme-dark",
-        "theme-system"
-      );
-
-      document.body.classList.add(
-        `theme-${savedTheme}`
-      );
-    } catch {
-      setTheme("light");
     }
   };
 
@@ -303,10 +292,31 @@ const Settings = () => {
     fetchProfileStats();
     fetchNotificationSettings();
     loadTheme();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ============================================================
-  // PROFILE PHOTO
+  // SECTION NAVIGATION
+  // ============================================================
+
+  const handleSection = (section) => {
+    clearMessages();
+
+    setActiveSection(section);
+
+    // Mobile:
+    // settings list -> detail page
+    setMobileDetailOpen(true);
+  };
+
+  const handleMobileBack = () => {
+    clearMessages();
+    setMobileDetailOpen(false);
+  };
+
+  // ============================================================
+  // PROFILE IMAGE
   // ============================================================
 
   const handleProfileImageChange = (event) => {
@@ -320,6 +330,8 @@ const Settings = () => {
       setErrorMessage(
         "Please select a valid image file."
       );
+
+      event.target.value = "";
       return;
     }
 
@@ -327,6 +339,8 @@ const Settings = () => {
       setErrorMessage(
         "Profile photo must be smaller than 5 MB."
       );
+
+      event.target.value = "";
       return;
     }
 
@@ -336,27 +350,23 @@ const Settings = () => {
       const image = new Image();
 
       image.onload = () => {
-        const maxSize = 500;
+        const max = 500;
 
         let width = image.width;
         let height = image.height;
 
-        if (width > height) {
-          if (width > maxSize) {
-            height = Math.round(
-              (height * maxSize) / width
-            );
+        if (width > height && width > max) {
+          height = Math.round(
+            (height * max) / width
+          );
 
-            width = maxSize;
-          }
-        } else {
-          if (height > maxSize) {
-            width = Math.round(
-              (width * maxSize) / height
-            );
+          width = max;
+        } else if (height > max) {
+          width = Math.round(
+            (width * max) / height
+          );
 
-            height = maxSize;
-          }
+          height = max;
         }
 
         const canvas =
@@ -365,8 +375,7 @@ const Settings = () => {
         canvas.width = width;
         canvas.height = height;
 
-        const context =
-          canvas.getContext("2d");
+        const context = canvas.getContext("2d");
 
         context.drawImage(
           image,
@@ -376,13 +385,9 @@ const Settings = () => {
           height
         );
 
-        const compressedImage =
-          canvas.toDataURL(
-            "image/jpeg",
-            0.82
-          );
-
-        setProfileImage(compressedImage);
+        setProfileImage(
+          canvas.toDataURL("image/jpeg", 0.82)
+        );
       };
 
       image.src = e.target.result;
@@ -394,15 +399,6 @@ const Settings = () => {
   };
 
   // ============================================================
-  // REMOVE PHOTO
-  // ============================================================
-
-  const handleRemoveProfileImage = () => {
-    clearMessages();
-    setProfileImage("");
-  };
-
-  // ============================================================
   // SAVE PROFILE
   // ============================================================
 
@@ -410,13 +406,6 @@ const Settings = () => {
     event.preventDefault();
 
     clearMessages();
-
-    if (!userId) {
-      setErrorMessage(
-        "User session not found. Please login again."
-      );
-      return;
-    }
 
     if (!profileName.trim()) {
       setErrorMessage("Name is required.");
@@ -459,10 +448,9 @@ const Settings = () => {
         );
       }
 
-      const updatedUser =
+      const updated =
         data.user ||
-        data.updatedUser ||
-        {
+        data.updatedUser || {
           ...user,
           name: profileName.trim(),
           email: profileEmail.trim(),
@@ -473,39 +461,11 @@ const Settings = () => {
           website: profileWebsite.trim(),
         };
 
-      setUser(updatedUser);
-
-      setProfileName(
-        updatedUser.name || ""
-      );
-
-      setProfileEmail(
-        updatedUser.email || ""
-      );
-
-      setProfileBio(
-        updatedUser.bio || ""
-      );
-
-      setProfileImage(
-        updatedUser.profileImage || ""
-      );
-
-      setProfileProfession(
-        updatedUser.profession || ""
-      );
-
-      setProfileLocation(
-        updatedUser.location || ""
-      );
-
-      setProfileWebsite(
-        updatedUser.website || ""
-      );
+      setUser(updated);
 
       localStorage.setItem(
         "notehive_user",
-        JSON.stringify(updatedUser)
+        JSON.stringify(updated)
       );
 
       setSuccessMessage(
@@ -529,119 +489,55 @@ const Settings = () => {
   };
 
   // ============================================================
-  // NOTIFICATION SAVE
+  // SAVE NOTIFICATION SETTINGS
   // ============================================================
 
-  const saveNotificationSettings =
-    async () => {
-      clearMessages();
+  const saveNotificationSettings = async () => {
+    clearMessages();
 
-      if (!userId) return;
-
-      setNotificationSaving(true);
-
-      try {
-        const response = await fetch(
-          `${API_URL}/users/${userId}/settings`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify(
-              notificationSettings
-            ),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message ||
-              "Unable to save notification settings."
-          );
-        }
-
-        setSuccessMessage(
-          "Notification settings saved ✅"
-        );
-      } catch (error) {
-        console.error(
-          "Save notification settings:",
-          error
-        );
-
-        setErrorMessage(
-          error.message ||
-            "Unable to save notification settings."
-        );
-      } finally {
-        setNotificationSaving(false);
-      }
-    };
-
-  // ============================================================
-  // NOTIFICATION TOGGLE
-  // ============================================================
-
-  const handleNotificationChange = (
-    name
-  ) => {
-    setNotificationSettings(
-      (previous) => ({
-        ...previous,
-        [name]: !previous[name],
-      })
-    );
-  };
-
-  // ============================================================
-  // THEME
-  // ============================================================
-
-  const handleThemeChange = (
-    selectedTheme
-  ) => {
-    setTheme(selectedTheme);
+    setNotificationSaving(true);
 
     try {
-      const oldSettings = JSON.parse(
-        localStorage.getItem(
-          "notehive_settings"
-        ) || "{}"
+      const response = await fetch(
+        `${API_URL}/users/${userId}/settings`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(
+            notificationSettings
+          ),
+        }
       );
 
-      localStorage.setItem(
-        "notehive_settings",
-        JSON.stringify({
-          ...oldSettings,
-          theme: selectedTheme,
-        })
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to save notification settings."
+        );
+      }
+
+      setSuccessMessage(
+        "Notification settings saved ✅"
       );
-    } catch {
-      // ignore
+    } catch (error) {
+      setErrorMessage(
+        error.message ||
+          "Unable to save notification settings."
+      );
+    } finally {
+      setNotificationSaving(false);
     }
-
-    document.body.classList.remove(
-      "theme-light",
-      "theme-dark",
-      "theme-system"
-    );
-
-    document.body.classList.add(
-      `theme-${selectedTheme}`
-    );
   };
 
   // ============================================================
   // CHANGE PASSWORD
   // ============================================================
 
-  const handleChangePassword = async (
-    event
-  ) => {
+  const handleChangePassword = async (event) => {
     event.preventDefault();
 
     clearMessages();
@@ -682,8 +578,7 @@ const Settings = () => {
         {
           method: "PUT",
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             currentPassword,
@@ -709,11 +604,6 @@ const Settings = () => {
         "Password changed successfully ✅"
       );
     } catch (error) {
-      console.error(
-        "Change password error:",
-        error
-      );
-
       setErrorMessage(
         error.message ||
           "Unable to change password."
@@ -728,11 +618,11 @@ const Settings = () => {
   // ============================================================
 
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
+    const firstConfirm = window.confirm(
       "Are you sure you want to delete your account? This action cannot be undone."
     );
 
-    if (!confirmed) return;
+    if (!firstConfirm) return;
 
     const secondConfirm = window.confirm(
       "Your profile and account data will be permanently deleted. Continue?"
@@ -757,33 +647,18 @@ const Settings = () => {
         );
       }
 
-      localStorage.removeItem(
-        "isLoggedIn"
-      );
-
-      localStorage.removeItem(
-        "notehive_userId"
-      );
-
-      localStorage.removeItem(
-        "notehive_user"
-      );
-
-      localStorage.removeItem(
-        "userRole"
-      );
-
-      localStorage.removeItem(
-        "notehive_settings"
+      [
+        "isLoggedIn",
+        "notehive_userId",
+        "notehive_user",
+        "userRole",
+        "notehive_settings",
+      ].forEach((key) =>
+        localStorage.removeItem(key)
       );
 
       navigate("/signup");
     } catch (error) {
-      console.error(
-        "Delete account error:",
-        error
-      );
-
       setErrorMessage(
         error.message ||
           "Unable to delete account."
@@ -796,63 +671,108 @@ const Settings = () => {
   // ============================================================
 
   const handleLogout = () => {
-    localStorage.removeItem(
-      "isLoggedIn"
-    );
-
-    localStorage.removeItem(
-      "notehive_userId"
-    );
-
-    localStorage.removeItem(
-      "notehive_user"
-    );
-
-    localStorage.removeItem(
-      "userRole"
+    [
+      "isLoggedIn",
+      "notehive_userId",
+      "notehive_user",
+      "userRole",
+    ].forEach((key) =>
+      localStorage.removeItem(key)
     );
 
     navigate("/login");
   };
 
   // ============================================================
-  // AVATAR INITIAL
+  // HELPERS
   // ============================================================
 
   const getInitial = () => {
-    if (profileName) {
-      return profileName
-        .trim()
-        .charAt(0)
-        .toUpperCase();
-    }
-
-    return "U";
+    return (
+      profileName.trim().charAt(0).toUpperCase() ||
+      "U"
+    );
   };
-
-  // ============================================================
-  // MEMBER SINCE
-  // ============================================================
 
   const getMemberSince = () => {
     if (!user.createdAt) return "—";
 
-    const date = new Date(
-      user.createdAt
-    );
+    const date = new Date(user.createdAt);
 
     if (Number.isNaN(date.getTime())) {
       return "—";
     }
 
-    return date.toLocaleDateString(
-      "en-IN",
-      {
-        month: "short",
-        year: "numeric",
-      }
-    );
+    return date.toLocaleDateString("en-IN", {
+      month: "short",
+      year: "numeric",
+    });
   };
+
+  // ============================================================
+  // NAV ITEMS
+  // ============================================================
+
+  const navItems = [
+    {
+      key: "profile",
+      icon: "👤",
+      label: "Profile",
+      description: "Your personal information",
+    },
+    {
+      key: "notifications",
+      icon: "🔔",
+      label: "Notifications",
+      description: "Message and notification alerts",
+    },
+    {
+      key: "appearance",
+      icon: "🎨",
+      label: "Appearance",
+      description: "Theme and display",
+    },
+    {
+      key: "privacy",
+      icon: "🔐",
+      label: "Privacy & Security",
+      description: "Password and account security",
+    },
+    {
+      key: "notes",
+      icon: "📝",
+      label: "Notes Preferences",
+      description: "Manage note behaviour",
+    },
+  ];
+
+  const activeNavItem =
+    navItems.find(
+      (item) => item.key === activeSection
+    ) || navItems[0];
+
+  // ============================================================
+  // AVATAR
+  // ============================================================
+
+  const Avatar = ({ preview = false }) => (
+    <div
+      className={
+        preview
+          ? "profile-photo-preview"
+          : "profile-avatar"
+      }
+    >
+      {profileImage ? (
+        <img
+          src={profileImage}
+          alt="Profile"
+        />
+      ) : (
+        <span>{getInitial()}</span>
+      )}
+    </div>
+  );
 
   // ============================================================
   // RENDER
@@ -861,157 +781,103 @@ const Settings = () => {
   return (
     <div className="settings-page">
 
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* ======================================================
+          DESKTOP HEADER
+      ====================================================== */}
 
-      <div className="settings-header">
-        <div>
-          <div className="settings-eyebrow">
-            NOTEHIVE SETTINGS
-          </div>
+      <header className="settings-header">
+        <div className="settings-header-copy">
+          <span className="settings-eyebrow">
+            🐝 NOTEHIVE SETTINGS
+          </span>
 
           <h1>Settings</h1>
 
           <p>
-            Manage your account and
-            application preferences.
+            Manage your account, preferences and
+            security.
           </p>
         </div>
-      </div>
 
-      {/* =====================================================
-          MESSAGES
-      ===================================================== */}
+        <div className="settings-header-badge">
+          <span>●</span>
+          Account Settings
+        </div>
+      </header>
 
-      {successMessage && (
-        <div className="settings-message success">
-          {successMessage}
+      {/* ======================================================
+          MESSAGE
+      ====================================================== */}
+
+      {(successMessage || errorMessage) && (
+        <div
+          className={`settings-message ${
+            successMessage ? "success" : "error"
+          }`}
+          role="status"
+        >
+          <span>
+            {successMessage || errorMessage}
+          </span>
+
+          <button
+            type="button"
+            onClick={clearMessages}
+            aria-label="Close message"
+          >
+            ×
+          </button>
         </div>
       )}
 
-      {errorMessage && (
-        <div className="settings-message error">
-          {errorMessage}
-        </div>
-      )}
-
-      {/* =====================================================
-          MAIN LAYOUT
-      ===================================================== */}
+      {/* ======================================================
+          SETTINGS LAYOUT
+      ====================================================== */}
 
       <div className="settings-layout">
 
-        {/* =================================================
+        {/* ====================================================
             DESKTOP SIDEBAR
-        ================================================= */}
+        ==================================================== */}
 
         <aside className="settings-sidebar">
 
-          <div className="settings-panel-title">
-            USER PANEL
+          <div className="settings-panel-heading">
+            <span className="panel-bee">🐝</span>
+
+            <div>
+              <strong>USER PANEL</strong>
+              <small>Manage NoteHive</small>
+            </div>
           </div>
 
           <nav>
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className={`settings-nav ${
+                  activeSection === item.key
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() =>
+                  handleSection(item.key)
+                }
+              >
+                <span className="settings-nav-icon">
+                  {item.icon}
+                </span>
 
-            <button
-              type="button"
-              className={`settings-nav ${
-                activeSection === "profile"
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => {
-                clearMessages();
-                setActiveSection("profile");
-              }}
-            >
-              <span className="settings-nav-icon">
-                👤
-              </span>
+                <span>{item.label}</span>
 
-              <span>Profile</span>
-            </button>
-
-            <button
-              type="button"
-              className={`settings-nav ${
-                activeSection === "notifications"
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => {
-                clearMessages();
-                setActiveSection("notifications");
-              }}
-            >
-              <span className="settings-nav-icon">
-                🔔
-              </span>
-
-              <span>Notifications</span>
-            </button>
-
-            <button
-              type="button"
-              className={`settings-nav ${
-                activeSection === "appearance"
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => {
-                clearMessages();
-                setActiveSection("appearance");
-              }}
-            >
-              <span className="settings-nav-icon">
-                🎨
-              </span>
-
-              <span>Appearance</span>
-            </button>
-
-            <button
-              type="button"
-              className={`settings-nav ${
-                activeSection === "privacy"
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => {
-                clearMessages();
-                setActiveSection("privacy");
-              }}
-            >
-              <span className="settings-nav-icon">
-                🔐
-              </span>
-
-              <span>
-                Privacy & Security
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className={`settings-nav ${
-                activeSection === "notes"
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => {
-                clearMessages();
-                setActiveSection("notes");
-              }}
-            >
-              <span className="settings-nav-icon">
-                📝
-              </span>
-
-              <span>
-                Notes Preferences
-              </span>
-            </button>
+                {activeSection === item.key && (
+                  <span className="nav-arrow">
+                    ›
+                  </span>
+                )}
+              </button>
+            ))}
 
             <div className="settings-divider" />
 
@@ -1026,206 +892,178 @@ const Settings = () => {
 
               <span>Logout</span>
             </button>
-
           </nav>
         </aside>
 
-        {/* =================================================
-            MOBILE THREE DOT USER PANEL
-        ================================================= */}
+        {/* ====================================================
+            MOBILE SETTINGS HOME
+        ==================================================== */}
 
-        <div className="mobile-settings-menu">
+        <div
+          className={`mobile-settings-home ${
+            mobileDetailOpen
+              ? "mobile-hidden"
+              : ""
+          }`}
+        >
 
-          <button
-            type="button"
-            className="mobile-settings-menu-btn"
-            onClick={() =>
-              setMobileMenuOpen(
-                (previous) => !previous
-              )
-            }
-            aria-label="Open User Panel"
-            aria-expanded={mobileMenuOpen}
-          >
-            ⋮
-          </button>
+          <div className="mobile-settings-profile">
 
-          {mobileMenuOpen && (
-            <div className="mobile-settings-dropdown">
+            <Avatar />
 
-              <div className="mobile-settings-title">
+            <div className="mobile-settings-profile-info">
+              <strong>
+                {profileName || "Your Profile"}
+              </strong>
 
-                <span>🐝</span>
-
-                <div>
-                  <strong>
-                    USER PANEL
-                  </strong>
-
-                  <small>
-                    NoteHive
-                  </small>
-                </div>
-
-              </div>
-
-              <div className="mobile-settings-divider" />
-
-              <button
-                type="button"
-                className={`mobile-settings-nav ${
-                  activeSection === "profile"
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleMobileSectionChange(
-                    "profile"
-                  )
-                }
-              >
-                <span>👤</span>
-                <span>Profile</span>
-              </button>
-
-              <button
-                type="button"
-                className={`mobile-settings-nav ${
-                  activeSection === "notifications"
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleMobileSectionChange(
-                    "notifications"
-                  )
-                }
-              >
-                <span>🔔</span>
-                <span>Notifications</span>
-              </button>
-
-              <button
-                type="button"
-                className={`mobile-settings-nav ${
-                  activeSection === "appearance"
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleMobileSectionChange(
-                    "appearance"
-                  )
-                }
-              >
-                <span>🎨</span>
-                <span>Appearance</span>
-              </button>
-
-              <button
-                type="button"
-                className={`mobile-settings-nav ${
-                  activeSection === "privacy"
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleMobileSectionChange(
-                    "privacy"
-                  )
-                }
-              >
-                <span>🔐</span>
-                <span>
-                  Privacy & Security
-                </span>
-              </button>
-
-              <button
-                type="button"
-                className={`mobile-settings-nav ${
-                  activeSection === "notes"
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleMobileSectionChange(
-                    "notes"
-                  )
-                }
-              >
-                <span>📝</span>
-                <span>
-                  Notes Preferences
-                </span>
-              </button>
-
-              <div className="mobile-settings-divider" />
-
-              <button
-                type="button"
-                className="mobile-settings-nav mobile-settings-logout"
-                onClick={handleLogout}
-              >
-                <span>🚪</span>
-                <span>Logout</span>
-              </button>
-
+              <span>
+                {profileEmail ||
+                  "Add your email address"}
+              </span>
             </div>
-          )}
+
+            <button
+              type="button"
+              onClick={() =>
+                handleSection("profile")
+              }
+              aria-label="Open profile"
+            >
+              ›
+            </button>
+          </div>
+
+          <div className="mobile-settings-list">
+
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className="mobile-settings-item"
+                onClick={() =>
+                  handleSection(item.key)
+                }
+              >
+                <span className="mobile-settings-item-icon">
+                  {item.icon}
+                </span>
+
+                <span className="mobile-settings-item-content">
+                  <strong>{item.label}</strong>
+                  <small>{item.description}</small>
+                </span>
+
+                <span className="mobile-settings-item-arrow">
+                  ›
+                </span>
+              </button>
+            ))}
+
+            <div className="mobile-settings-section-label">
+              ACCOUNT
+            </div>
+
+            <button
+              type="button"
+              className="mobile-settings-item mobile-logout-item"
+              onClick={handleLogout}
+            >
+              <span className="mobile-settings-item-icon">
+                🚪
+              </span>
+
+              <span className="mobile-settings-item-content">
+                <strong>Logout</strong>
+                <small>
+                  Sign out of your NoteHive account
+                </small>
+              </span>
+
+              <span className="mobile-settings-item-arrow">
+                ›
+              </span>
+            </button>
+
+          </div>
+
+          <div className="mobile-settings-footer">
+            <span>🐝</span>
+            <p>NoteHive Settings</p>
+            <small>Manage your personal space</small>
+          </div>
 
         </div>
 
-        {/* =================================================
-            MAIN
-        ================================================= */}
+        {/* ====================================================
+            SETTINGS CONTENT
+        ==================================================== */}
 
-        <main className="settings-main">
+        <main
+          className={`settings-main ${
+            mobileDetailOpen
+              ? "mobile-detail-active"
+              : ""
+          }`}
+        >
 
-          {/* =================================================
+          {/* ==================================================
+              MOBILE DETAIL HEADER
+          ================================================== */}
+
+          <div className="mobile-detail-header">
+
+            <button
+              type="button"
+              className="mobile-back-button"
+              onClick={handleMobileBack}
+              aria-label="Back to settings"
+            >
+              ←
+            </button>
+
+            <div>
+              <span>
+                {activeNavItem.icon}
+              </span>
+
+              <strong>
+                {activeNavItem.label}
+              </strong>
+            </div>
+
+          </div>
+
+          {/* ==================================================
               PROFILE
-          ================================================= */}
+          ================================================== */}
 
           {activeSection === "profile" && (
             <section className="settings-card profile-card">
 
               <div className="profile-cover">
-                <div>
 
-                  <span className="profile-cover-small">
-                    NOTEHIVE
+                <div>
+                  <span>
+                    NOTEHIVE • PERSONAL SPACE
                   </span>
 
                   <strong>
                     My Profile
                   </strong>
-
                 </div>
-              </div>
 
-              {/* PROFILE HEADER */}
+                <div className="cover-bee">
+                  🐝
+                </div>
+
+              </div>
 
               <div className="profile-box">
 
                 <div className="profile-avatar-wrapper">
-
-                  <div className="profile-avatar">
-
-                    {profileImage ? (
-                      <img
-                        src={profileImage}
-                        alt="Profile"
-                      />
-                    ) : (
-                      <span>
-                        {getInitial()}
-                      </span>
-                    )}
-
-                  </div>
+                  <Avatar />
 
                   <span className="profile-online-dot" />
-
                 </div>
 
                 <div className="profile-info">
@@ -1241,56 +1079,45 @@ const Settings = () => {
                   </p>
 
                   <span className="profile-email">
-                    {profileEmail}
+                    {profileEmail ||
+                      "Add your email address"}
                   </span>
 
                 </div>
-
               </div>
-
-              {/* PROFILE FORM */}
 
               <form
                 className="settings-form"
                 onSubmit={handleSaveProfile}
               >
 
-                {/* PHOTO */}
+                {/* PROFILE PHOTO */}
 
                 <div className="profile-photo-section">
 
-                  <div className="profile-photo-preview">
-
-                    {profileImage ? (
-                      <img
-                        src={profileImage}
-                        alt="Profile preview"
-                      />
-                    ) : (
-                      <span>
-                        {getInitial()}
-                      </span>
-                    )}
-
-                  </div>
+                  <Avatar preview />
 
                   <div className="profile-photo-content">
+
+                    <span className="field-kicker">
+                      PROFILE IMAGE
+                    </span>
 
                     <h3>
                       Profile Photo
                     </h3>
 
                     <p>
-                      JPG, PNG or other
-                      image format. Maximum
-                      original size 5 MB.
+                      Use a clear JPG or PNG
+                      image. Maximum original
+                      size 5 MB.
                     </p>
 
                     <div className="photo-actions">
 
                       <button
                         type="button"
-                        className="photo-btn"
+                        className="secondary-btn"
                         onClick={() =>
                           fileInputRef.current?.click()
                         }
@@ -1301,10 +1128,11 @@ const Settings = () => {
                       {profileImage && (
                         <button
                           type="button"
-                          className="remove-photo-btn"
-                          onClick={
-                            handleRemoveProfileImage
-                          }
+                          className="text-danger-btn"
+                          onClick={() => {
+                            clearMessages();
+                            setProfileImage("");
+                          }}
                         >
                           Remove
                         </button>
@@ -1323,25 +1151,23 @@ const Settings = () => {
                     />
 
                   </div>
-
                 </div>
 
-                {/* BASIC INFORMATION */}
+                {/* BASIC */}
 
                 <div className="form-section-title">
+                  <span>01</span>
                   BASIC INFORMATION
                 </div>
 
                 <div className="profile-form-grid">
 
                   <div className="form-group">
-
                     <label>
                       Full Name
                     </label>
 
                     <input
-                      type="text"
                       value={profileName}
                       onChange={(e) =>
                         setProfileName(
@@ -1350,11 +1176,9 @@ const Settings = () => {
                       }
                       placeholder="Enter your full name"
                     />
-
                   </div>
 
                   <div className="form-group">
-
                     <label>
                       Email Address
                     </label>
@@ -1369,28 +1193,28 @@ const Settings = () => {
                       }
                       placeholder="Enter your email"
                     />
-
                   </div>
 
                 </div>
 
-                {/* EXTRA INFORMATION */}
+                {/* EXTRA */}
 
                 <div className="form-section-title">
+                  <span>02</span>
                   EXTRA INFORMATION
                 </div>
 
                 <div className="profile-extra-grid">
 
                   <div className="form-group">
-
                     <label>
                       💼 Profession / Role
                     </label>
 
                     <input
-                      type="text"
-                      value={profileProfession}
+                      value={
+                        profileProfession
+                      }
                       onChange={(e) =>
                         setProfileProfession(
                           e.target.value
@@ -1398,18 +1222,17 @@ const Settings = () => {
                       }
                       placeholder="e.g. Student, Developer"
                     />
-
                   </div>
 
                   <div className="form-group">
-
                     <label>
                       📍 Location
                     </label>
 
                     <input
-                      type="text"
-                      value={profileLocation}
+                      value={
+                        profileLocation
+                      }
                       onChange={(e) =>
                         setProfileLocation(
                           e.target.value
@@ -1417,18 +1240,18 @@ const Settings = () => {
                       }
                       placeholder="e.g. Himachal Pradesh"
                     />
-
                   </div>
 
                   <div className="form-group profile-extra-full">
-
                     <label>
                       🌐 Portfolio / Website
                     </label>
 
                     <input
                       type="url"
-                      value={profileWebsite}
+                      value={
+                        profileWebsite
+                      }
                       onChange={(e) =>
                         setProfileWebsite(
                           e.target.value
@@ -1436,14 +1259,14 @@ const Settings = () => {
                       }
                       placeholder="https://example.com"
                     />
-
                   </div>
 
                 </div>
 
-                {/* BIO */}
+                {/* ABOUT */}
 
                 <div className="form-section-title">
+                  <span>03</span>
                   ABOUT YOU
                 </div>
 
@@ -1474,11 +1297,8 @@ const Settings = () => {
 
                 <div className="profile-stats">
 
-                  <div className="profile-stat blue-stat">
-
-                    <div className="profile-stat-icon">
-                      📝
-                    </div>
+                  <div className="profile-stat">
+                    <span>📝</span>
 
                     <div>
                       <strong>
@@ -1489,14 +1309,10 @@ const Settings = () => {
                         Total Notes
                       </small>
                     </div>
-
                   </div>
 
-                  <div className="profile-stat purple-stat">
-
-                    <div className="profile-stat-icon">
-                      📌
-                    </div>
+                  <div className="profile-stat">
+                    <span>📌</span>
 
                     <div>
                       <strong>
@@ -1507,14 +1323,10 @@ const Settings = () => {
                         Pinned
                       </small>
                     </div>
-
                   </div>
 
-                  <div className="profile-stat pink-stat">
-
-                    <div className="profile-stat-icon">
-                      ❤️
-                    </div>
+                  <div className="profile-stat">
+                    <span>❤️</span>
 
                     <div>
                       <strong>
@@ -1525,14 +1337,10 @@ const Settings = () => {
                         Favorites
                       </small>
                     </div>
-
                   </div>
 
-                  <div className="profile-stat green-stat">
-
-                    <div className="profile-stat-icon">
-                      📅
-                    </div>
+                  <div className="profile-stat">
+                    <span>📅</span>
 
                     <div>
                       <strong>
@@ -1543,14 +1351,14 @@ const Settings = () => {
                         Member Since
                       </small>
                     </div>
-
                   </div>
 
                 </div>
 
-                {/* USER ID */}
+                {/* ACCOUNT */}
 
                 <div className="form-section-title">
+                  <span>04</span>
                   ACCOUNT INFORMATION
                 </div>
 
@@ -1571,195 +1379,109 @@ const Settings = () => {
                 <div className="profile-save-area">
 
                   <button
-                    type="submit"
                     className="primary-btn"
                     disabled={profileSaving}
                   >
                     {profileSaving
                       ? "Saving..."
-                      : "Save Profile"}
+                      : "Save Profile →"}
                   </button>
 
                 </div>
 
               </form>
-
             </section>
           )}
 
-          {/* =================================================
+          {/* ==================================================
               NOTIFICATIONS
-          ================================================= */}
+          ================================================== */}
 
           {activeSection === "notifications" && (
             <section className="settings-card">
 
-              <div className="settings-card-header">
-
-                <span className="section-label">
-                  🔔 NOTIFICATIONS
-                </span>
-
-                <h2>
-                  Notification Settings
-                </h2>
-
-                <p>
-                  Choose which notifications
-                  you want to receive.
-                </p>
-
-              </div>
+              <CardHeader
+                icon="🔔"
+                eyebrow="NOTIFICATIONS"
+                title="Notification Settings"
+                text="Choose which updates and reminders you want to receive."
+              />
 
               <div className="settings-options">
 
-                <div className="settings-row">
+                <ToggleRow
+                  title="Email Notifications"
+                  text="Receive important account notifications by email."
+                  checked={
+                    notificationSettings.emailNotifications
+                  }
+                  onChange={() =>
+                    setNotificationSettings(
+                      (previous) => ({
+                        ...previous,
+                        emailNotifications:
+                          !previous.emailNotifications,
+                      })
+                    )
+                  }
+                />
 
-                  <div className="settings-row-content">
+                <ToggleRow
+                  title="Note Reminders"
+                  text="Get reminders about your saved notes."
+                  checked={
+                    notificationSettings.noteReminders
+                  }
+                  onChange={() =>
+                    setNotificationSettings(
+                      (previous) => ({
+                        ...previous,
+                        noteReminders:
+                          !previous.noteReminders,
+                      })
+                    )
+                  }
+                />
 
-                    <h3>
-                      Email Notifications
-                    </h3>
+                <ToggleRow
+                  title="Shared Notes"
+                  text="Get notified when notes are shared with you."
+                  checked={
+                    notificationSettings.sharedNotes
+                  }
+                  onChange={() =>
+                    setNotificationSettings(
+                      (previous) => ({
+                        ...previous,
+                        sharedNotes:
+                          !previous.sharedNotes,
+                      })
+                    )
+                  }
+                />
 
-                    <p>
-                      Receive important
-                      account notifications
-                      by email.
-                    </p>
-
-                  </div>
-
-                  <label className="switch">
-
-                    <input
-                      type="checkbox"
-                      checked={
-                        notificationSettings.emailNotifications
-                      }
-                      onChange={() =>
-                        handleNotificationChange(
-                          "emailNotifications"
-                        )
-                      }
-                    />
-
-                    <span className="slider" />
-
-                  </label>
-
-                </div>
-
-                <div className="settings-row">
-
-                  <div className="settings-row-content">
-
-                    <h3>
-                      Note Reminders
-                    </h3>
-
-                    <p>
-                      Get reminders about
-                      your saved notes.
-                    </p>
-
-                  </div>
-
-                  <label className="switch">
-
-                    <input
-                      type="checkbox"
-                      checked={
-                        notificationSettings.noteReminders
-                      }
-                      onChange={() =>
-                        handleNotificationChange(
-                          "noteReminders"
-                        )
-                      }
-                    />
-
-                    <span className="slider" />
-
-                  </label>
-
-                </div>
-
-                <div className="settings-row">
-
-                  <div className="settings-row-content">
-
-                    <h3>
-                      Shared Notes
-                    </h3>
-
-                    <p>
-                      Get notified when notes
-                      are shared with you.
-                    </p>
-
-                  </div>
-
-                  <label className="switch">
-
-                    <input
-                      type="checkbox"
-                      checked={
-                        notificationSettings.sharedNotes
-                      }
-                      onChange={() =>
-                        handleNotificationChange(
-                          "sharedNotes"
-                        )
-                      }
-                    />
-
-                    <span className="slider" />
-
-                  </label>
-
-                </div>
-
-                <div className="settings-row">
-
-                  <div className="settings-row-content">
-
-                    <h3>
-                      NoteHive Updates
-                    </h3>
-
-                    <p>
-                      Receive product and
-                      feature updates.
-                    </p>
-
-                  </div>
-
-                  <label className="switch">
-
-                    <input
-                      type="checkbox"
-                      checked={
-                        notificationSettings.updates
-                      }
-                      onChange={() =>
-                        handleNotificationChange(
-                          "updates"
-                        )
-                      }
-                    />
-
-                    <span className="slider" />
-
-                  </label>
-
-                </div>
+                <ToggleRow
+                  title="NoteHive Updates"
+                  text="Receive product and feature updates."
+                  checked={
+                    notificationSettings.updates
+                  }
+                  onChange={() =>
+                    setNotificationSettings(
+                      (previous) => ({
+                        ...previous,
+                        updates:
+                          !previous.updates,
+                      })
+                    )
+                  }
+                />
 
               </div>
 
               <div className="card-action">
 
                 <button
-                  type="button"
                   className="primary-btn"
                   onClick={
                     saveNotificationSettings
@@ -1770,7 +1492,7 @@ const Settings = () => {
                 >
                   {notificationSaving
                     ? "Saving..."
-                    : "Save Notifications"}
+                    : "Save Notifications →"}
                 </button>
 
               </div>
@@ -1778,136 +1500,64 @@ const Settings = () => {
             </section>
           )}
 
-          {/* =================================================
+          {/* ==================================================
               APPEARANCE
-          ================================================= */}
+          ================================================== */}
 
           {activeSection === "appearance" && (
             <section className="settings-card">
 
-              <div className="settings-card-header">
-
-                <span className="section-label">
-                  🎨 APPEARANCE
-                </span>
-
-                <h2>
-                  Appearance
-                </h2>
-
-                <p>
-                  Customize the look of
-                  your NoteHive account.
-                </p>
-
-              </div>
+              <CardHeader
+                icon="🎨"
+                eyebrow="APPEARANCE"
+                title="Appearance"
+                text="Customize the look of your NoteHive workspace."
+              />
 
               <div className="theme-options">
 
-                <button
-                  type="button"
-                  className={`theme-option ${
+                <ThemeOption
+                  selected={
                     theme === "light"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    handleThemeChange("light")
                   }
-                >
+                  onClick={() =>
+                    applyTheme("light")
+                  }
+                  type="light"
+                  title="Light"
+                  text="Clean and bright interface"
+                />
 
-                  <div className="theme-preview light-preview">
-                    <div />
-                    <div />
-                    <div />
-                  </div>
-
-                  <div>
-
-                    <strong>
-                      Light
-                    </strong>
-
-                    <span>
-                      Clean white interface
-                    </span>
-
-                  </div>
-
-                  {theme === "light" && (
-                    <span className="theme-check">
-                      ✓
-                    </span>
-                  )}
-
-                </button>
-
-                <button
-                  type="button"
-                  className={`theme-option ${
+                <ThemeOption
+                  selected={
                     theme === "dark"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    handleThemeChange("dark")
                   }
-                >
-
-                  <div className="theme-preview dark-preview">
-                    <div />
-                    <div />
-                    <div />
-                  </div>
-
-                  <div>
-
-                    <strong>
-                      Dark
-                    </strong>
-
-                    <span>
-                      Dark interface
-                    </span>
-
-                  </div>
-
-                  {theme === "dark" && (
-                    <span className="theme-check">
-                      ✓
-                    </span>
-                  )}
-
-                </button>
+                  onClick={() =>
+                    applyTheme("dark")
+                  }
+                  type="dark"
+                  title="Dark"
+                  text="Comfortable dark interface"
+                />
 
               </div>
 
             </section>
           )}
 
-          {/* =================================================
+          {/* ==================================================
               PRIVACY
-          ================================================= */}
+          ================================================== */}
 
           {activeSection === "privacy" && (
             <section className="settings-card">
 
-              <div className="settings-card-header">
-
-                <span className="section-label">
-                  🔐 PRIVACY & SECURITY
-                </span>
-
-                <h2>
-                  Privacy & Security
-                </h2>
-
-                <p>
-                  Keep your NoteHive account
-                  secure.
-                </p>
-
-              </div>
+              <CardHeader
+                icon="🔐"
+                eyebrow="PRIVACY & SECURITY"
+                title="Privacy & Security"
+                text="Keep your NoteHive account secure."
+              />
 
               <form
                 className="password-form"
@@ -1917,6 +1567,7 @@ const Settings = () => {
               >
 
                 <div className="form-section-title">
+                  <span>01</span>
                   CHANGE PASSWORD
                 </div>
 
@@ -1953,7 +1604,7 @@ const Settings = () => {
                         e.target.value
                       )
                     }
-                    placeholder="Enter new password"
+                    placeholder="At least 6 characters"
                   />
 
                 </div>
@@ -1980,13 +1631,14 @@ const Settings = () => {
                 <div className="card-action">
 
                   <button
-                    type="submit"
                     className="primary-btn"
-                    disabled={passwordSaving}
+                    disabled={
+                      passwordSaving
+                    }
                   >
                     {passwordSaving
                       ? "Updating..."
-                      : "Change Password"}
+                      : "Change Password →"}
                   </button>
 
                 </div>
@@ -1996,7 +1648,6 @@ const Settings = () => {
               <div className="danger-zone">
 
                 <div>
-
                   <span className="danger-label">
                     DANGER ZONE
                   </span>
@@ -2007,14 +1658,12 @@ const Settings = () => {
 
                   <p>
                     Permanently delete your
-                    NoteHive account and
-                    account data.
+                    NoteHive account and account
+                    data.
                   </p>
-
                 </div>
 
                 <button
-                  type="button"
                   className="danger-btn"
                   onClick={
                     handleDeleteAccount
@@ -2028,123 +1677,146 @@ const Settings = () => {
             </section>
           )}
 
-          {/* =================================================
+          {/* ==================================================
               NOTES
-          ================================================= */}
+          ================================================== */}
 
           {activeSection === "notes" && (
             <section className="settings-card">
 
-              <div className="settings-card-header">
+              <CardHeader
+                icon="📝"
+                eyebrow="NOTES PREFERENCES"
+                title="Notes Preferences"
+                text="Manage your preferred note behaviour."
+              />
 
-                <span className="section-label">
-                  📝 NOTES PREFERENCES
-                </span>
+              <ToggleRow
+                title="Auto Save"
+                text="Automatically save changes while editing notes."
+                checked={true}
+              />
 
-                <h2>
-                  Notes Preferences
-                </h2>
+              <ToggleRow
+                title="Confirm Before Delete"
+                text="Ask for confirmation before deleting a note."
+                checked={true}
+              />
 
-                <p>
-                  Manage your preferred note
-                  behaviour.
-                </p>
-
-              </div>
-
-              <div className="settings-row">
-
-                <div className="settings-row-content">
-
-                  <h3>
-                    Auto Save
-                  </h3>
-
-                  <p>
-                    Automatically save changes
-                    while editing notes.
-                  </p>
-
-                </div>
-
-                <label className="switch">
-
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                  />
-
-                  <span className="slider" />
-
-                </label>
-
-              </div>
-
-              <div className="settings-row">
-
-                <div className="settings-row-content">
-
-                  <h3>
-                    Confirm Before Delete
-                  </h3>
-
-                  <p>
-                    Ask for confirmation before
-                    deleting a note.
-                  </p>
-
-                </div>
-
-                <label className="switch">
-
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                  />
-
-                  <span className="slider" />
-
-                </label>
-
-              </div>
-
-              <div className="settings-row">
-
-                <div className="settings-row-content">
-
-                  <h3>
-                    Show Completed Notes
-                  </h3>
-
-                  <p>
-                    Keep completed notes visible
-                    in your notes list.
-                  </p>
-
-                </div>
-
-                <label className="switch">
-
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                  />
-
-                  <span className="slider" />
-
-                </label>
-
-              </div>
+              <ToggleRow
+                title="Show Completed Notes"
+                text="Keep completed notes visible in your notes list."
+                checked={true}
+              />
 
             </section>
           )}
 
         </main>
-
       </div>
-
     </div>
   );
 };
+
+// ============================================================
+// CARD HEADER
+// ============================================================
+
+const CardHeader = ({
+  icon,
+  eyebrow,
+  title,
+  text,
+}) => (
+  <div className="settings-card-header">
+
+    <span className="section-label">
+      {icon} {eyebrow}
+    </span>
+
+    <h2>{title}</h2>
+
+    <p>{text}</p>
+
+  </div>
+);
+
+// ============================================================
+// TOGGLE
+// ============================================================
+
+const ToggleRow = ({
+  title,
+  text,
+  checked,
+  onChange,
+}) => (
+  <div className="settings-row">
+
+    <div className="settings-row-content">
+
+      <h3>{title}</h3>
+
+      <p>{text}</p>
+
+    </div>
+
+    <label className="switch">
+
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={
+          onChange || (() => {})
+        }
+      />
+
+      <span className="slider" />
+
+    </label>
+
+  </div>
+);
+
+// ============================================================
+// THEME OPTION
+// ============================================================
+
+const ThemeOption = ({
+  selected,
+  onClick,
+  type,
+  title,
+  text,
+}) => (
+  <button
+    type="button"
+    className={`theme-option ${
+      selected ? "selected" : ""
+    }`}
+    onClick={onClick}
+  >
+
+    <div
+      className={`theme-preview ${type}-preview`}
+    >
+      <i />
+      <i />
+      <i />
+    </div>
+
+    <div>
+      <strong>{title}</strong>
+      <span>{text}</span>
+    </div>
+
+    {selected && (
+      <b className="theme-check">
+        ✓
+      </b>
+    )}
+
+  </button>
+);
 
 export default Settings;
