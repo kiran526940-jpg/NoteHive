@@ -681,3 +681,168 @@
     max-width: 82%;
   }
 }
+
+/* ============================================================
+   NOTEHIVE CHAT - MOBILE USER / CONVERSATION SWITCH
+   ============================================================ */
+
+.mobile-chat-back {
+  display: none;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .chat-page {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* USER LIST SCREEN */
+
+  .chat-sidebar {
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+  }
+
+  /* CONVERSATION HIDDEN INITIALLY */
+
+  .chat-window {
+    display: none;
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+  }
+
+  /* AFTER USER CLICK */
+
+  .chat-page.mobile-chat-open
+    .chat-sidebar {
+    display: none;
+  }
+
+  .chat-page.mobile-chat-open
+    .chat-window {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ==========================================================
+     CHAT HEADER
+     ========================================================== */
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-chat-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 42px;
+
+    width: 42px;
+    height: 42px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 12px;
+
+    background: transparent;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    color: inherit;
+
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-chat-back:active {
+    transform: scale(0.94);
+  }
+
+  .selected-user {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .selected-user > div:last-child {
+    min-width: 0;
+  }
+
+  .selected-user h2 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .chat-header-status {
+    display: none;
+  }
+
+  /* ==========================================================
+     MESSAGES
+     ========================================================== */
+
+  .chat-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* ==========================================================
+     INPUT
+     ========================================================== */
+
+  .chat-input-area {
+    flex-shrink: 0;
+    width: 100%;
+  }
+
+  .chat-input-box {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .chat-input-box input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* ==========================================================
+     USER LIST
+     ========================================================== */
+
+  .chat-users {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chat-user-item {
+    min-height: 68px;
+  }
+}
+
+/* ============================================================
+   DESKTOP
+   ============================================================ */
+
+@media (min-width: 769px) {
+  .mobile-chat-back {
+    display: none !important;
+  }
+}

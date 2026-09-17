@@ -1,3 +1,4 @@
+
 import React, {
   useEffect,
   useMemo,
@@ -13,8 +14,7 @@ const Chat = () => {
   // CURRENT USER
   // ============================================================
 
-  const [currentUserId, setCurrentUserId] =
-    useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
 
   // ============================================================
   // USERS
@@ -27,41 +27,31 @@ const Chat = () => {
   // SELECTED CHAT
   // ============================================================
 
-  const [selectedUser, setSelectedUser] =
-    useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const [mobileChatOpen, setMobileChatOpen] = useState(false);
 
   const [messages, setMessages] = useState([]);
-
-  // ============================================================
-  // MOBILE VIEW STATE (Sidebar vs Chat Window toggling)
-  // ============================================================
-
-  const [showMobileChat, setShowMobileChat] =
-    useState(false);
 
   // ============================================================
   // MESSAGE INPUT
   // ============================================================
 
-  const [messageText, setMessageText] =
-    useState("");
+  const [messageText, setMessageText] = useState("");
 
   // ============================================================
   // LOADING
   // ============================================================
 
-  const [loadingUsers, setLoadingUsers] =
-    useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(true);
 
-  const [loadingMessages, setLoadingMessages] =
-    useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   // ============================================================
   // SOCKET
   // ============================================================
 
-  const [socketConnected, setSocketConnected] =
-    useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
 
   const socketRef = useRef(null);
 
@@ -71,15 +61,13 @@ const Chat = () => {
   // UNREAD COUNTS
   // ============================================================
 
-  const [unreadCounts, setUnreadCounts] =
-    useState({});
+  const [unreadCounts, setUnreadCounts] = useState({});
 
   // ============================================================
   // NEW MESSAGE POPUP
   // ============================================================
 
-  const [messagePopup, setMessagePopup] =
-    useState(null);
+  const [messagePopup, setMessagePopup] = useState(null);
 
   const popupTimerRef = useRef(null);
 
@@ -90,8 +78,7 @@ const Chat = () => {
   const selectedUserRef = useRef(null);
 
   useEffect(() => {
-    selectedUserRef.current =
-      selectedUser;
+    selectedUserRef.current = selectedUser;
   }, [selectedUser]);
 
   // ============================================================
@@ -99,15 +86,10 @@ const Chat = () => {
   // ============================================================
 
   useEffect(() => {
-    const storedUserId =
-      localStorage.getItem(
-        "notehive_userId"
-      );
+    const storedUserId = localStorage.getItem("notehive_userId");
 
     if (storedUserId) {
-      setCurrentUserId(
-        storedUserId
-      );
+      setCurrentUserId(storedUserId);
     }
   }, []);
 
@@ -121,25 +103,18 @@ const Chat = () => {
     }
 
     try {
-      const savedUnread =
-        localStorage.getItem(
-          `notehive_chat_unread_${currentUserId}`
-        );
+      const savedUnread = localStorage.getItem(
+        `notehive_chat_unread_${currentUserId}`
+      );
 
       if (!savedUnread) {
         return;
       }
 
-      const parsed =
-        JSON.parse(savedUnread);
+      const parsed = JSON.parse(savedUnread);
 
-      if (
-        parsed &&
-        typeof parsed === "object"
-      ) {
-        setUnreadCounts(
-          parsed
-        );
+      if (parsed && typeof parsed === "object") {
+        setUnreadCounts(parsed);
       }
     } catch (error) {
       console.error(
@@ -161,9 +136,7 @@ const Chat = () => {
     try {
       localStorage.setItem(
         `notehive_chat_unread_${currentUserId}`,
-        JSON.stringify(
-          unreadCounts
-        )
+        JSON.stringify(unreadCounts)
       );
     } catch (error) {
       console.error(
@@ -171,25 +144,18 @@ const Chat = () => {
         error
       );
     }
-  }, [
-    unreadCounts,
-    currentUserId,
-  ]);
+  }, [unreadCounts, currentUserId]);
 
   // ============================================================
   // TOTAL UNREAD
   // ============================================================
 
-  const totalUnreadCount =
-    useMemo(() => {
-      return Object.values(
-        unreadCounts
-      ).reduce(
-        (total, count) =>
-          total + Number(count || 0),
-        0
-      );
-    }, [unreadCounts]);
+  const totalUnreadCount = useMemo(() => {
+    return Object.values(unreadCounts).reduce(
+      (total, count) => total + Number(count || 0),
+      0
+    );
+  }, [unreadCounts]);
 
   // ============================================================
   // SEND TOTAL UNREAD TO HEADER
@@ -197,15 +163,11 @@ const Chat = () => {
 
   useEffect(() => {
     window.dispatchEvent(
-      new CustomEvent(
-        "notehive-chat-unread-change",
-        {
-          detail: {
-            count:
-              totalUnreadCount,
-          },
-        }
-      )
+      new CustomEvent("notehive-chat-unread-change", {
+        detail: {
+          count: totalUnreadCount,
+        },
+      })
     );
   }, [totalUnreadCount]);
 
@@ -213,15 +175,12 @@ const Chat = () => {
   // SHOW MESSAGE POPUP
   // ============================================================
 
-  const showMessagePopup = (
-    newMessage
-  ) => {
+  const showMessagePopup = (newMessage) => {
     if (!newMessage) {
       return;
     }
 
-    const sender =
-      newMessage.sender || {};
+    const sender = newMessage.sender || {};
 
     const senderId = String(
       sender._id ||
@@ -235,53 +194,37 @@ const Chat = () => {
 
     setMessagePopup({
       id: newMessage._id,
-
       senderId,
-
       name: senderName,
-
       message:
         newMessage.message ||
         "New message",
-
       profileImage:
         sender.profileImage ||
         "",
     });
 
-    if (
-      popupTimerRef.current
-    ) {
-      clearTimeout(
-        popupTimerRef.current
-      );
+    if (popupTimerRef.current) {
+      clearTimeout(popupTimerRef.current);
     }
 
-    popupTimerRef.current =
-      setTimeout(() => {
-        setMessagePopup(null);
-      }, 4500);
+    popupTimerRef.current = setTimeout(() => {
+      setMessagePopup(null);
+    }, 4500);
   };
 
   // ============================================================
   // CLOSE POPUP
   // ============================================================
 
-  const closeMessagePopup =
-    () => {
-      setMessagePopup(null);
+  const closeMessagePopup = () => {
+    setMessagePopup(null);
 
-      if (
-        popupTimerRef.current
-      ) {
-        clearTimeout(
-          popupTimerRef.current
-        );
-
-        popupTimerRef.current =
-          null;
-      }
-    };
+    if (popupTimerRef.current) {
+      clearTimeout(popupTimerRef.current);
+      popupTimerRef.current = null;
+    }
+  };
 
   // ============================================================
   // OPEN POPUP SENDER CHAT
@@ -293,34 +236,27 @@ const Chat = () => {
       return;
     }
 
-    const sender =
-      users.find(
-        (user) =>
-          String(user._id) ===
-          String(
-            messagePopup.senderId
-          )
-      );
+    const sender = users.find(
+      (user) =>
+        String(user._id) ===
+        String(messagePopup.senderId)
+    );
 
     if (sender) {
-      setSelectedUser(
-        sender
-      );
-      setShowMobileChat(true); // Open chat view on mobile
+      setSelectedUser(sender);
 
-      setUnreadCounts(
-        (previousCounts) => {
-          const updated = {
-            ...previousCounts,
-          };
+      // Mobile popup se chat open
+      setMobileChatOpen(true);
 
-          delete updated[
-            sender._id
-          ];
+      setUnreadCounts((previousCounts) => {
+        const updated = {
+          ...previousCounts,
+        };
 
-          return updated;
-        }
-      );
+        delete updated[sender._id];
+
+        return updated;
+      });
     }
 
     closeMessagePopup();
@@ -335,58 +271,63 @@ const Chat = () => {
       return;
     }
 
-    const socket = io(
-      SERVER_URL,
-      {
-        transports: [
-          "polling",
-          "websocket",
-        ],
+    const socket = io(SERVER_URL, {
+      transports: ["polling", "websocket"],
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+    });
 
-        reconnection: true,
+    socketRef.current = socket;
 
-        reconnectionAttempts:
-          Infinity,
+    // ==========================================================
+    // CONNECT
+    // ==========================================================
 
-        reconnectionDelay: 1000,
+    socket.on("connect", () => {
+      console.log(
+        "🟢 Chat socket connected:",
+        socket.id
+      );
 
-        reconnectionDelayMax: 5000,
-      }
-    );
+      setSocketConnected(true);
 
-    socketRef.current =
-      socket;
+      socket.emit(
+        "join-user",
+        currentUserId
+      );
+    });
 
-    socket.on(
-      "connect",
-      () => {
-        setSocketConnected(
-          true
-        );
-        socket.emit(
-          "join-user",
-          currentUserId
-        );
-      }
-    );
+    // ==========================================================
+    // DISCONNECT
+    // ==========================================================
 
-    socket.on(
-      "disconnect",
-      (reason) => {
-        setSocketConnected(
-          false
-        );
-      }
-    );
+    socket.on("disconnect", (reason) => {
+      console.log(
+        "🔴 Chat socket disconnected:",
+        reason
+      );
 
-    socket.on(
-      "connect_error",
-      (error) => {
-        setSocketConnected(
-          false
-        );
-      }
-    );
+      setSocketConnected(false);
+    });
+
+    // ==========================================================
+    // CONNECTION ERROR
+    // ==========================================================
+
+    socket.on("connect_error", (error) => {
+      console.error(
+        "❌ Chat socket error:",
+        error.message
+      );
+
+      setSocketConnected(false);
+    });
+
+    // ==========================================================
+    // RECEIVE MESSAGE
+    // ==========================================================
 
     socket.on(
       "receive-message",
@@ -395,12 +336,11 @@ const Chat = () => {
           return;
         }
 
-        const senderId =
-          String(
-            newMessage.sender?._id ||
-              newMessage.sender ||
-              ""
-          );
+        const senderId = String(
+          newMessage.sender?._id ||
+            newMessage.sender ||
+            ""
+        );
 
         if (!senderId) {
           return;
@@ -411,9 +351,12 @@ const Chat = () => {
 
         const isCurrentChat =
           openUser &&
-          String(
-            openUser._id
-          ) === senderId;
+          String(openUser._id) ===
+            senderId;
+
+        // ------------------------------------------------------
+        // MESSAGE FROM CURRENT OPEN CHAT
+        // ------------------------------------------------------
 
         if (isCurrentChat) {
           setMessages(
@@ -421,12 +364,8 @@ const Chat = () => {
               const exists =
                 previousMessages.some(
                   (item) =>
-                    String(
-                      item._id
-                    ) ===
-                    String(
-                      newMessage._id
-                    )
+                    String(item._id) ===
+                    String(newMessage._id)
                 );
 
               if (exists) {
@@ -445,48 +384,62 @@ const Chat = () => {
             {
               method: "PATCH",
             }
-          ).catch((error) =>
-            console.error(error)
-          );
+          ).catch((error) => {
+            console.error(
+              "Mark message read error:",
+              error
+            );
+          });
 
           return;
         }
+
+        // ------------------------------------------------------
+        // INCREMENT UNREAD
+        // ------------------------------------------------------
 
         setUnreadCounts(
           (previousCounts) => {
             const currentCount =
               Number(
-                previousCounts[
-                  senderId
-                ] || 0
+                previousCounts[senderId] ||
+                  0
               );
 
             return {
               ...previousCounts,
-
               [senderId]:
                 currentCount + 1,
             };
           }
         );
 
-        showMessagePopup(
-          newMessage
-        );
+        // ------------------------------------------------------
+        // POPUP
+        // ------------------------------------------------------
+
+        showMessagePopup(newMessage);
+
+        // ------------------------------------------------------
+        // HEADER EVENT
+        // ------------------------------------------------------
 
         window.dispatchEvent(
           new CustomEvent(
             "notehive-chat-message",
             {
               detail: {
-                message:
-                  newMessage,
+                message: newMessage,
               },
             }
           )
         );
       }
     );
+
+    // ==========================================================
+    // MESSAGE SENT
+    // ==========================================================
 
     socket.on(
       "message-sent",
@@ -500,12 +453,8 @@ const Chat = () => {
             const exists =
               previousMessages.some(
                 (item) =>
-                  String(
-                    item._id
-                  ) ===
-                  String(
-                    newMessage._id
-                  )
+                  String(item._id) ===
+                  String(newMessage._id)
               );
 
             if (exists) {
@@ -521,10 +470,12 @@ const Chat = () => {
       }
     );
 
+    // ==========================================================
+    // CLEANUP
+    // ==========================================================
+
     return () => {
-      if (
-        popupTimerRef.current
-      ) {
+      if (popupTimerRef.current) {
         clearTimeout(
           popupTimerRef.current
         );
@@ -532,8 +483,7 @@ const Chat = () => {
 
       socket.disconnect();
 
-      socketRef.current =
-        null;
+      socketRef.current = null;
     };
   }, [currentUserId]);
 
@@ -546,61 +496,51 @@ const Chat = () => {
       return;
     }
 
-    const loadUsers =
-      async () => {
-        try {
-          setLoadingUsers(
-            true
-          );
+    const loadUsers = async () => {
+      try {
+        setLoadingUsers(true);
 
-          const response =
-            await fetch(
-              `${SERVER_URL}/api/users/chat-list`
-            );
+        const response = await fetch(
+          `${SERVER_URL}/api/users/chat-list`
+        );
 
-          const data =
-            await response.json();
+        const data =
+          await response.json();
 
-          if (
-            !response.ok ||
-            !data.success
-          ) {
-            throw new Error(
-              data.message ||
-                "Unable to load users."
-            );
-          }
-
-          const otherUsers =
-            (
-              data.users || []
-            ).filter(
-              (user) =>
-                String(
-                  user._id
-                ) !==
-                String(
-                  currentUserId
-                )
-            );
-
-          setUsers(
-            otherUsers
-          );
-
-          // Note: On desktop, you can keep auto-selecting the first user if desired, 
-          // but for mobile we leave it unselected initially or let user click.
-        } catch (error) {
-          console.error(
-            "Load chat users error:",
-            error
-          );
-        } finally {
-          setLoadingUsers(
-            false
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+          throw new Error(
+            data.message ||
+              "Unable to load users."
           );
         }
-      };
+
+        const otherUsers = (
+          data.users || []
+        ).filter(
+          (user) =>
+            String(user._id) !==
+            String(currentUserId)
+        );
+
+        setUsers(otherUsers);
+
+        // IMPORTANT:
+        // No automatic first-user selection.
+        // User must click a person.
+        setSelectedUser(null);
+        setMobileChatOpen(false);
+      } catch (error) {
+        console.error(
+          "Load chat users error:",
+          error
+        );
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
 
     loadUsers();
   }, [currentUserId]);
@@ -618,76 +558,78 @@ const Chat = () => {
       return;
     }
 
-    const loadMessages =
-      async () => {
-        try {
-          setLoadingMessages(
-            true
-          );
+    const loadMessages = async () => {
+      try {
+        setLoadingMessages(true);
 
-          const response =
-            await fetch(
-              `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}`
-            );
+        const response = await fetch(
+          `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}`
+        );
 
-          const data =
-            await response.json();
+        const data =
+          await response.json();
 
-          if (
-            !response.ok ||
-            !data.success
-          ) {
-            throw new Error(
-              data.message ||
-                "Unable to load messages."
-            );
-          }
-
-          setMessages(
-            data.messages || []
-          );
-
-          setUnreadCounts(
-            (previousCounts) => {
-              if (
-                !previousCounts[
-                  selectedUser._id
-                ]
-              ) {
-                return previousCounts;
-              }
-
-              const updated = {
-                ...previousCounts,
-              };
-
-              delete updated[
-                selectedUser._id
-              ];
-
-              return updated;
-            }
-          );
-
-          await fetch(
-            `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}/read`,
-            {
-              method: "PATCH",
-            }
-          );
-        } catch (error) {
-          console.error(
-            "Load messages error:",
-            error
-          );
-
-          setMessages([]);
-        } finally {
-          setLoadingMessages(
-            false
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+          throw new Error(
+            data.message ||
+              "Unable to load messages."
           );
         }
-      };
+
+        setMessages(
+          data.messages || []
+        );
+
+        // ----------------------------------------------------
+        // CLEAR UNREAD
+        // ----------------------------------------------------
+
+        setUnreadCounts(
+          (previousCounts) => {
+            if (
+              !previousCounts[
+                selectedUser._id
+              ]
+            ) {
+              return previousCounts;
+            }
+
+            const updated = {
+              ...previousCounts,
+            };
+
+            delete updated[
+              selectedUser._id
+            ];
+
+            return updated;
+          }
+        );
+
+        // ----------------------------------------------------
+        // MARK READ
+        // ----------------------------------------------------
+
+        await fetch(
+          `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}/read`,
+          {
+            method: "PATCH",
+          }
+        );
+      } catch (error) {
+        console.error(
+          "Load messages error:",
+          error
+        );
+
+        setMessages([]);
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
 
     loadMessages();
   }, [
@@ -700,50 +642,39 @@ const Chat = () => {
   // ============================================================
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView(
-      {
-        behavior: "smooth",
-      }
-    );
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
   }, [messages]);
 
   // ============================================================
   // FILTER USERS
   // ============================================================
 
-  const filteredUsers =
-    useMemo(() => {
-      const searchValue =
-        search
-          .trim()
-          .toLowerCase();
+  const filteredUsers = useMemo(() => {
+    const searchValue =
+      search.trim().toLowerCase();
 
-      if (!searchValue) {
-        return users;
-      }
+    if (!searchValue) {
+      return users;
+    }
 
-      return users.filter(
-        (user) =>
-          user.name
-            ?.toLowerCase()
-            .includes(
-              searchValue
-            ) ||
-          user.email
-            ?.toLowerCase()
-            .includes(
-              searchValue
-            )
-      );
-    }, [users, search]);
+    return users.filter(
+      (user) =>
+        user.name
+          ?.toLowerCase()
+          .includes(searchValue) ||
+        user.email
+          ?.toLowerCase()
+          .includes(searchValue)
+    );
+  }, [users, search]);
 
   // ============================================================
   // SEND MESSAGE
   // ============================================================
 
-  const sendMessage = (
-    event
-  ) => {
+  const sendMessage = (event) => {
     event.preventDefault();
 
     const text =
@@ -759,9 +690,12 @@ const Chat = () => {
     }
 
     if (
-      !socketRef.current
-        .connected
+      !socketRef.current.connected
     ) {
+      console.warn(
+        "Socket is not connected."
+      );
+
       return;
     }
 
@@ -789,8 +723,12 @@ const Chat = () => {
     user
   ) => {
     setSelectedUser(user);
-    setShowMobileChat(true); // Switch view to chat window on mobile
 
+    // IMPORTANT:
+    // On mobile, open the selected conversation.
+    setMobileChatOpen(true);
+
+    // Clear unread
     setUnreadCounts(
       (previousCounts) => {
         if (
@@ -805,62 +743,53 @@ const Chat = () => {
           ...previousCounts,
         };
 
-        delete updated[
-          user._id
-        ];
+        delete updated[user._id];
 
         return updated;
       }
     );
 
+    // Close popup when opening same user
     if (
       messagePopup?.senderId &&
       String(
         messagePopup.senderId
-      ) ===
-        String(user._id)
+      ) === String(user._id)
     ) {
       closeMessagePopup();
     }
   };
 
   // ============================================================
-  // BACK TO LIST (MOBILE)
+  // MOBILE BACK TO USERS
   // ============================================================
 
-  const handleBackToList = () => {
-    setShowMobileChat(false);
+  const handleMobileBack = () => {
+    setMobileChatOpen(false);
   };
 
   // ============================================================
   // FORMAT TIME
   // ============================================================
 
-  const formatTime = (
-    date
-  ) => {
+  const formatTime = (date) => {
     if (!date) {
       return "";
     }
 
     return new Date(
       date
-    ).toLocaleTimeString(
-      [],
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    );
+    ).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   // ============================================================
   // USER INITIAL
   // ============================================================
 
-  const getInitial = (
-    name
-  ) => {
+  const getInitial = (name) => {
     return (
       name
         ?.trim()
@@ -874,33 +803,35 @@ const Chat = () => {
   // POPUP AVATAR
   // ============================================================
 
-  const renderPopupAvatar =
-    () => {
-      if (
-        messagePopup?.profileImage
-      ) {
-        return (
-          <img
-            src={`${SERVER_URL}${messagePopup.profileImage}`}
-            alt={
-              messagePopup.name
-            }
-          />
-        );
-      }
-
-      return getInitial(
-        messagePopup?.name
+  const renderPopupAvatar = () => {
+    if (
+      messagePopup?.profileImage
+    ) {
+      return (
+        <img
+          src={`${SERVER_URL}${messagePopup.profileImage}`}
+          alt={messagePopup.name}
+        />
       );
-    };
+    }
+
+    return getInitial(
+      messagePopup?.name
+    );
+  };
 
   // ============================================================
   // RENDER
   // ============================================================
 
   return (
-    <div className="chat-page">
-
+    <div
+      className={`chat-page ${
+        mobileChatOpen
+          ? "mobile-chat-open"
+          : ""
+      }`}
+    >
       {/* ======================================================
           NEW MESSAGE POPUP
       ====================================================== */}
@@ -909,16 +840,13 @@ const Chat = () => {
         <button
           type="button"
           className="chat-message-popup"
-          onClick={
-            openPopupChat
-          }
+          onClick={openPopupChat}
         >
           <div className="chat-popup-avatar">
             {renderPopupAvatar()}
           </div>
 
           <div className="chat-popup-content">
-
             <strong>
               {messagePopup.name}
             </strong>
@@ -926,7 +854,6 @@ const Chat = () => {
             <span>
               {messagePopup.message}
             </span>
-
           </div>
 
           <span
@@ -942,17 +869,13 @@ const Chat = () => {
       )}
 
       {/* ======================================================
-          CHAT SIDEBAR (Hidden on mobile when chat is active)
+          CHAT SIDEBAR
       ====================================================== */}
 
-      <aside className={`chat-sidebar ${showMobileChat ? "mobile-hidden" : ""}`}>
-
+      <aside className="chat-sidebar">
         <div className="chat-sidebar-header">
-
           <div>
-            <h1>
-              Messages
-            </h1>
+            <h1>Messages</h1>
 
             <p>
               Connect with NoteHive users
@@ -972,22 +895,16 @@ const Chat = () => {
               ? "Live"
               : "Offline"}
           </div>
-
         </div>
 
         {/* TOTAL UNREAD */}
 
-        {totalUnreadCount >
-          0 && (
+        {totalUnreadCount > 0 && (
           <div className="chat-unread-summary">
-
-            <span>
-              💬
-            </span>
+            <span>💬</span>
 
             <strong>
-              {totalUnreadCount >
-              99
+              {totalUnreadCount > 99
                 ? "99+"
                 : totalUnreadCount}
             </strong>
@@ -995,17 +912,13 @@ const Chat = () => {
             <span>
               unread messages
             </span>
-
           </div>
         )}
 
         {/* SEARCH */}
 
         <div className="chat-search">
-
-          <span>
-            ⌕
-          </span>
+          <span>⌕</span>
 
           <input
             type="text"
@@ -1017,27 +930,21 @@ const Chat = () => {
               )
             }
           />
-
         </div>
 
         {/* USERS */}
 
         <div className="chat-users">
-
           {loadingUsers ? (
             <div className="chat-empty-list">
-
               <div className="chat-loader"></div>
 
               <p>
                 Loading users...
               </p>
-
             </div>
-          ) : filteredUsers.length ===
-            0 ? (
+          ) : filteredUsers.length === 0 ? (
             <div className="chat-empty-list">
-
               <div className="empty-chat-icon">
                 👥
               </div>
@@ -1050,104 +957,85 @@ const Chat = () => {
                 There are no other approved
                 users to chat with.
               </p>
-
             </div>
           ) : (
-            filteredUsers.map(
-              (user) => {
-                const unread =
-                  Number(
-                    unreadCounts[
-                      user._id
-                    ] || 0
-                  );
+            filteredUsers.map((user) => {
+              const unread =
+                Number(
+                  unreadCounts[
+                    user._id
+                  ] || 0
+                );
 
-                return (
-                  <button
-                    key={
-                      user._id
-                    }
-                    type="button"
-                    className={`chat-user-item ${
-                      selectedUser?._id ===
-                      user._id
-                        ? "active"
-                        : ""
-                    } ${
-                      unread > 0
-                        ? "has-unread"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleSelectUser(
-                        user
+              return (
+                <button
+                  key={user._id}
+                  type="button"
+                  className={`chat-user-item ${
+                    selectedUser?._id ===
+                    user._id
+                      ? "active"
+                      : ""
+                  } ${
+                    unread > 0
+                      ? "has-unread"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    handleSelectUser(
+                      user
+                    )
+                  }
+                >
+                  <div className="chat-user-avatar">
+                    {user.profileImage ? (
+                      <img
+                        src={`${SERVER_URL}${user.profileImage}`}
+                        alt={user.name}
+                      />
+                    ) : (
+                      getInitial(
+                        user.name
                       )
-                    }
-                  >
-
-                    <div className="chat-user-avatar">
-
-                      {user.profileImage ? (
-                        <img
-                          src={`${SERVER_URL}${user.profileImage}`}
-                          alt={
-                            user.name
-                          }
-                        />
-                      ) : (
-                        getInitial(
-                          user.name
-                        )
-                      )}
-
-                      <span className="user-online-dot"></span>
-
-                    </div>
-
-                    <div className="chat-user-info">
-
-                      <strong>
-                        {user.name ||
-                          "NoteHive User"}
-                      </strong>
-
-                      <span>
-                        {user.profession ||
-                          user.email ||
-                          "NoteHive member"}
-                      </span>
-
-                    </div>
-
-                    {/* UNREAD BADGE */}
-
-                    {unread > 0 && (
-                      <span className="chat-unread-badge">
-                        {unread >
-                        99
-                          ? "99+"
-                          : unread}
-                      </span>
                     )}
 
-                  </button>
-                );
-              }
-            )
-          )}
+                    <span className="user-online-dot"></span>
+                  </div>
 
+                  <div className="chat-user-info">
+                    <strong>
+                      {user.name ||
+                        "NoteHive User"}
+                    </strong>
+
+                    <span>
+                      {user.profession ||
+                        user.email ||
+                        "NoteHive member"}
+                    </span>
+                  </div>
+
+                  {unread > 0 && (
+                    <span className="chat-unread-badge">
+                      {unread > 99
+                        ? "99+"
+                        : unread}
+                    </span>
+                  )}
+                </button>
+              );
+            })
+          )}
         </div>
       </aside>
 
       {/* ======================================================
-          CHAT WINDOW (Hidden on mobile when sidebar is active)
+          CHAT WINDOW
       ====================================================== */}
 
-      <main className={`chat-window ${!showMobileChat ? "mobile-hidden" : ""}`}>
-
+      <main className="chat-window">
         {!selectedUser ? (
           <div className="chat-no-selection">
-
             <div className="chat-no-selection-icon">
               💬
             </div>
@@ -1160,27 +1048,27 @@ const Chat = () => {
               Select a NoteHive user from
               the list to start chatting.
             </p>
-
           </div>
         ) : (
           <>
             {/* CHAT HEADER */}
 
             <header className="chat-header">
+              {/* MOBILE BACK BUTTON */}
 
-              {/* BACK BUTTON FOR MOBILE */}
               <button
                 type="button"
-                className="chat-back-button"
-                onClick={handleBackToList}
+                className="mobile-chat-back"
+                onClick={
+                  handleMobileBack
+                }
+                aria-label="Back to users"
               >
                 ←
               </button>
 
               <div className="selected-user">
-
                 <div className="selected-user-avatar">
-
                   {selectedUser.profileImage ? (
                     <img
                       src={`${SERVER_URL}${selectedUser.profileImage}`}
@@ -1195,11 +1083,9 @@ const Chat = () => {
                   )}
 
                   <span></span>
-
                 </div>
 
                 <div>
-
                   <h2>
                     {selectedUser.name ||
                       "NoteHive User"}
@@ -1209,21 +1095,16 @@ const Chat = () => {
                     {selectedUser.profession ||
                       "NoteHive member"}
                   </p>
-
                 </div>
-
               </div>
 
               <div className="chat-header-status">
-
                 <span></span>
 
                 {socketConnected
                   ? "Connected"
                   : "Connecting..."}
-
               </div>
-
             </header>
 
             {/* ==================================================
@@ -1231,9 +1112,7 @@ const Chat = () => {
             ================================================== */}
 
             <section className="chat-messages">
-
               <div className="chat-welcome">
-
                 <div className="chat-welcome-avatar">
                   {getInitial(
                     selectedUser.name
@@ -1248,69 +1127,55 @@ const Chat = () => {
                   Start your conversation
                   with this NoteHive user.
                 </p>
-
               </div>
 
               {loadingMessages ? (
                 <div className="messages-loading">
-
                   <div className="chat-loader"></div>
 
                   <span>
                     Loading conversation...
                   </span>
-
                 </div>
               ) : (
-                messages.map(
-                  (item) => {
-                    const isMine =
-                      String(
-                        item.sender?._id ||
-                          item.sender
-                      ) ===
-                      String(
-                        currentUserId
-                      );
-
-                    return (
-                      <div
-                        key={
-                          item._id
-                        }
-                        className={`message-row ${
-                          isMine
-                            ? "mine"
-                            : "theirs"
-                        }`}
-                      >
-
-                        <div className="message-bubble">
-
-                          <p>
-                            {item.message}
-                          </p>
-
-                          <span>
-                            {formatTime(
-                              item.createdAt
-                            )}
-                          </span>
-
-                        </div>
-
-                      </div>
+                messages.map((item) => {
+                  const isMine =
+                    String(
+                      item.sender?._id ||
+                        item.sender
+                    ) ===
+                    String(
+                      currentUserId
                     );
-                  }
-                )
+
+                  return (
+                    <div
+                      key={item._id}
+                      className={`message-row ${
+                        isMine
+                          ? "mine"
+                          : "theirs"
+                      }`}
+                    >
+                      <div className="message-bubble">
+                        <p>
+                          {item.message}
+                        </p>
+
+                        <span>
+                          {formatTime(
+                            item.createdAt
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
               )}
 
               <div
-                ref={
-                  messagesEndRef
-                }
+                ref={messagesEndRef}
               />
-
             </section>
 
             {/* ==================================================
@@ -1319,28 +1184,18 @@ const Chat = () => {
 
             <form
               className="chat-input-area"
-              onSubmit={
-                sendMessage
-              }
+              onSubmit={sendMessage}
             >
-
               <div className="chat-input-box">
-
                 <input
                   type="text"
                   placeholder={`Message ${
                     selectedUser.name ||
                     "user"
                   }...`}
-                  value={
-                    messageText
-                  }
-                  maxLength={
-                    2000
-                  }
-                  onChange={(
-                    event
-                  ) =>
+                  value={messageText}
+                  maxLength={2000}
+                  onChange={(event) =>
                     setMessageText(
                       event.target
                         .value
@@ -1349,12 +1204,9 @@ const Chat = () => {
                 />
 
                 <span className="character-count">
-                  {
-                    messageText.length
-                  }
+                  {messageText.length}
                   /2000
                 </span>
-
               </div>
 
               <button
@@ -1372,11 +1224,9 @@ const Chat = () => {
               >
                 ➤
               </button>
-
             </form>
           </>
         )}
-
       </main>
     </div>
   );
