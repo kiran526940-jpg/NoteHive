@@ -1,4 +1,3 @@
-
 import React, {
   useEffect,
   useMemo,
@@ -32,6 +31,13 @@ const Chat = () => {
     useState(null);
 
   const [messages, setMessages] = useState([]);
+
+  // ============================================================
+  // MOBILE VIEW STATE (Sidebar vs Chat Window toggling)
+  // ============================================================
+
+  const [showMobileChat, setShowMobileChat] =
+    useState(false);
 
   // ============================================================
   // MESSAGE INPUT
@@ -300,6 +306,7 @@ const Chat = () => {
       setSelectedUser(
         sender
       );
+      setShowMobileChat(true); // Open chat view on mobile
 
       setUnreadCounts(
         (previousCounts) => {
@@ -350,22 +357,12 @@ const Chat = () => {
     socketRef.current =
       socket;
 
-    // ==========================================================
-    // CONNECT
-    // ==========================================================
-
     socket.on(
       "connect",
       () => {
-        console.log(
-          "🟢 Chat socket connected:",
-          socket.id
-        );
-
         setSocketConnected(
           true
         );
-
         socket.emit(
           "join-user",
           currentUserId
@@ -373,45 +370,23 @@ const Chat = () => {
       }
     );
 
-    // ==========================================================
-    // DISCONNECT
-    // ==========================================================
-
     socket.on(
       "disconnect",
       (reason) => {
-        console.log(
-          "🔴 Chat socket disconnected:",
-          reason
-        );
-
         setSocketConnected(
           false
         );
       }
     );
-
-    // ==========================================================
-    // CONNECTION ERROR
-    // ==========================================================
 
     socket.on(
       "connect_error",
       (error) => {
-        console.error(
-          "❌ Chat socket error:",
-          error.message
-        );
-
         setSocketConnected(
           false
         );
       }
     );
-
-    // ==========================================================
-    // RECEIVE MESSAGE
-    // ==========================================================
 
     socket.on(
       "receive-message",
@@ -440,10 +415,6 @@ const Chat = () => {
             openUser._id
           ) === senderId;
 
-        // ------------------------------------------------------
-        // MESSAGE FROM CURRENT OPEN CHAT
-        // ------------------------------------------------------
-
         if (isCurrentChat) {
           setMessages(
             (previousMessages) => {
@@ -469,27 +440,17 @@ const Chat = () => {
             }
           );
 
-          // Mark as read
           fetch(
             `${SERVER_URL}/api/messages/${currentUserId}/${senderId}/read`,
             {
               method: "PATCH",
             }
-          ).catch(
-            (error) => {
-              console.error(
-                "Mark message read error:",
-                error
-              );
-            }
+          ).catch((error) =>
+            console.error(error)
           );
 
           return;
         }
-
-        // ------------------------------------------------------
-        // INCREMENT UNREAD
-        // ------------------------------------------------------
 
         setUnreadCounts(
           (previousCounts) => {
@@ -509,17 +470,9 @@ const Chat = () => {
           }
         );
 
-        // ------------------------------------------------------
-        // POPUP
-        // ------------------------------------------------------
-
         showMessagePopup(
           newMessage
         );
-
-        // ------------------------------------------------------
-        // HEADER EVENT
-        // ------------------------------------------------------
 
         window.dispatchEvent(
           new CustomEvent(
@@ -534,10 +487,6 @@ const Chat = () => {
         );
       }
     );
-
-    // ==========================================================
-    // MESSAGE SENT
-    // ==========================================================
 
     socket.on(
       "message-sent",
@@ -571,10 +520,6 @@ const Chat = () => {
         );
       }
     );
-
-    // ==========================================================
-    // CLEANUP
-    // ==========================================================
 
     return () => {
       if (
@@ -643,14 +588,8 @@ const Chat = () => {
             otherUsers
           );
 
-          if (
-            otherUsers.length >
-            0
-          ) {
-            setSelectedUser(
-              otherUsers[0]
-            );
-          }
+          // Note: On desktop, you can keep auto-selecting the first user if desired, 
+          // but for mobile we leave it unselected initially or let user click.
         } catch (error) {
           console.error(
             "Load chat users error:",
@@ -708,10 +647,6 @@ const Chat = () => {
             data.messages || []
           );
 
-          // ----------------------------------------------------
-          // CLEAR UNREAD
-          // ----------------------------------------------------
-
           setUnreadCounts(
             (previousCounts) => {
               if (
@@ -733,10 +668,6 @@ const Chat = () => {
               return updated;
             }
           );
-
-          // ----------------------------------------------------
-          // MARK READ
-          // ----------------------------------------------------
 
           await fetch(
             `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}/read`,
@@ -831,10 +762,6 @@ const Chat = () => {
       !socketRef.current
         .connected
     ) {
-      console.warn(
-        "Socket is not connected."
-      );
-
       return;
     }
 
@@ -862,8 +789,8 @@ const Chat = () => {
     user
   ) => {
     setSelectedUser(user);
+    setShowMobileChat(true); // Switch view to chat window on mobile
 
-    // Clear unread
     setUnreadCounts(
       (previousCounts) => {
         if (
@@ -886,7 +813,6 @@ const Chat = () => {
       }
     );
 
-    // Close popup when opening same user
     if (
       messagePopup?.senderId &&
       String(
@@ -896,6 +822,14 @@ const Chat = () => {
     ) {
       closeMessagePopup();
     }
+  };
+
+  // ============================================================
+  // BACK TO LIST (MOBILE)
+  // ============================================================
+
+  const handleBackToList = () => {
+    setShowMobileChat(false);
   };
 
   // ============================================================
@@ -999,7 +933,6 @@ const Chat = () => {
             className="chat-popup-close"
             onClick={(event) => {
               event.stopPropagation();
-
               closeMessagePopup();
             }}
           >
@@ -1009,10 +942,10 @@ const Chat = () => {
       )}
 
       {/* ======================================================
-          CHAT SIDEBAR
+          CHAT SIDEBAR (Hidden on mobile when chat is active)
       ====================================================== */}
 
-      <aside className="chat-sidebar">
+      <aside className={`chat-sidebar ${showMobileChat ? "mobile-hidden" : ""}`}>
 
         <div className="chat-sidebar-header">
 
@@ -1207,10 +1140,10 @@ const Chat = () => {
       </aside>
 
       {/* ======================================================
-          CHAT WINDOW
+          CHAT WINDOW (Hidden on mobile when sidebar is active)
       ====================================================== */}
 
-      <main className="chat-window">
+      <main className={`chat-window ${!showMobileChat ? "mobile-hidden" : ""}`}>
 
         {!selectedUser ? (
           <div className="chat-no-selection">
@@ -1234,6 +1167,15 @@ const Chat = () => {
             {/* CHAT HEADER */}
 
             <header className="chat-header">
+
+              {/* BACK BUTTON FOR MOBILE */}
+              <button
+                type="button"
+                className="chat-back-button"
+                onClick={handleBackToList}
+              >
+                ←
+              </button>
 
               <div className="selected-user">
 
