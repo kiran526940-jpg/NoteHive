@@ -987,3 +987,34 @@
     max-width: 82% !important;
   }
 }
+/* ============================================================
+   NOTEHIVE CHAT - REMOVE BOTTOM GAP
+   ============================================================ */
+
+/* Chat page should use the complete available screen */
+body:has(.chat-page) {
+  margin: 0 !important;
+  padding-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Hide global footer/extra bottom area on Chat */
+body:has(.chat-page) footer {
+  display: none !important;
+}
+
+/* Desktop Chat full height */
+.chat-page {
+  height: calc(100dvh - 70px) !important;
+  min-height: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .chat-page {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+}
