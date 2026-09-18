@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SERVER_URL } from "../config/api";
@@ -47,6 +46,16 @@ const Settings = () => {
   const [profileLocation, setProfileLocation] = useState("");
   const [profileWebsite, setProfileWebsite] = useState("");
 
+  // NEW:
+  // Actual selected image file.
+  // This is uploaded to backend only when Save Profile is clicked.
+  const [selectedProfileFile, setSelectedProfileFile] = useState(null);
+
+  // NEW:
+  // Used when user clicks Remove before saving.
+  const [profileImageRemoved, setProfileImageRemoved] =
+    useState(false);
+
   // ============================================================
   // STATS
   // ============================================================
@@ -87,7 +96,8 @@ const Settings = () => {
   // ============================================================
 
   const [profileSaving, setProfileSaving] = useState(false);
-  const [notificationSaving, setNotificationSaving] = useState(false);
+  const [notificationSaving, setNotificationSaving] =
+    useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
 
   // ============================================================
@@ -100,6 +110,89 @@ const Settings = () => {
   const clearMessages = () => {
     setSuccessMessage("");
     setErrorMessage("");
+  };
+
+  // ============================================================
+  // IMAGE URL HELPER
+  // ============================================================
+
+  const getProfileImageUrl = (image) => {
+    if (!image) return "";
+
+    const value = String(image).trim();
+
+    if (!value) return "";
+
+    // Already a complete URL
+    if (
+      value.startsWith("http://") ||
+      value.startsWith("https://") ||
+      value.startsWith("data:")
+    ) {
+      return value;
+    }
+
+    // Backend normally returns /uploads/filename
+    if (value.startsWith("/")) {
+      return `${SERVER_URL}${value}`;
+    }
+
+    return `${SERVER_URL}/${value}`;
+  };
+
+  // ============================================================
+  // NORMALIZE USER
+  // ============================================================
+
+  const normalizeUser = (u) => {
+    if (!u) {
+      return {
+        _id: "",
+        name: "",
+        email: "",
+        bio: "",
+        profileImage: "",
+        profession: "",
+        location: "",
+        website: "",
+        createdAt: "",
+      };
+    }
+
+    return {
+      ...u,
+      profession: u.profession || "",
+      location: u.location || "",
+      website: u.website || "",
+      profileImage: u.profileImage || "",
+    };
+  };
+
+  // ============================================================
+  // APPLY USER TO STATE
+  // ============================================================
+
+  const applyUserToState = (u) => {
+    const normalized = normalizeUser(u);
+
+    setUser(normalized);
+
+    setProfileName(normalized.name || "");
+    setProfileEmail(normalized.email || "");
+    setProfileBio(normalized.bio || "");
+
+    setProfileImage(
+      getProfileImageUrl(normalized.profileImage)
+    );
+
+    setProfileProfession(normalized.profession || "");
+    setProfileLocation(normalized.location || "");
+    setProfileWebsite(normalized.website || "");
+
+    setSelectedProfileFile(null);
+    setProfileImageRemoved(false);
+
+    return normalized;
   };
 
   // ============================================================
@@ -131,7 +224,9 @@ const Settings = () => {
       "theme-system"
     );
 
-    document.body.classList.add(`theme-${selectedTheme}`);
+    document.body.classList.add(
+      `theme-${selectedTheme}`
+    );
   };
 
   const loadTheme = () => {
@@ -150,7 +245,9 @@ const Settings = () => {
         "theme-system"
       );
 
-      document.body.classList.add(`theme-${selectedTheme}`);
+      document.body.classList.add(
+        `theme-${selectedTheme}`
+      );
     } catch (error) {
       setTheme("light");
       document.body.classList.add("theme-light");
@@ -165,31 +262,21 @@ const Settings = () => {
     if (!userId) return;
 
     try {
-      const response = await fetch(`${API_URL}/users/${userId}`);
+      const response = await fetch(
+        `${API_URL}/users/${userId}`
+      );
+
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Unable to fetch profile.");
+        throw new Error(
+          data.message || "Unable to fetch profile."
+        );
       }
 
       const u = data.user || data;
 
-      const normalized = {
-        ...u,
-        profession: u.profession || "",
-        location: u.location || "",
-        website: u.website || "",
-      };
-
-      setUser(normalized);
-
-      setProfileName(normalized.name || "");
-      setProfileEmail(normalized.email || "");
-      setProfileBio(normalized.bio || "");
-      setProfileImage(normalized.profileImage || "");
-      setProfileProfession(normalized.profession || "");
-      setProfileLocation(normalized.location || "");
-      setProfileWebsite(normalized.website || "");
+      const normalized = applyUserToState(u);
 
       localStorage.setItem(
         "notehive_user",
@@ -200,22 +287,19 @@ const Settings = () => {
 
       try {
         const stored = JSON.parse(
-          localStorage.getItem("notehive_user") || "{}"
+          localStorage.getItem(
+            "notehive_user"
+          ) || "{}"
         );
 
         if (stored.name || stored.email) {
-          setUser(stored);
-
-          setProfileName(stored.name || "");
-          setProfileEmail(stored.email || "");
-          setProfileBio(stored.bio || "");
-          setProfileImage(stored.profileImage || "");
-          setProfileProfession(stored.profession || "");
-          setProfileLocation(stored.location || "");
-          setProfileWebsite(stored.website || "");
+          applyUserToState(stored);
         }
       } catch (storageError) {
-        console.error("Stored user error:", storageError);
+        console.error(
+          "Stored user error:",
+          storageError
+        );
       }
     }
   };
@@ -240,13 +324,18 @@ const Settings = () => {
 
       setProfileStats({
         notes: notes.length,
-        pinned: notes.filter((note) => note.pinned === true).length,
+        pinned: notes.filter(
+          (note) => note.pinned === true
+        ).length,
         favorites: notes.filter(
           (note) => note.favorite === true
         ).length,
       });
     } catch (error) {
-      console.error("Profile stats error:", error);
+      console.error(
+        "Profile stats error:",
+        error
+      );
     }
   };
 
@@ -266,10 +355,12 @@ const Settings = () => {
 
       const data = await response.json();
 
-      setNotificationSettings((previous) => ({
-        ...previous,
-        ...(data.settings || data),
-      }));
+      setNotificationSettings(
+        (previous) => ({
+          ...previous,
+          ...(data.settings || data),
+        })
+      );
     } catch (error) {
       console.error(
         "Notification settings error:",
@@ -305,8 +396,6 @@ const Settings = () => {
 
     setActiveSection(section);
 
-    // Mobile:
-    // settings list -> detail page
     setMobileDetailOpen(true);
   };
 
@@ -327,7 +416,9 @@ const Settings = () => {
     clearMessages();
 
     if (!file.type.startsWith("image/")) {
-      setErrorMessage("Please select a valid image file.");
+      setErrorMessage(
+        "Please select a valid image file."
+      );
 
       event.target.value = "";
       return;
@@ -342,6 +433,17 @@ const Settings = () => {
       return;
     }
 
+    // ========================================================
+    // SAVE ACTUAL FILE FOR BACKEND UPLOAD
+    // ========================================================
+
+    setSelectedProfileFile(file);
+    setProfileImageRemoved(false);
+
+    // ========================================================
+    // CREATE PREVIEW
+    // ========================================================
+
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -354,19 +456,35 @@ const Settings = () => {
         let height = image.height;
 
         if (width > height && width > max) {
-          height = Math.round((height * max) / width);
+          height = Math.round(
+            (height * max) / width
+          );
+
           width = max;
         } else if (height > max) {
-          width = Math.round((width * max) / height);
+          width = Math.round(
+            (width * max) / height
+          );
+
           height = max;
         }
 
-        const canvas = document.createElement("canvas");
+        const canvas =
+          document.createElement("canvas");
 
         canvas.width = width;
         canvas.height = height;
 
-        const context = canvas.getContext("2d");
+        const context =
+          canvas.getContext("2d");
+
+        if (!context) {
+          setProfileImage(
+            e.target?.result || ""
+          );
+
+          return;
+        }
 
         context.drawImage(
           image,
@@ -376,17 +494,178 @@ const Settings = () => {
           height
         );
 
+        // Preview only.
+        // IMPORTANT:
+        // This Base64 is NOT sent to MongoDB.
         setProfileImage(
-          canvas.toDataURL("image/jpeg", 0.82)
+          canvas.toDataURL(
+            "image/jpeg",
+            0.82
+          )
+        );
+      };
+
+      image.onerror = () => {
+        setErrorMessage(
+          "Unable to preview this image."
         );
       };
 
       image.src = e.target.result;
     };
 
+    reader.onerror = () => {
+      setErrorMessage(
+        "Unable to read selected image."
+      );
+    };
+
     reader.readAsDataURL(file);
 
     event.target.value = "";
+  };
+
+  // ============================================================
+  // REMOVE PROFILE PHOTO
+  // ============================================================
+
+  const handleRemoveProfileImage = async () => {
+    clearMessages();
+
+    // If a new photo was selected but not uploaded yet,
+    // simply cancel that selection.
+    if (selectedProfileFile) {
+      setSelectedProfileFile(null);
+
+      // Restore current backend image if available.
+      const currentImage =
+        getProfileImageUrl(
+          user.profileImage
+        );
+
+      setProfileImage(
+        profileImageRemoved
+          ? ""
+          : currentImage
+      );
+
+      setProfileImageRemoved(false);
+
+      return;
+    }
+
+    // If there is no saved image, nothing to delete.
+    if (!user.profileImage && !profileImage) {
+      return;
+    }
+
+    try {
+      setProfileSaving(true);
+
+      const response = await fetch(
+        `${API_URL}/users/${userId}/photo`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to remove profile photo."
+        );
+      }
+
+      const updatedUser =
+        data.user ||
+        data.updatedUser ||
+        {
+          ...user,
+          profileImage: "",
+        };
+
+      const normalized =
+        normalizeUser(updatedUser);
+
+      setUser(normalized);
+      setProfileImage("");
+      setSelectedProfileFile(null);
+      setProfileImageRemoved(false);
+
+      localStorage.setItem(
+        "notehive_user",
+        JSON.stringify(normalized)
+      );
+
+      setSuccessMessage(
+        "Profile photo removed successfully ✅"
+      );
+    } catch (error) {
+      console.error(
+        "Remove profile photo error:",
+        error
+      );
+
+      setErrorMessage(
+        error.message ||
+          "Unable to remove profile photo."
+      );
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  // ============================================================
+  // UPLOAD PROFILE PHOTO
+  // ============================================================
+
+  const uploadProfilePhoto = async () => {
+    if (!selectedProfileFile) {
+      return null;
+    }
+
+    const formData = new FormData();
+
+    formData.append(
+      "profileImage",
+      selectedProfileFile
+    );
+
+    const response = await fetch(
+      `${API_URL}/users/${userId}/photo`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+          "Unable to upload profile photo."
+      );
+    }
+
+    const uploadedUser =
+      data.user ||
+      data.updatedUser ||
+      null;
+
+    const returnedImage =
+      data.profileImage ||
+      uploadedUser?.profileImage ||
+      data.image ||
+      data.url ||
+      "";
+
+    return {
+      user: uploadedUser,
+      profileImage: returnedImage,
+    };
   };
 
   // ============================================================
@@ -411,21 +690,28 @@ const Settings = () => {
     setProfileSaving(true);
 
     try {
+      // ========================================================
+      // 1. SAVE BASIC PROFILE INFORMATION
+      // ========================================================
+
       const response = await fetch(
         `${API_URL}/users/${userId}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
           body: JSON.stringify({
             name: profileName.trim(),
             email: profileEmail.trim(),
             bio: profileBio.trim(),
-            profileImage: profileImage || "",
-            profession: profileProfession.trim(),
-            location: profileLocation.trim(),
-            website: profileWebsite.trim(),
+            profession:
+              profileProfession.trim(),
+            location:
+              profileLocation.trim(),
+            website:
+              profileWebsite.trim(),
           }),
         }
       );
@@ -434,37 +720,94 @@ const Settings = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Unable to update profile."
+          data.message ||
+            "Unable to update profile."
         );
       }
 
-      const updated =
+      let updated =
         data.user ||
-        data.updatedUser || {
+        data.updatedUser ||
+        {
           ...user,
           name: profileName.trim(),
           email: profileEmail.trim(),
           bio: profileBio.trim(),
-          profileImage: profileImage || "",
-          profession: profileProfession.trim(),
-          location: profileLocation.trim(),
-          website: profileWebsite.trim(),
+          profession:
+            profileProfession.trim(),
+          location:
+            profileLocation.trim(),
+          website:
+            profileWebsite.trim(),
         };
 
-      setUser(updated);
+      // ========================================================
+      // 2. UPLOAD NEW PHOTO IF SELECTED
+      // ========================================================
+
+      if (selectedProfileFile) {
+        const uploadResult =
+          await uploadProfilePhoto();
+
+        const uploadedUser =
+          uploadResult?.user;
+
+        const uploadedImage =
+          uploadResult?.profileImage;
+
+        if (uploadedUser) {
+          updated = {
+            ...updated,
+            ...uploadedUser,
+          };
+        }
+
+        if (uploadedImage) {
+          updated.profileImage =
+            uploadedImage;
+        }
+      }
+
+      // ========================================================
+      // 3. NORMALIZE FINAL USER
+      // ========================================================
+
+      const normalized =
+        normalizeUser(updated);
+
+      setUser(normalized);
+
+      const finalImage =
+        getProfileImageUrl(
+          normalized.profileImage
+        );
+
+      setProfileImage(finalImage);
+
+      setSelectedProfileFile(null);
+      setProfileImageRemoved(false);
+
+      // ========================================================
+      // 4. SAVE FINAL USER TO LOCAL STORAGE
+      // ========================================================
 
       localStorage.setItem(
         "notehive_user",
-        JSON.stringify(updated)
+        JSON.stringify(normalized)
       );
 
       setSuccessMessage(
-        "Profile updated successfully ✅"
+        selectedProfileFile
+          ? "Profile and photo updated successfully ✅"
+          : "Profile updated successfully ✅"
       );
 
       fetchProfileStats();
     } catch (error) {
-      console.error("Save profile error:", error);
+      console.error(
+        "Save profile error:",
+        error
+      );
 
       setErrorMessage(
         error.message ||
@@ -490,9 +833,12 @@ const Settings = () => {
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
-          body: JSON.stringify(notificationSettings),
+          body: JSON.stringify(
+            notificationSettings
+          ),
         }
       );
 
@@ -563,7 +909,8 @@ const Settings = () => {
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
           body: JSON.stringify({
             currentPassword,
@@ -576,7 +923,8 @@ const Settings = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Unable to change password."
+          data.message ||
+            "Unable to change password."
         );
       }
 
@@ -589,7 +937,8 @@ const Settings = () => {
       );
     } catch (error) {
       setErrorMessage(
-        error.message || "Unable to change password."
+        error.message ||
+          "Unable to change password."
       );
     } finally {
       setPasswordSaving(false);
@@ -601,15 +950,17 @@ const Settings = () => {
   // ============================================================
 
   const handleDeleteAccount = async () => {
-    const firstConfirm = window.confirm(
-      "Are you sure you want to delete your account? This action cannot be undone."
-    );
+    const firstConfirm =
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      );
 
     if (!firstConfirm) return;
 
-    const secondConfirm = window.confirm(
-      "Your profile and account data will be permanently deleted. Continue?"
-    );
+    const secondConfirm =
+      window.confirm(
+        "Your profile and account data will be permanently deleted. Continue?"
+      );
 
     if (!secondConfirm) return;
 
@@ -625,7 +976,8 @@ const Settings = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Unable to delete account."
+          data.message ||
+            "Unable to delete account."
         );
       }
 
@@ -642,7 +994,8 @@ const Settings = () => {
       navigate("/signup");
     } catch (error) {
       setErrorMessage(
-        error.message || "Unable to delete account."
+        error.message ||
+          "Unable to delete account."
       );
     }
   };
@@ -670,24 +1023,31 @@ const Settings = () => {
 
   const getInitial = () => {
     return (
-      profileName.trim().charAt(0).toUpperCase() ||
-      "U"
+      profileName
+        .trim()
+        .charAt(0)
+        .toUpperCase() || "U"
     );
   };
 
   const getMemberSince = () => {
     if (!user.createdAt) return "—";
 
-    const date = new Date(user.createdAt);
+    const date = new Date(
+      user.createdAt
+    );
 
     if (Number.isNaN(date.getTime())) {
       return "—";
     }
 
-    return date.toLocaleDateString("en-IN", {
-      month: "short",
-      year: "numeric",
-    });
+    return date.toLocaleDateString(
+      "en-IN",
+      {
+        month: "short",
+        year: "numeric",
+      }
+    );
   };
 
   // ============================================================
@@ -699,37 +1059,43 @@ const Settings = () => {
       key: "profile",
       icon: "👤",
       label: "Profile",
-      description: "Your personal information",
+      description:
+        "Your personal information",
     },
     {
       key: "notifications",
       icon: "🔔",
       label: "Notifications",
-      description: "Message and notification alerts",
+      description:
+        "Message and notification alerts",
     },
     {
       key: "appearance",
       icon: "🎨",
       label: "Appearance",
-      description: "Theme and display",
+      description:
+        "Theme and display",
     },
     {
       key: "privacy",
       icon: "🔐",
       label: "Privacy & Security",
-      description: "Password and account security",
+      description:
+        "Password and account security",
     },
     {
       key: "notes",
       icon: "📝",
       label: "Notes Preferences",
-      description: "Manage note behaviour",
+      description:
+        "Manage note behaviour",
     },
   ];
 
   const activeNavItem =
     navItems.find(
-      (item) => item.key === activeSection
+      (item) =>
+        item.key === activeSection
     ) || navItems[0];
 
   // ============================================================
@@ -748,6 +1114,15 @@ const Settings = () => {
         <img
           src={profileImage}
           alt="Profile"
+          onError={(event) => {
+            console.error(
+              "Profile image failed to load:",
+              profileImage
+            );
+
+            event.currentTarget.style.display =
+              "none";
+          }}
         />
       ) : (
         <span>{getInitial()}</span>
@@ -766,15 +1141,19 @@ const Settings = () => {
           MESSAGE
       ====================================================== */}
 
-      {(successMessage || errorMessage) && (
+      {(successMessage ||
+        errorMessage) && (
         <div
           className={`settings-message ${
-            successMessage ? "success" : "error"
+            successMessage
+              ? "success"
+              : "error"
           }`}
           role="status"
         >
           <span>
-            {successMessage || errorMessage}
+            {successMessage ||
+              errorMessage}
           </span>
 
           <button
@@ -800,39 +1179,57 @@ const Settings = () => {
         <aside className="settings-sidebar">
 
           <div className="settings-panel-heading">
-            <span className="panel-bee">🐝</span>
+
+            <span className="panel-bee">
+              🐝
+            </span>
 
             <div>
-              <strong>USER PANEL</strong>
-              <small>Manage NoteHive</small>
+              <strong>
+                USER PANEL
+              </strong>
+
+              <small>
+                Manage NoteHive
+              </small>
             </div>
+
           </div>
 
           <nav>
+
             {navItems.map((item) => (
               <button
                 key={item.key}
                 type="button"
                 className={`settings-nav ${
-                  activeSection === item.key
+                  activeSection ===
+                  item.key
                     ? "active"
                     : ""
                 }`}
                 onClick={() =>
-                  handleSection(item.key)
+                  handleSection(
+                    item.key
+                  )
                 }
               >
+
                 <span className="settings-nav-icon">
                   {item.icon}
                 </span>
 
-                <span>{item.label}</span>
+                <span>
+                  {item.label}
+                </span>
 
-                {activeSection === item.key && (
+                {activeSection ===
+                  item.key && (
                   <span className="nav-arrow">
                     ›
                   </span>
                 )}
+
               </button>
             ))}
 
@@ -843,13 +1240,19 @@ const Settings = () => {
               className="settings-nav logout"
               onClick={handleLogout}
             >
+
               <span className="settings-nav-icon">
                 🚪
               </span>
 
-              <span>Logout</span>
+              <span>
+                Logout
+              </span>
+
             </button>
+
           </nav>
+
         </aside>
 
         {/* ====================================================
@@ -869,25 +1272,31 @@ const Settings = () => {
             <Avatar />
 
             <div className="mobile-settings-profile-info">
+
               <strong>
-                {profileName || "Your Profile"}
+                {profileName ||
+                  "Your Profile"}
               </strong>
 
               <span>
                 {profileEmail ||
                   "Add your email address"}
               </span>
+
             </div>
 
             <button
               type="button"
               onClick={() =>
-                handleSection("profile")
+                handleSection(
+                  "profile"
+                )
               }
               aria-label="Open profile"
             >
               ›
             </button>
+
           </div>
 
           <div className="mobile-settings-list">
@@ -898,21 +1307,32 @@ const Settings = () => {
                 type="button"
                 className="mobile-settings-item"
                 onClick={() =>
-                  handleSection(item.key)
+                  handleSection(
+                    item.key
+                  )
                 }
               >
+
                 <span className="mobile-settings-item-icon">
                   {item.icon}
                 </span>
 
                 <span className="mobile-settings-item-content">
-                  <strong>{item.label}</strong>
-                  <small>{item.description}</small>
+
+                  <strong>
+                    {item.label}
+                  </strong>
+
+                  <small>
+                    {item.description}
+                  </small>
+
                 </span>
 
                 <span className="mobile-settings-item-arrow">
                   ›
                 </span>
+
               </button>
             ))}
 
@@ -925,20 +1345,28 @@ const Settings = () => {
               className="mobile-settings-item mobile-logout-item"
               onClick={handleLogout}
             >
+
               <span className="mobile-settings-item-icon">
                 🚪
               </span>
 
               <span className="mobile-settings-item-content">
-                <strong>Logout</strong>
+
+                <strong>
+                  Logout
+                </strong>
+
                 <small>
-                  Sign out of your NoteHive account
+                  Sign out of your NoteHive
+                  account
                 </small>
+
               </span>
 
               <span className="mobile-settings-item-arrow">
                 ›
               </span>
+
             </button>
 
           </div>
@@ -966,13 +1394,16 @@ const Settings = () => {
             <button
               type="button"
               className="mobile-back-button"
-              onClick={handleMobileBack}
+              onClick={
+                handleMobileBack
+              }
               aria-label="Back to settings"
             >
               ←
             </button>
 
             <div>
+
               <span>
                 {activeNavItem.icon}
               </span>
@@ -980,6 +1411,7 @@ const Settings = () => {
               <strong>
                 {activeNavItem.label}
               </strong>
+
             </div>
 
           </div>
@@ -988,12 +1420,14 @@ const Settings = () => {
               PROFILE
           ================================================== */}
 
-          {activeSection === "profile" && (
+          {activeSection ===
+            "profile" && (
             <section className="settings-card profile-card">
 
               <div className="profile-cover">
 
                 <div>
+
                   <span>
                     NOTEHIVE • PERSONAL SPACE
                   </span>
@@ -1001,6 +1435,7 @@ const Settings = () => {
                   <strong>
                     My Profile
                   </strong>
+
                 </div>
 
                 <div className="cover-bee">
@@ -1012,9 +1447,11 @@ const Settings = () => {
               <div className="profile-box">
 
                 <div className="profile-avatar-wrapper">
+
                   <Avatar />
 
                   <span className="profile-online-dot" />
+
                 </div>
 
                 <div className="profile-info">
@@ -1035,11 +1472,14 @@ const Settings = () => {
                   </span>
 
                 </div>
+
               </div>
 
               <form
                 className="settings-form"
-                onSubmit={handleSaveProfile}
+                onSubmit={
+                  handleSaveProfile
+                }
               >
 
                 {/* PROFILE PHOTO */}
@@ -1059,9 +1499,9 @@ const Settings = () => {
                     </h3>
 
                     <p>
-                      Use a clear JPG or PNG
-                      image. Maximum original
-                      size 5 MB.
+                      Use a clear JPG or
+                      PNG image. Maximum
+                      original size 5 MB.
                     </p>
 
                     <div className="photo-actions">
@@ -1072,6 +1512,9 @@ const Settings = () => {
                         onClick={() =>
                           fileInputRef.current?.click()
                         }
+                        disabled={
+                          profileSaving
+                        }
                       >
                         📷 Change Photo
                       </button>
@@ -1080,10 +1523,12 @@ const Settings = () => {
                         <button
                           type="button"
                           className="text-danger-btn"
-                          onClick={() => {
-                            clearMessages();
-                            setProfileImage("");
-                          }}
+                          onClick={
+                            handleRemoveProfileImage
+                          }
+                          disabled={
+                            profileSaving
+                          }
                         >
                           Remove
                         </button>
@@ -1094,7 +1539,7 @@ const Settings = () => {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
                       onChange={
                         handleProfileImageChange
                       }
@@ -1102,24 +1547,33 @@ const Settings = () => {
                     />
 
                   </div>
+
                 </div>
 
                 {/* BASIC */}
 
                 <div className="form-section-title">
-                  <span>01</span>
+
+                  <span>
+                    01
+                  </span>
+
                   BASIC INFORMATION
+
                 </div>
 
                 <div className="profile-form-grid">
 
                   <div className="form-group">
+
                     <label>
                       Full Name
                     </label>
 
                     <input
-                      value={profileName}
+                      value={
+                        profileName
+                      }
                       onChange={(e) =>
                         setProfileName(
                           e.target.value
@@ -1127,16 +1581,20 @@ const Settings = () => {
                       }
                       placeholder="Enter your full name"
                     />
+
                   </div>
 
                   <div className="form-group">
+
                     <label>
                       Email Address
                     </label>
 
                     <input
                       type="email"
-                      value={profileEmail}
+                      value={
+                        profileEmail
+                      }
                       onChange={(e) =>
                         setProfileEmail(
                           e.target.value
@@ -1144,6 +1602,7 @@ const Settings = () => {
                       }
                       placeholder="Enter your email"
                     />
+
                   </div>
 
                 </div>
@@ -1151,15 +1610,22 @@ const Settings = () => {
                 {/* EXTRA */}
 
                 <div className="form-section-title">
-                  <span>02</span>
+
+                  <span>
+                    02
+                  </span>
+
                   EXTRA INFORMATION
+
                 </div>
 
                 <div className="profile-extra-grid">
 
                   <div className="form-group">
+
                     <label>
-                      💼 Profession / Role
+                      💼 Profession /
+                      Role
                     </label>
 
                     <input
@@ -1173,9 +1639,11 @@ const Settings = () => {
                       }
                       placeholder="e.g. Student, Developer"
                     />
+
                   </div>
 
                   <div className="form-group">
+
                     <label>
                       📍 Location
                     </label>
@@ -1191,11 +1659,14 @@ const Settings = () => {
                       }
                       placeholder="e.g. Himachal Pradesh"
                     />
+
                   </div>
 
                   <div className="form-group profile-extra-full">
+
                     <label>
-                      🌐 Portfolio / Website
+                      🌐 Portfolio /
+                      Website
                     </label>
 
                     <input
@@ -1210,6 +1681,7 @@ const Settings = () => {
                       }
                       placeholder="https://example.com"
                     />
+
                   </div>
 
                 </div>
@@ -1217,8 +1689,13 @@ const Settings = () => {
                 {/* ABOUT */}
 
                 <div className="form-section-title">
-                  <span>03</span>
+
+                  <span>
+                    03
+                  </span>
+
                   ABOUT YOU
+
                 </div>
 
                 <div className="form-group">
@@ -1228,7 +1705,9 @@ const Settings = () => {
                   </label>
 
                   <textarea
-                    value={profileBio}
+                    value={
+                      profileBio
+                    }
                     onChange={(e) =>
                       setProfileBio(
                         e.target.value
@@ -1239,7 +1718,10 @@ const Settings = () => {
                   />
 
                   <div className="bio-counter">
-                    {profileBio.length}/300
+                    {
+                      profileBio.length
+                    }
+                    /300
                   </div>
 
                 </div>
@@ -1249,59 +1731,91 @@ const Settings = () => {
                 <div className="profile-stats">
 
                   <div className="profile-stat">
-                    <span>📝</span>
+
+                    <span>
+                      📝
+                    </span>
 
                     <div>
+
                       <strong>
-                        {profileStats.notes}
+                        {
+                          profileStats.notes
+                        }
                       </strong>
 
                       <small>
                         Total Notes
                       </small>
+
                     </div>
+
                   </div>
 
                   <div className="profile-stat">
-                    <span>📌</span>
+
+                    <span>
+                      📌
+                    </span>
 
                     <div>
+
                       <strong>
-                        {profileStats.pinned}
+                        {
+                          profileStats.pinned
+                        }
                       </strong>
 
                       <small>
                         Pinned
                       </small>
+
                     </div>
+
                   </div>
 
                   <div className="profile-stat">
-                    <span>❤️</span>
+
+                    <span>
+                      ❤️
+                    </span>
 
                     <div>
+
                       <strong>
-                        {profileStats.favorites}
+                        {
+                          profileStats.favorites
+                        }
                       </strong>
 
                       <small>
                         Favorites
                       </small>
+
                     </div>
+
                   </div>
 
                   <div className="profile-stat">
-                    <span>📅</span>
+
+                    <span>
+                      📅
+                    </span>
 
                     <div>
+
                       <strong>
-                        {getMemberSince()}
+                        {
+                          getMemberSince()
+                        }
                       </strong>
 
                       <small>
                         Member Since
                       </small>
+
                     </div>
+
                   </div>
 
                 </div>
@@ -1309,8 +1823,13 @@ const Settings = () => {
                 {/* ACCOUNT */}
 
                 <div className="form-section-title">
-                  <span>04</span>
+
+                  <span>
+                    04
+                  </span>
+
                   ACCOUNT INFORMATION
+
                 </div>
 
                 <div className="form-group">
@@ -1330,8 +1849,11 @@ const Settings = () => {
                 <div className="profile-save-area">
 
                   <button
+                    type="submit"
                     className="primary-btn"
-                    disabled={profileSaving}
+                    disabled={
+                      profileSaving
+                    }
                   >
                     {profileSaving
                       ? "Saving..."
@@ -1341,6 +1863,7 @@ const Settings = () => {
                 </div>
 
               </form>
+
             </section>
           )}
 
@@ -1348,7 +1871,8 @@ const Settings = () => {
               NOTIFICATIONS
           ================================================== */}
 
-          {activeSection === "notifications" && (
+          {activeSection ===
+            "notifications" && (
             <section className="settings-card">
 
               <CardHeader
@@ -1455,7 +1979,8 @@ const Settings = () => {
               APPEARANCE
           ================================================== */}
 
-          {activeSection === "appearance" && (
+          {activeSection ===
+            "appearance" && (
             <section className="settings-card">
 
               <CardHeader
@@ -1500,7 +2025,8 @@ const Settings = () => {
               PRIVACY
           ================================================== */}
 
-          {activeSection === "privacy" && (
+          {activeSection ===
+            "privacy" && (
             <section className="settings-card">
 
               <CardHeader
@@ -1518,8 +2044,13 @@ const Settings = () => {
               >
 
                 <div className="form-section-title">
-                  <span>01</span>
+
+                  <span>
+                    01
+                  </span>
+
                   CHANGE PASSWORD
+
                 </div>
 
                 <div className="form-group">
@@ -1530,7 +2061,9 @@ const Settings = () => {
 
                   <input
                     type="password"
-                    value={currentPassword}
+                    value={
+                      currentPassword
+                    }
                     onChange={(e) =>
                       setCurrentPassword(
                         e.target.value
@@ -1549,7 +2082,9 @@ const Settings = () => {
 
                   <input
                     type="password"
-                    value={newPassword}
+                    value={
+                      newPassword
+                    }
                     onChange={(e) =>
                       setNewPassword(
                         e.target.value
@@ -1568,7 +2103,9 @@ const Settings = () => {
 
                   <input
                     type="password"
-                    value={confirmPassword}
+                    value={
+                      confirmPassword
+                    }
                     onChange={(e) =>
                       setConfirmPassword(
                         e.target.value
@@ -1582,6 +2119,7 @@ const Settings = () => {
                 <div className="card-action">
 
                   <button
+                    type="submit"
                     className="primary-btn"
                     disabled={
                       passwordSaving
@@ -1599,6 +2137,7 @@ const Settings = () => {
               <div className="danger-zone">
 
                 <div>
+
                   <span className="danger-label">
                     DANGER ZONE
                   </span>
@@ -1609,12 +2148,14 @@ const Settings = () => {
 
                   <p>
                     Permanently delete your
-                    NoteHive account and account
-                    data.
+                    NoteHive account and
+                    account data.
                   </p>
+
                 </div>
 
                 <button
+                  type="button"
                   className="danger-btn"
                   onClick={
                     handleDeleteAccount
@@ -1664,7 +2205,9 @@ const Settings = () => {
           )}
 
         </main>
+
       </div>
+
     </div>
   );
 };
@@ -1685,9 +2228,13 @@ const CardHeader = ({
       {icon} {eyebrow}
     </span>
 
-    <h2>{title}</h2>
+    <h2>
+      {title}
+    </h2>
 
-    <p>{text}</p>
+    <p>
+      {text}
+    </p>
 
   </div>
 );
@@ -1706,9 +2253,13 @@ const ToggleRow = ({
 
     <div className="settings-row-content">
 
-      <h3>{title}</h3>
+      <h3>
+        {title}
+      </h3>
 
-      <p>{text}</p>
+      <p>
+        {text}
+      </p>
 
     </div>
 
@@ -1757,8 +2308,15 @@ const ThemeOption = ({
     </div>
 
     <div>
-      <strong>{title}</strong>
-      <span>{text}</span>
+
+      <strong>
+        {title}
+      </strong>
+
+      <span>
+        {text}
+      </span>
+
     </div>
 
     {selected && (
