@@ -327,9 +327,7 @@ const Settings = () => {
     clearMessages();
 
     if (!file.type.startsWith("image/")) {
-      setErrorMessage(
-        "Please select a valid image file."
-      );
+      setErrorMessage("Please select a valid image file.");
 
       event.target.value = "";
       return;
@@ -356,21 +354,14 @@ const Settings = () => {
         let height = image.height;
 
         if (width > height && width > max) {
-          height = Math.round(
-            (height * max) / width
-          );
-
+          height = Math.round((height * max) / width);
           width = max;
         } else if (height > max) {
-          width = Math.round(
-            (width * max) / height
-          );
-
+          width = Math.round((width * max) / height);
           height = max;
         }
 
-        const canvas =
-          document.createElement("canvas");
+        const canvas = document.createElement("canvas");
 
         canvas.width = width;
         canvas.height = height;
@@ -443,8 +434,7 @@ const Settings = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Unable to update profile."
+          data.message || "Unable to update profile."
         );
       }
 
@@ -474,10 +464,7 @@ const Settings = () => {
 
       fetchProfileStats();
     } catch (error) {
-      console.error(
-        "Save profile error:",
-        error
-      );
+      console.error("Save profile error:", error);
 
       setErrorMessage(
         error.message ||
@@ -505,9 +492,7 @@ const Settings = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(
-            notificationSettings
-          ),
+          body: JSON.stringify(notificationSettings),
         }
       );
 
@@ -591,8 +576,7 @@ const Settings = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Unable to change password."
+          data.message || "Unable to change password."
         );
       }
 
@@ -605,8 +589,7 @@ const Settings = () => {
       );
     } catch (error) {
       setErrorMessage(
-        error.message ||
-          "Unable to change password."
+        error.message || "Unable to change password."
       );
     } finally {
       setPasswordSaving(false);
@@ -642,8 +625,7 @@ const Settings = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Unable to delete account."
+          data.message || "Unable to delete account."
         );
       }
 
@@ -660,8 +642,7 @@ const Settings = () => {
       navigate("/signup");
     } catch (error) {
       setErrorMessage(
-        error.message ||
-          "Unable to delete account."
+        error.message || "Unable to delete account."
       );
     }
   };
@@ -780,30 +761,6 @@ const Settings = () => {
 
   return (
     <div className="settings-page">
-
-      {/* ======================================================
-          DESKTOP HEADER
-      ====================================================== */}
-
-      <header className="settings-header">
-        <div className="settings-header-copy">
-          <span className="settings-eyebrow">
-            🐝 NOTEHIVE SETTINGS
-          </span>
-
-          <h1>Settings</h1>
-
-          <p>
-            Manage your account, preferences and
-            security.
-          </p>
-        </div>
-
-        <div className="settings-header-badge">
-          <span>●</span>
-          Account Settings
-        </div>
-      </header>
 
       {/* ======================================================
           MESSAGE
@@ -984,12 +941,6 @@ const Settings = () => {
               </span>
             </button>
 
-          </div>
-
-          <div className="mobile-settings-footer">
-            <span>🐝</span>
-            <p>NoteHive Settings</p>
-            <small>Manage your personal space</small>
           </div>
 
         </div>
