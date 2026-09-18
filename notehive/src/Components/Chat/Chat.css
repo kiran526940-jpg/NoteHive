@@ -1018,3 +1018,28 @@ body:has(.chat-page) footer {
     max-height: 100dvh !important;
   }
 }
+/* =========================================================
+   DESKTOP / LAPTOP CHAT - REMOVE BOTTOM GAP
+   ========================================================= */
+
+@media screen and (min-width: 769px) {
+  .chat-page {
+    width: 100%;
+    height: calc(100vh - 70px) !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 70px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .chat-sidebar,
+  .chat-window {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .chat-messages {
+    min-height: 0 !important;
+  }
+}
