@@ -1197,3 +1197,77 @@ body:has(.chat-page) {
 
   z-index: 20;
 }
+/* ============================================================
+   WHATSAPP STYLE MOBILE CHAT
+   HEADER FIXED + MESSAGES ONLY SCROLL
+   ============================================================ */
+
+@media screen and (max-width: 768px) {
+
+  .chat-page.chat-open {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+
+    display: flex;
+    overflow: hidden;
+  }
+
+  .chat-page.chat-open .chat-window {
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+
+    display: flex !important;
+    flex-direction: column;
+
+    overflow: hidden;
+  }
+
+  /* WhatsApp-style fixed name plate */
+  .chat-page.chat-open .chat-header {
+    flex: 0 0 62px !important;
+
+    width: 100%;
+    height: 62px;
+    min-height: 62px;
+    max-height: 62px;
+
+    position: relative;
+    top: 0;
+
+    z-index: 100;
+
+    background: #ffffff;
+
+    overflow: hidden;
+  }
+
+  /* ONLY messages scroll */
+  .chat-page.chat-open .chat-messages {
+    flex: 1 1 auto !important;
+
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Input stays at bottom */
+  .chat-page.chat-open .chat-input-area {
+    flex: 0 0 auto !important;
+
+    width: 100%;
+
+    position: relative;
+
+    z-index: 100;
+
+    background: #ffffff;
+  }
+}
