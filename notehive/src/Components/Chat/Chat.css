@@ -846,3 +846,144 @@
     display: none !important;
   }
 }
+/* ============================================================
+   NOTEHIVE CHAT - FINAL MOBILE KEYBOARD FIX
+   Header fixed + messages scroll + input bottom
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Chat full mobile viewport */
+  .chat-page {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  /* =========================
+     CHAT WINDOW
+     ========================= */
+
+  .chat-page.mobile-chat-open .chat-window {
+    display: flex !important;
+    flex-direction: column !important;
+
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-height: 100dvh !important;
+
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  /* =========================
+     CHAT HEADER - FIXED AREA
+     ========================= */
+
+  .chat-header {
+    flex: 0 0 auto !important;
+
+    width: 100% !important;
+    min-height: 62px !important;
+
+    position: relative !important;
+    top: 0 !important;
+
+    z-index: 50 !important;
+
+    background: #ffffff !important;
+  }
+
+  /* =========================
+     ONLY MESSAGES SCROLL
+     ========================= */
+
+  .chat-messages {
+    flex: 1 1 auto !important;
+
+    width: 100% !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+
+    padding: 12px !important;
+    padding-bottom: 14px !important;
+  }
+
+  /* =========================
+     INPUT STAYS AT BOTTOM
+     ========================= */
+
+  .chat-input-area {
+    flex: 0 0 auto !important;
+
+    width: 100% !important;
+
+    position: relative !important;
+    bottom: auto !important;
+
+    margin: 0 !important;
+
+    padding: 8px 10px !important;
+
+    background: #ffffff !important;
+
+    border-top: 1px solid #e4ebf0 !important;
+
+    z-index: 60 !important;
+  }
+
+  /* Remove any accidental bottom spacing */
+  .chat-window {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* =========================
+     REMOVE MOBILE NAV SPACE
+     ========================= */
+
+  body:has(.chat-page) {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* =========================
+     INPUT SAFE AREA
+     ========================= */
+
+  .chat-input-area {
+    padding-bottom: max(
+      8px,
+      env(safe-area-inset-bottom)
+    ) !important;
+  }
+
+  /* =========================
+     MOBILE MESSAGE BUBBLES
+     ========================= */
+
+  .message-bubble {
+    max-width: 82% !important;
+  }
+}

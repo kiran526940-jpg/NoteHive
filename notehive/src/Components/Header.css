@@ -1589,3 +1589,103 @@ css
     display: none !important;
   }
 }
+/* =========================================================
+   MOBILE CHAT - FIXED HEADER + SCROLLABLE MESSAGES
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .chat-page {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+  }
+
+  /* User list */
+  .chat-sidebar {
+    height: 100% !important;
+  }
+
+  /* Actual chat window */
+  .chat-window {
+    height: 100dvh !important;
+    min-height: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+  }
+
+  /* =====================================================
+     USER HEADER - FIXED
+     ===================================================== */
+
+  .chat-header {
+    flex: 0 0 auto !important;
+
+    position: relative !important;
+    top: 0 !important;
+
+    z-index: 20 !important;
+
+    width: 100% !important;
+
+    background: #ffffff !important;
+  }
+
+  /* =====================================================
+     ONLY THIS AREA SHOULD SCROLL
+     ===================================================== */
+
+  .chat-messages {
+    flex: 1 1 auto !important;
+
+    min-height: 0 !important;
+
+    height: auto !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    -webkit-overflow-scrolling: touch !important;
+
+    overscroll-behavior: contain !important;
+  }
+
+  /* =====================================================
+     INPUT - STAYS AT BOTTOM
+     ===================================================== */
+
+  .chat-input-area {
+    flex: 0 0 auto !important;
+
+    position: relative !important;
+
+    bottom: auto !important;
+
+    width: 100% !important;
+
+    margin: 0 !important;
+
+    padding: 8px !important;
+
+    background: #ffffff !important;
+
+    z-index: 30 !important;
+  }
+
+  /* Remove unnecessary bottom spacing */
+  .chat-window {
+    padding-bottom: 0 !important;
+  }
+
+  .chat-messages {
+    padding-bottom: 12px !important;
+  }
+}
