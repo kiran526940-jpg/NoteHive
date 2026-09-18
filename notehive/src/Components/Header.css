@@ -1575,4 +1575,17 @@ css
     transition: none;
   }
 }
+/* =========================================================
+   MOBILE CHAT PAGE
+   Hide main NoteHive header on Chat page
+   ========================================================= */
 
+@media (max-width: 768px) {
+  body:has(.chat-page) .header {
+    display: none !important;
+  }
+
+  body:has(.chat-page) .mobile-bottom-nav {
+    display: none !important;
+  }
+}
