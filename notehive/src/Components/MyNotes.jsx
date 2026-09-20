@@ -1,8 +1,13 @@
+
 import React, { useEffect, useState } from "react";
 import "./MyNotes.css";
+import { SERVER_URL } from "../config/api";
 
-const API_URL = "http://192.168.1.68:5000/api/notes";
-const SERVER_URL = "http://192.168.1.68:5000";
+// =========================================================
+// API CONFIG
+// =========================================================
+
+const API_URL = `${SERVER_URL}/api/notes`;
 
 function MyNotes() {
   // =========================================================
@@ -18,29 +23,20 @@ function MyNotes() {
   // =========================================================
 
   const [notes, setNotes] = useState([]);
-
   const [search, setSearch] = useState("");
-
   const [filter, setFilter] = useState("all");
-
   const [showModal, setShowModal] = useState(false);
 
   const [title, setTitle] = useState("");
-
   const [content, setContent] = useState("");
-
   const [category, setCategory] = useState("General");
-
   const [priority, setPriority] = useState("Medium");
-
   const [completed, setCompleted] = useState(false);
 
   const [selectedFiles, setSelectedFiles] = useState([]);
-
   const [editingId, setEditingId] = useState(null);
 
   const [loading, setLoading] = useState(true);
-
   const [saving, setSaving] = useState(false);
 
   // =========================================================
@@ -48,8 +44,7 @@ function MyNotes() {
   // =========================================================
 
   useEffect(() => {
-    const storedUserId =
-      localStorage.getItem("notehive_userId");
+    const storedUserId = localStorage.getItem("notehive_userId");
 
     setUserId(storedUserId);
 
@@ -76,7 +71,7 @@ function MyNotes() {
       }
 
       const response = await fetch(
-        `${API_URL}?userId=${currentUserId}`
+        `${API_URL}?userId=${encodeURIComponent(currentUserId)}`
       );
 
       const data = await response.json();
@@ -89,46 +84,37 @@ function MyNotes() {
         );
       }
 
-      const formattedNotes = (data.notes || []).map(
-        (note) => ({
-          id: note._id,
+      const formattedNotes = (data.notes || []).map((note) => ({
+        id: note._id,
 
-          title: note.title || "",
+        title: note.title || "",
 
-          content: note.content || "",
+        content: note.content || "",
 
-          category: note.category || "General",
+        category: note.category || "General",
 
-          priority: note.priority || "Medium",
+        priority: note.priority || "Medium",
 
-          completed: Boolean(note.completed),
+        completed: Boolean(note.completed),
 
-          pinned: Boolean(note.pinned),
+        pinned: Boolean(note.pinned),
 
-          favorite: Boolean(note.favorite),
+        favorite: Boolean(note.favorite),
 
-          visibility:
-            note.visibility || "private",
+        visibility: note.visibility || "private",
 
-          slug: note.slug || "",
+        slug: note.slug || "",
 
-          date: note.createdAt
-            ? new Date(
-                note.createdAt
-              ).toLocaleDateString()
-            : "Today",
+        date: note.createdAt
+          ? new Date(note.createdAt).toLocaleDateString()
+          : "Today",
 
-          attachments:
-            note.attachments || [],
-        })
-      );
+        attachments: note.attachments || [],
+      }));
 
       setNotes(formattedNotes);
     } catch (error) {
-      console.error(
-        "FETCH NOTES ERROR:",
-        error
-      );
+      console.error("FETCH NOTES ERROR:", error);
 
       alert(
         "Notes fetch nahi ho pa rahi.\n\n" +
@@ -144,9 +130,7 @@ function MyNotes() {
   // =========================================================
 
   const handleFileChange = (e) => {
-    const files = Array.from(
-      e.target.files || []
-    );
+    const files = Array.from(e.target.files || []);
 
     const allowedTypes = [
       "application/pdf",
@@ -168,17 +152,11 @@ function MyNotes() {
     }
 
     const sizeValidFiles = validFiles.filter(
-      (file) =>
-        file.size <= 10 * 1024 * 1024
+      (file) => file.size <= 10 * 1024 * 1024
     );
 
-    if (
-      sizeValidFiles.length !==
-      validFiles.length
-    ) {
-      alert(
-        "Each file must be smaller than 10 MB."
-      );
+    if (sizeValidFiles.length !== validFiles.length) {
+      alert("Each file must be smaller than 10 MB.");
     }
 
     setSelectedFiles(sizeValidFiles);
@@ -218,55 +196,23 @@ function MyNotes() {
 
       const formData = new FormData();
 
-      formData.append(
-        "userId",
-        currentUserId
-      );
-
-      formData.append(
-        "title",
-        title.trim()
-      );
-
-      formData.append(
-        "content",
-        content.trim()
-      );
-
-      formData.append(
-        "category",
-        category
-      );
-
-      formData.append(
-        "priority",
-        priority
-      );
-
-      formData.append(
-        "completed",
-        completed
-      );
-
-      formData.append(
-        "visibility",
-        "private"
-      );
+      formData.append("userId", currentUserId);
+      formData.append("title", title.trim());
+      formData.append("content", content.trim());
+      formData.append("category", category);
+      formData.append("priority", priority);
+      formData.append("completed", completed);
+      formData.append("visibility", "private");
 
       selectedFiles.forEach((file) => {
-        formData.append(
-          "attachments",
-          file
-        );
+        formData.append("attachments", file);
       });
 
       const url = editingId
         ? `${API_URL}/${editingId}`
         : API_URL;
 
-      const method = editingId
-        ? "PUT"
-        : "POST";
+      const method = editingId ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -293,10 +239,7 @@ function MyNotes() {
 
       await fetchNotes(currentUserId);
     } catch (error) {
-      console.error(
-        "SAVE NOTE ERROR:",
-        error
-      );
+      console.error("SAVE NOTE ERROR:", error);
 
       alert(
         "Note save nahi ho pa rahi.\n\n" +
@@ -313,19 +256,12 @@ function MyNotes() {
 
   const openCreateModal = () => {
     setEditingId(null);
-
     setTitle("");
-
     setContent("");
-
     setCategory("General");
-
     setPriority("Medium");
-
     setCompleted(false);
-
     setSelectedFiles([]);
-
     setShowModal(true);
   };
 
@@ -335,25 +271,12 @@ function MyNotes() {
 
   const openEditModal = (note) => {
     setEditingId(note.id);
-
     setTitle(note.title || "");
-
     setContent(note.content || "");
-
-    setCategory(
-      note.category || "General"
-    );
-
-    setPriority(
-      note.priority || "Medium"
-    );
-
-    setCompleted(
-      Boolean(note.completed)
-    );
-
+    setCategory(note.category || "General");
+    setPriority(note.priority || "Medium");
+    setCompleted(Boolean(note.completed));
     setSelectedFiles([]);
-
     setShowModal(true);
   };
 
@@ -363,19 +286,12 @@ function MyNotes() {
 
   const closeModal = () => {
     setShowModal(false);
-
     setEditingId(null);
-
     setTitle("");
-
     setContent("");
-
     setCategory("General");
-
     setPriority("Medium");
-
     setCompleted(false);
-
     setSelectedFiles([]);
   };
 
@@ -384,10 +300,9 @@ function MyNotes() {
   // =========================================================
 
   const handleDelete = async (id) => {
-    const confirmDelete =
-      window.confirm(
-        "Are you sure you want to delete this note?"
-      );
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this note?"
+    );
 
     if (!confirmDelete) {
       return;
@@ -395,9 +310,7 @@ function MyNotes() {
 
     try {
       const currentUserId =
-        localStorage.getItem(
-          "notehive_userId"
-        );
+        localStorage.getItem("notehive_userId");
 
       if (!currentUserId) {
         alert(
@@ -407,7 +320,9 @@ function MyNotes() {
       }
 
       const response = await fetch(
-        `${API_URL}/${id}?userId=${currentUserId}`,
+        `${API_URL}/${id}?userId=${encodeURIComponent(
+          currentUserId
+        )}`,
         {
           method: "DELETE",
         }
@@ -423,16 +338,11 @@ function MyNotes() {
         );
       }
 
-      alert(
-        "Note deleted successfully ✅"
-      );
+      alert("Note deleted successfully ✅");
 
       await fetchNotes(currentUserId);
     } catch (error) {
-      console.error(
-        "DELETE ERROR:",
-        error
-      );
+      console.error("DELETE ERROR:", error);
 
       alert(
         "Note delete nahi ho pa rahi.\n\n" +
@@ -448,9 +358,7 @@ function MyNotes() {
   const handlePin = async (note) => {
     try {
       const currentUserId =
-        localStorage.getItem(
-          "notehive_userId"
-        );
+        localStorage.getItem("notehive_userId");
 
       if (!currentUserId) {
         alert(
@@ -465,8 +373,7 @@ function MyNotes() {
           method: "PATCH",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
@@ -487,10 +394,7 @@ function MyNotes() {
 
       await fetchNotes(currentUserId);
     } catch (error) {
-      console.error(
-        "PIN ERROR:",
-        error
-      );
+      console.error("PIN ERROR:", error);
 
       alert(
         "Pin update nahi ho pa raha.\n\n" +
@@ -506,9 +410,7 @@ function MyNotes() {
   const handleFavorite = async (note) => {
     try {
       const currentUserId =
-        localStorage.getItem(
-          "notehive_userId"
-        );
+        localStorage.getItem("notehive_userId");
 
       if (!currentUserId) {
         alert(
@@ -523,8 +425,7 @@ function MyNotes() {
           method: "PATCH",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
@@ -545,10 +446,7 @@ function MyNotes() {
 
       await fetchNotes(currentUserId);
     } catch (error) {
-      console.error(
-        "FAVORITE ERROR:",
-        error
-      );
+      console.error("FAVORITE ERROR:", error);
 
       alert(
         "Favorite update nahi ho pa raha.\n\n" +
@@ -561,54 +459,42 @@ function MyNotes() {
   // FILTER NOTES
   // =========================================================
 
-  const filteredNotes = notes.filter(
-    (note) => {
-      const searchText =
-        search.toLowerCase().trim();
+  const filteredNotes = notes.filter((note) => {
+    const searchText = search.toLowerCase().trim();
 
-      const titleText =
-        note.title.toLowerCase();
+    const titleText = note.title.toLowerCase();
 
-      const contentText =
-        note.content.toLowerCase();
+    const contentText = note.content.toLowerCase();
 
-      const categoryText =
-        note.category.toLowerCase();
+    const categoryText = note.category.toLowerCase();
 
-      const matchesSearch =
-        titleText.includes(
-          searchText
-        ) ||
-        contentText.includes(
-          searchText
-        ) ||
-        categoryText.includes(
-          searchText
-        );
+    const matchesSearch =
+      titleText.includes(searchText) ||
+      contentText.includes(searchText) ||
+      categoryText.includes(searchText);
 
-      if (!matchesSearch) {
-        return false;
-      }
-
-      if (filter === "pinned") {
-        return note.pinned;
-      }
-
-      if (filter === "favorite") {
-        return note.favorite;
-      }
-
-      if (filter === "completed") {
-        return note.completed;
-      }
-
-      if (filter === "high") {
-        return note.priority === "High";
-      }
-
-      return true;
+    if (!matchesSearch) {
+      return false;
     }
-  );
+
+    if (filter === "pinned") {
+      return note.pinned;
+    }
+
+    if (filter === "favorite") {
+      return note.favorite;
+    }
+
+    if (filter === "completed") {
+      return note.completed;
+    }
+
+    if (filter === "high") {
+      return note.priority === "High";
+    }
+
+    return true;
+  });
 
   // =========================================================
   // FILE SIZE
@@ -627,15 +513,13 @@ function MyNotes() {
     ];
 
     const i = Math.floor(
-      Math.log(bytes) /
-        Math.log(1024)
+      Math.log(bytes) / Math.log(1024)
     );
 
     return (
       parseFloat(
         (
-          bytes /
-          Math.pow(1024, i)
+          bytes / Math.pow(1024, i)
         ).toFixed(2)
       ) +
       " " +
@@ -648,10 +532,7 @@ function MyNotes() {
   // =========================================================
 
   const getFileIcon = (type = "") => {
-    if (
-      type ===
-      "application/pdf"
-    ) {
+    if (type === "application/pdf") {
       return "📄";
     }
 
@@ -678,30 +559,22 @@ function MyNotes() {
       return "#";
     }
 
-    if (
-      file.url?.startsWith("http")
-    ) {
+    if (file.url?.startsWith("http")) {
       return file.url;
     }
 
     if (file.url) {
-      return (
-        SERVER_URL +
-        file.url
-      );
+      return `${SERVER_URL}${file.url}`;
     }
 
     if (file.path) {
-      const filename =
-        file.path
-          .split("\\")
-          .pop()
-          .split("/")
-          .pop();
+      const filename = file.path
+        .split("\\")
+        .pop()
+        .split("/")
+        .pop();
 
-      return (
-        `${SERVER_URL}/uploads/${filename}`
-      );
+      return `${SERVER_URL}/uploads/${filename}`;
     }
 
     return "#";
@@ -796,9 +669,7 @@ function MyNotes() {
 
         <button
           className="new-note-btn"
-          onClick={
-            openCreateModal
-          }
+          onClick={openCreateModal}
         >
           <span>＋</span>
           New Note
@@ -823,9 +694,7 @@ function MyNotes() {
             placeholder="Search your notes..."
             value={search}
             onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
+              setSearch(e.target.value)
             }
           />
 
@@ -954,223 +823,207 @@ function MyNotes() {
 
         <div className="professional-notes-grid">
 
-          {filteredNotes.map(
-            (note) => (
+          {filteredNotes.map((note) => (
 
-              <div
-                className={
-                  `professional-note-card ${
-                    note.pinned
-                      ? "is-pinned"
-                      : ""
-                  } ${
-                    note.favorite
-                      ? "is-favorite"
-                      : ""
-                  }`
-                }
-                key={note.id}
-              >
+            <div
+              className={
+                `professional-note-card ${
+                  note.pinned
+                    ? "is-pinned"
+                    : ""
+                } ${
+                  note.favorite
+                    ? "is-favorite"
+                    : ""
+                }`
+              }
+              key={note.id}
+            >
 
-                {/* CARD TOP */}
+              {/* CARD TOP */}
 
-                <div className="card-top">
+              <div className="card-top">
 
-                  <span className="note-date">
-                    {note.date}
-                  </span>
+                <span className="note-date">
+                  {note.date}
+                </span>
 
-                  <div className="card-menu">
+                <div className="card-menu">
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handlePin(
-                          note
-                        )
-                      }
-                      title={
-                        note.pinned
-                          ? "Unpin"
-                          : "Pin"
-                      }
-                    >
-                      {note.pinned
-                        ? "📌"
-                        : "📍"}
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handlePin(note)
+                    }
+                    title={
+                      note.pinned
+                        ? "Unpin"
+                        : "Pin"
+                    }
+                  >
+                    {note.pinned
+                      ? "📌"
+                      : "📍"}
+                  </button>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleFavorite(
-                          note
-                        )
-                      }
-                      title={
-                        note.favorite
-                          ? "Remove Favorite"
-                          : "Add Favorite"
-                      }
-                    >
-                      {note.favorite
-                        ? "⭐"
-                        : "☆"}
-                    </button>
-
-                  </div>
-
-                </div>
-
-                {/* TITLE */}
-
-                <h2>
-                  {note.title}
-                </h2>
-
-                {/* CONTENT */}
-
-                <p>
-                  {note.content}
-                </p>
-
-                {/* CATEGORY + PRIORITY */}
-
-                <div className="note-meta">
-
-                  <div className="note-category">
-                    📁 {note.category}
-                  </div>
-
-                  <div className="note-priority">
-                    ⚡ {note.priority}
-                  </div>
-
-                </div>
-
-                {/* ATTACHMENTS */}
-
-                {note.attachments &&
-                  note.attachments.length >
-                    0 && (
-
-                    <div className="note-attachments">
-
-                      <div className="attachment-heading">
-                        📎 Attachments
-                      </div>
-
-                      {note.attachments.map(
-                        (
-                          file,
-                          index
-                        ) => (
-
-                          <a
-                            className="note-file"
-                            key={
-                              file.filename ||
-                              index
-                            }
-                            href={getFileUrl(
-                              file
-                            )}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Open file"
-                          >
-
-                            <span>
-                              {getFileIcon(
-                                file.type
-                              )}
-                            </span>
-
-                            <div>
-
-                              <strong>
-                                {file.name ||
-                                  file.originalName ||
-                                  "Attachment"}
-                              </strong>
-
-                              <small>
-                                {formatFileSize(
-                                  file.size
-                                )}
-                              </small>
-
-                            </div>
-
-                          </a>
-
-                        )
-                      )}
-
-                    </div>
-
-                  )}
-
-                {/* CARD BOTTOM */}
-
-                <div className="card-bottom">
-
-                  <div className="note-status">
-
-                    {note.pinned && (
-                      <span>
-                        📌 Pinned
-                      </span>
-                    )}
-
-                    {note.favorite && (
-                      <span>
-                        ⭐ Favorite
-                      </span>
-                    )}
-
-                    {note.completed && (
-                      <span>
-                        ✅ Completed
-                      </span>
-                    )}
-
-                  </div>
-
-                  <div className="card-actions">
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        openEditModal(
-                          note
-                        )
-                      }
-                      title="Edit"
-                    >
-                      ✏️
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDelete(
-                          note.id
-                        )
-                      }
-                      title="Delete"
-                    >
-                      🗑️
-                    </button>
-
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleFavorite(note)
+                    }
+                    title={
+                      note.favorite
+                        ? "Remove Favorite"
+                        : "Add Favorite"
+                    }
+                  >
+                    {note.favorite
+                      ? "⭐"
+                      : "☆"}
+                  </button>
 
                 </div>
 
               </div>
 
-            )
-          )}
+              {/* TITLE */}
+
+              <h2>
+                {note.title}
+              </h2>
+
+              {/* CONTENT */}
+
+              <p>
+                {note.content}
+              </p>
+
+              {/* CATEGORY + PRIORITY */}
+
+              <div className="note-meta">
+
+                <div className="note-category">
+                  📁 {note.category}
+                </div>
+
+                <div className="note-priority">
+                  ⚡ {note.priority}
+                </div>
+
+              </div>
+
+              {/* ATTACHMENTS */}
+
+              {note.attachments &&
+                note.attachments.length > 0 && (
+
+                  <div className="note-attachments">
+
+                    <div className="attachment-heading">
+                      📎 Attachments
+                    </div>
+
+                    {note.attachments.map(
+                      (file, index) => (
+
+                        <a
+                          className="note-file"
+                          key={
+                            file.filename ||
+                            index
+                          }
+                          href={getFileUrl(file)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Open file"
+                        >
+
+                          <span>
+                            {getFileIcon(
+                              file.type
+                            )}
+                          </span>
+
+                          <div>
+
+                            <strong>
+                              {file.name ||
+                                file.originalName ||
+                                "Attachment"}
+                            </strong>
+
+                            <small>
+                              {formatFileSize(
+                                file.size
+                              )}
+                            </small>
+
+                          </div>
+
+                        </a>
+
+                      )
+                    )}
+
+                  </div>
+
+                )}
+
+              {/* CARD BOTTOM */}
+
+              <div className="card-bottom">
+
+                <div className="note-status">
+
+                  {note.pinned && (
+                    <span>
+                      📌 Pinned
+                    </span>
+                  )}
+
+                  {note.favorite && (
+                    <span>
+                      ⭐ Favorite
+                    </span>
+                  )}
+
+                  {note.completed && (
+                    <span>
+                      ✅ Completed
+                    </span>
+                  )}
+
+                </div>
+
+                <div className="card-actions">
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openEditModal(note)
+                    }
+                    title="Edit"
+                  >
+                    ✏️
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDelete(note.id)
+                    }
+                    title="Delete"
+                  >
+                    🗑️
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
 
         </div>
 
@@ -1204,9 +1057,7 @@ function MyNotes() {
             filter === "all" && (
 
               <button
-                onClick={
-                  openCreateModal
-                }
+                onClick={openCreateModal}
               >
                 ＋ Create Your First Note
               </button>
@@ -1247,9 +1098,7 @@ function MyNotes() {
 
               <button
                 className="modal-close"
-                onClick={
-                  closeModal
-                }
+                onClick={closeModal}
                 type="button"
                 disabled={saving}
               >
@@ -1261,9 +1110,7 @@ function MyNotes() {
             {/* FORM */}
 
             <form
-              onSubmit={
-                handleSaveNote
-              }
+              onSubmit={handleSaveNote}
             >
 
               {/* TITLE */}
@@ -1279,9 +1126,7 @@ function MyNotes() {
                   placeholder="Give your note a title..."
                   value={title}
                   onChange={(e) =>
-                    setTitle(
-                      e.target.value
-                    )
+                    setTitle(e.target.value)
                   }
                 />
 
@@ -1300,9 +1145,7 @@ function MyNotes() {
                   placeholder="Write something here..."
                   value={content}
                   onChange={(e) =>
-                    setContent(
-                      e.target.value
-                    )
+                    setContent(e.target.value)
                   }
                 />
 
@@ -1319,9 +1162,7 @@ function MyNotes() {
                 <select
                   value={category}
                   onChange={(e) =>
-                    setCategory(
-                      e.target.value
-                    )
+                    setCategory(e.target.value)
                   }
                 >
 
@@ -1360,9 +1201,7 @@ function MyNotes() {
                 <select
                   value={priority}
                   onChange={(e) =>
-                    setPriority(
-                      e.target.value
-                    )
+                    setPriority(e.target.value)
                   }
                 >
 
@@ -1390,9 +1229,7 @@ function MyNotes() {
 
                   <input
                     type="checkbox"
-                    checked={
-                      completed
-                    }
+                    checked={completed}
                     onChange={(e) =>
                       setCompleted(
                         e.target.checked
@@ -1448,16 +1285,12 @@ function MyNotes() {
 
                 {/* SELECTED FILES */}
 
-                {selectedFiles.length >
-                  0 && (
+                {selectedFiles.length > 0 && (
 
                   <div className="selected-files">
 
                     {selectedFiles.map(
-                      (
-                        file,
-                        index
-                      ) => (
+                      (file, index) => (
 
                         <div
                           className="selected-file"
@@ -1502,9 +1335,7 @@ function MyNotes() {
                 <button
                   type="button"
                   className="modal-cancel"
-                  onClick={
-                    closeModal
-                  }
+                  onClick={closeModal}
                   disabled={saving}
                 >
                   Cancel
@@ -1539,3 +1370,4 @@ function MyNotes() {
 }
 
 export default MyNotes;
+
