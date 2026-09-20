@@ -61,7 +61,7 @@ function ExploreNotes() {
       setLoading(true);
 
       const response = await fetch(
-        `${API_URL}/explore/notes?userId=${userId || ""}`
+        `${API_URL}/explore?userId=${userId || ""}`
       );
 
       const data = await response.json();
