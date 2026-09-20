@@ -249,7 +249,7 @@ function ExploreNotes() {
 
     try {
       const response = await fetch(
-        `${API_URL}/explore/notes/${note._id}/view`,
+        `${API_URL}/explore/${note._id}/view`,
         {
           method: "PATCH",
           headers: {
@@ -379,7 +379,7 @@ function ExploreNotes() {
       setButtonLoading(noteId, "save", true);
 
       const response = await fetch(
-        `${API_URL}/explore/notes/${noteId}/save`,
+        `${API_URL}/explore/${noteId}/save`,
         {
           method: "PATCH",
           headers: {
@@ -459,7 +459,7 @@ function ExploreNotes() {
       setButtonLoading(noteId, "repost", true);
 
       const response = await fetch(
-        `${API_URL}/explore/notes/${noteId}/repost`,
+        `${API_URL}/explore/${noteId}/repost`,
         {
           method: "PATCH",
           headers: {
@@ -1657,3 +1657,4 @@ function ExploreNotes() {
 }
 
 export default ExploreNotes;
+

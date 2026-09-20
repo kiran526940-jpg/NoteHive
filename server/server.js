@@ -648,7 +648,7 @@ const noteSchema =
         type: Number,
         default: 0,
       },
-      ikedBy: [
+      likedBy: [
   {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -5227,6 +5227,212 @@ app.patch("/api/explore/:id/like", async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Unable to like note.",
+    });
+  }
+});
+// ============================================================
+// EXPLORE NOTE - VIEW
+// ============================================================
+
+app.patch("/api/explore/:id/view", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID.",
+      });
+    }
+
+    const note = await Note.findOne({
+      _id: id,
+      visibility: "public",
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Public note not found.",
+      });
+    }
+
+    note.views = (note.views || 0) + 1;
+
+    await note.save();
+
+    return res.json({
+      success: true,
+      views: note.views,
+    });
+  } catch (error) {
+    console.error("Explore view error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to update views.",
+    });
+  }
+});
+
+
+// ============================================================
+// EXPLORE NOTE - SAVE / UNSAVE
+// ============================================================
+
+app.patch("/api/explore/:id/save", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID.",
+      });
+    }
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid userId is required.",
+      });
+    }
+
+    const note = await Note.findOne({
+      _id: id,
+      visibility: "public",
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Public note not found.",
+      });
+    }
+
+    if (!note.savedBy) {
+      note.savedBy = [];
+    }
+
+    const alreadySaved = note.savedBy.some(
+      (savedUserId) =>
+        savedUserId.toString() === userId.toString()
+    );
+
+    if (alreadySaved) {
+      note.savedBy = note.savedBy.filter(
+        (savedUserId) =>
+          savedUserId.toString() !== userId.toString()
+      );
+
+      await note.save();
+
+      return res.json({
+        success: true,
+        saved: false,
+        saves: note.savedBy.length,
+        message: "Note removed from saved.",
+      });
+    }
+
+    note.savedBy.push(userId);
+
+    await note.save();
+
+    return res.json({
+      success: true,
+      saved: true,
+      saves: note.savedBy.length,
+      message: "Note saved.",
+    });
+  } catch (error) {
+    console.error("Explore save error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to save note.",
+    });
+  }
+});
+
+
+// ============================================================
+// EXPLORE NOTE - REPOST / UNREPOST
+// ============================================================
+
+app.patch("/api/explore/:id/repost", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID.",
+      });
+    }
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid userId is required.",
+      });
+    }
+
+    const note = await Note.findOne({
+      _id: id,
+      visibility: "public",
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Public note not found.",
+      });
+    }
+
+    if (!note.repostedBy) {
+      note.repostedBy = [];
+    }
+
+    const alreadyReposted = note.repostedBy.some(
+      (repostedUserId) =>
+        repostedUserId.toString() === userId.toString()
+    );
+
+    if (alreadyReposted) {
+      note.repostedBy = note.repostedBy.filter(
+        (repostedUserId) =>
+          repostedUserId.toString() !== userId.toString()
+      );
+
+      await note.save();
+
+      return res.json({
+        success: true,
+        reposted: false,
+        reposts: note.repostedBy.length,
+        message: "Repost removed.",
+      });
+    }
+
+    note.repostedBy.push(userId);
+
+    await note.save();
+
+    return res.json({
+      success: true,
+      reposted: true,
+      reposts: note.repostedBy.length,
+      message: "Note reposted.",
+    });
+  } catch (error) {
+    console.error("Explore repost error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to repost note.",
     });
   }
 });
