@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SERVER_URL } from "../config/api";
 import "./ExploreNotes.css";
 
-const API_URL = "http://192.168.1.68:5000/api";
+const API_URL = `${SERVER_URL}/api`;
 
 const categories = [
   "All",
@@ -17,6 +18,10 @@ const categories = [
 function ExploreNotes() {
   const navigate = useNavigate();
 
+  // =====================================================
+  // MAIN STATES
+  // =====================================================
+
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,11 +31,24 @@ function ExploreNotes() {
 
   const [selectedNote, setSelectedNote] = useState(null);
 
+  // =====================================================
+  // ACTION STATES
+  // =====================================================
+
   const [likedNotes, setLikedNotes] = useState({});
   const [savedNotes, setSavedNotes] = useState({});
   const [repostedNotes, setRepostedNotes] = useState({});
 
   const [actionLoading, setActionLoading] = useState({});
+
+  // =====================================================
+  // COMMENTS
+  // =====================================================
+
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   const userId = localStorage.getItem("notehive_userId");
 
@@ -53,7 +71,7 @@ function ExploreNotes() {
 
         setNotes(fetchedNotes);
 
-        // Restore Like / Save / Repost state from database
+        // Restore user action states
         if (userId) {
           const likedState = {};
           const savedState = {};
@@ -62,9 +80,13 @@ function ExploreNotes() {
           fetchedNotes.forEach((note) => {
             const noteId = note._id;
 
+            // NEW BACKEND:
+            // likes = number
+            // likedBy = array of user IDs
+
             likedState[noteId] =
-              Array.isArray(note.likes) &&
-              note.likes.some(
+              Array.isArray(note.likedBy) &&
+              note.likedBy.some(
                 (id) => String(id) === String(userId)
               );
 
@@ -160,9 +182,7 @@ function ExploreNotes() {
 
     if (sortBy === "likes") {
       result.sort(
-        (a, b) =>
-          (b.likesCount || b.likes?.length || 0) -
-          (a.likesCount || a.likes?.length || 0)
+        (a, b) => (b.likes || 0) - (a.likes || 0)
       );
     }
 
@@ -203,11 +223,29 @@ function ExploreNotes() {
   };
 
   // =====================================================
+  // ACTION LOADING
+  // =====================================================
+
+  const setButtonLoading = (noteId, action, value) => {
+    setActionLoading((prev) => ({
+      ...prev,
+      [`${action}_${noteId}`]: value,
+    }));
+  };
+
+  const isButtonLoading = (noteId, action) => {
+    return !!actionLoading[`${action}_${noteId}`];
+  };
+
+  // =====================================================
   // OPEN NOTE
   // =====================================================
 
   const openNote = async (note) => {
     setSelectedNote(note);
+
+    // Load comments immediately
+    fetchComments(note._id);
 
     try {
       const response = await fetch(
@@ -251,35 +289,13 @@ function ExploreNotes() {
   };
 
   // =====================================================
-  // ACTION LOADING
-  // =====================================================
-
-  const setButtonLoading = (noteId, action, value) => {
-    setActionLoading((prev) => ({
-      ...prev,
-      [`${action}_${noteId}`]: value,
-    }));
-  };
-
-  const isButtonLoading = (noteId, action) => {
-    return !!actionLoading[`${action}_${noteId}`];
-  };
-
-  // =====================================================
-  // LIKE NOTE
-  // ONE USER = ONE LIKE
-  // NO UNLIKE
+  // LIKE / UNLIKE NOTE
   // =====================================================
 
   const handleLike = async (noteId) => {
     if (!userId) {
       alert("Please login to like a note.");
       navigate("/login");
-      return;
-    }
-
-    // Already liked -> do absolutely nothing
-    if (likedNotes[noteId]) {
       return;
     }
 
@@ -291,7 +307,7 @@ function ExploreNotes() {
       setButtonLoading(noteId, "like", true);
 
       const response = await fetch(
-        `${API_URL}/explore/notes/${noteId}/like`,
+        `${API_URL}/explore/${noteId}/like`,
         {
           method: "PATCH",
           headers: {
@@ -306,45 +322,39 @@ function ExploreNotes() {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        const isLiked = !!data.liked;
+        const newLikesCount = Number(data.likes || 0);
+
         setLikedNotes((prev) => ({
           ...prev,
-          [noteId]: true,
+          [noteId]: isLiked,
         }));
-
-        const newLikesCount =
-          data.likesCount ??
-          data.likes?.length ??
-          0;
 
         setNotes((prev) =>
           prev.map((note) =>
             note._id === noteId
               ? {
                   ...note,
-                  likesCount: newLikesCount,
-                  likes: data.note?.likes || note.likes,
+                  likes: newLikesCount,
                 }
               : note
           )
         );
 
-        if (selectedNote?._id === noteId) {
-          setSelectedNote((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  likesCount: newLikesCount,
-                  likes:
-                    data.note?.likes || prev.likes,
-                }
-              : prev
-          );
-        }
+        setSelectedNote((prev) =>
+          prev && prev._id === noteId
+            ? {
+                ...prev,
+                likes: newLikesCount,
+              }
+            : prev
+        );
       } else {
         alert(data.message || "Unable to like note.");
       }
     } catch (error) {
       console.error("Like error:", error);
+      alert("Something went wrong while liking the note.");
     } finally {
       setButtonLoading(noteId, "like", false);
     }
@@ -386,7 +396,7 @@ function ExploreNotes() {
       if (response.ok && data.success) {
         setSavedNotes((prev) => ({
           ...prev,
-          [noteId]: data.saved,
+          [noteId]: !!data.saved,
         }));
 
         setNotes((prev) =>
@@ -406,22 +416,20 @@ function ExploreNotes() {
           )
         );
 
-        if (selectedNote?._id === noteId) {
-          setSelectedNote((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  savedCount:
-                    data.savedCount ??
-                    prev.savedCount ??
-                    0,
-                  savedBy:
-                    data.note?.savedBy ||
-                    prev.savedBy,
-                }
-              : prev
-          );
-        }
+        setSelectedNote((prev) =>
+          prev && prev._id === noteId
+            ? {
+                ...prev,
+                savedCount:
+                  data.savedCount ??
+                  prev.savedCount ??
+                  0,
+                savedBy:
+                  data.note?.savedBy ||
+                  prev.savedBy,
+              }
+            : prev
+        );
       } else {
         alert(data.message || "Unable to save note.");
       }
@@ -468,7 +476,7 @@ function ExploreNotes() {
       if (response.ok && data.success) {
         setRepostedNotes((prev) => ({
           ...prev,
-          [noteId]: data.reposted,
+          [noteId]: !!data.reposted,
         }));
 
         setNotes((prev) =>
@@ -488,22 +496,20 @@ function ExploreNotes() {
           )
         );
 
-        if (selectedNote?._id === noteId) {
-          setSelectedNote((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  repostCount:
-                    data.repostCount ??
-                    prev.repostCount ??
-                    0,
-                  repostedBy:
-                    data.note?.repostedBy ||
-                    prev.repostedBy,
-                }
-              : prev
-          );
-        }
+        setSelectedNote((prev) =>
+          prev && prev._id === noteId
+            ? {
+                ...prev,
+                repostCount:
+                  data.repostCount ??
+                  prev.repostCount ??
+                  0,
+                repostedBy:
+                  data.note?.repostedBy ||
+                  prev.repostedBy,
+              }
+            : prev
+        );
       } else {
         alert(data.message || "Unable to repost note.");
       }
@@ -515,11 +521,215 @@ function ExploreNotes() {
   };
 
   // =====================================================
+  // COMMENTS - FETCH
+  // =====================================================
+
+  const fetchComments = async (noteId) => {
+    try {
+      setCommentsLoading(true);
+
+      const response = await fetch(
+        `${API_URL}/explore/${noteId}/comments`
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setComments(data.comments || []);
+      } else {
+        setComments([]);
+      }
+    } catch (error) {
+      console.error("Comments fetch error:", error);
+      setComments([]);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  // =====================================================
+  // ADD COMMENT
+  // =====================================================
+
+  const handleAddComment = async () => {
+    if (!userId) {
+      alert("Please login to comment.");
+      navigate("/login");
+      return;
+    }
+
+    if (!selectedNote?._id) {
+      return;
+    }
+
+    const cleanText = commentText.trim();
+
+    if (!cleanText) {
+      return;
+    }
+
+    if (commentSubmitting) {
+      return;
+    }
+
+    try {
+      setCommentSubmitting(true);
+
+      const response = await fetch(
+        `${API_URL}/explore/${selectedNote._id}/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            text: cleanText,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setComments((prev) => [
+          data.comment,
+          ...prev,
+        ]);
+
+        setCommentText("");
+      } else {
+        alert(data.message || "Unable to add comment.");
+      }
+    } catch (error) {
+      console.error("Add comment error:", error);
+      alert("Something went wrong while adding comment.");
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
+
+  // =====================================================
+  // DELETE COMMENT
+  // =====================================================
+
+  const handleDeleteComment = async (commentId) => {
+    if (!userId) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/explore/comments/${commentId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setComments((prev) =>
+          prev.filter(
+            (comment) => comment._id !== commentId
+          )
+        );
+      } else {
+        alert(
+          data.message ||
+            "Unable to delete comment."
+        );
+      }
+    } catch (error) {
+      console.error("Delete comment error:", error);
+    }
+  };
+
+  // =====================================================
+  // SHARE NOTE
+  // =====================================================
+
+  const handleShare = async (note) => {
+    const shareUrl =
+      `${window.location.origin}/explore?note=${note._id}`;
+
+    const shareData = {
+      title: note.title || "NoteHive Note",
+      text: `Check out this note on NoteHive: ${
+        note.title || "Public Note"
+      }`,
+      url: shareUrl,
+    };
+
+    try {
+      if (
+        navigator.share &&
+        typeof navigator.share === "function"
+      ) {
+        await navigator.share(shareData);
+        return;
+      }
+
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+        alert("Note link copied!");
+        return;
+      }
+
+      window.prompt(
+        "Copy this NoteHive link:",
+        shareUrl
+      );
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        console.error("Share error:", error);
+      }
+    }
+  };
+
+  // =====================================================
+  // DOWNLOAD ATTACHMENT
+  // =====================================================
+
+  const handleDownload = (attachment) => {
+    if (!attachment?.path) {
+      alert("Attachment not available.");
+      return;
+    }
+
+    const fileUrl = attachment.path.startsWith("http")
+      ? attachment.path
+      : `${SERVER_URL}${attachment.path}`;
+
+    const link = document.createElement("a");
+
+    link.href = fileUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.download =
+      attachment.originalName ||
+      attachment.filename ||
+      "NoteHive-file";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // =====================================================
   // CLOSE MODAL
   // =====================================================
 
   const closeNote = () => {
     setSelectedNote(null);
+    setComments([]);
+    setCommentText("");
   };
 
   // =====================================================
@@ -578,7 +788,9 @@ function ExploreNotes() {
               type="text"
               placeholder="Search notes, topics or categories..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
             />
 
             {search && (
@@ -602,7 +814,9 @@ function ExploreNotes() {
                       ? "category-btn active"
                       : "category-btn"
                   }
-                  onClick={() => setCategory(item)}
+                  onClick={() =>
+                    setCategory(item)
+                  }
                 >
                   {item}
                 </button>
@@ -618,10 +832,21 @@ function ExploreNotes() {
                   setSortBy(e.target.value)
                 }
               >
-                <option value="latest">Latest</option>
-                <option value="oldest">Oldest</option>
-                <option value="views">Most Viewed</option>
-                <option value="likes">Most Liked</option>
+                <option value="latest">
+                  Latest
+                </option>
+
+                <option value="oldest">
+                  Oldest
+                </option>
+
+                <option value="views">
+                  Most Viewed
+                </option>
+
+                <option value="likes">
+                  Most Liked
+                </option>
               </select>
             </div>
 
@@ -653,12 +878,14 @@ function ExploreNotes() {
 
         </div>
 
-        {/* NOTES */}
+        {/* EMPTY */}
 
         {filteredNotes.length === 0 ? (
           <div className="empty-explore">
 
-            <div className="empty-icon">📭</div>
+            <div className="empty-icon">
+              📭
+            </div>
 
             <h3>No notes found</h3>
 
@@ -680,6 +907,9 @@ function ExploreNotes() {
 
           </div>
         ) : (
+
+          /* NOTES */
+
           <div className="notes-grid">
 
             {filteredNotes.map((note) => {
@@ -694,9 +924,7 @@ function ExploreNotes() {
                 repostedNotes[note._id] || false;
 
               const likesCount =
-                note.likesCount ??
-                note.likes?.length ??
-                0;
+                Number(note.likes || 0);
 
               const savedCount =
                 note.savedCount ??
@@ -749,7 +977,8 @@ function ExploreNotes() {
                   {/* TITLE */}
 
                   <h3 className="note-card-title">
-                    {note.title || "Untitled Note"}
+                    {note.title ||
+                      "Untitled Note"}
                   </h3>
 
                   {/* PREVIEW */}
@@ -764,7 +993,8 @@ function ExploreNotes() {
 
                     <div className="author-avatar">
                       {(
-                        note.user?.name || "U"
+                        note.user?.name ||
+                        "U"
                       )
                         .charAt(0)
                         .toUpperCase()}
@@ -777,7 +1007,9 @@ function ExploreNotes() {
                       </strong>
 
                       <span>
-                        {formatDate(note.createdAt)}
+                        {formatDate(
+                          note.createdAt
+                        )}
                       </span>
                     </div>
 
@@ -798,16 +1030,13 @@ function ExploreNotes() {
                       onClick={() =>
                         handleLike(note._id)
                       }
-                      disabled={
-                        isLiked ||
-                        isButtonLoading(
-                          note._id,
-                          "like"
-                        )
-                      }
+                      disabled={isButtonLoading(
+                        note._id,
+                        "like"
+                      )}
                       title={
                         isLiked
-                          ? "Already liked"
+                          ? "Unlike note"
                           : "Like note"
                       }
                     >
@@ -816,11 +1045,31 @@ function ExploreNotes() {
                       </span>
 
                       <span className="action-text">
-                        {isLiked ? "Liked" : "Like"}
+                        {isLiked
+                          ? "Liked"
+                          : "Like"}
                       </span>
 
                       <span className="action-count">
                         {likesCount}
+                      </span>
+                    </button>
+
+                    {/* COMMENT */}
+
+                    <button
+                      className="explore-action comment-action"
+                      onClick={() =>
+                        openNote(note)
+                      }
+                      title="View comments"
+                    >
+                      <span className="action-icon">
+                        💬
+                      </span>
+
+                      <span className="action-text">
+                        Comment
                       </span>
                     </button>
 
@@ -886,7 +1135,9 @@ function ExploreNotes() {
                       </span>
 
                       <span className="action-text">
-                        {isSaved ? "Saved" : "Save"}
+                        {isSaved
+                          ? "Saved"
+                          : "Save"}
                       </span>
 
                       <span className="action-count">
@@ -903,6 +1154,13 @@ function ExploreNotes() {
                     <span>
                       👁 {note.views || 0}
                     </span>
+
+                    {note.attachments?.length > 0 && (
+                      <span>
+                        📎{" "}
+                        {note.attachments.length}
+                      </span>
+                    )}
 
                   </div>
 
@@ -944,6 +1202,8 @@ function ExploreNotes() {
             }
           >
 
+            {/* CLOSE */}
+
             <button
               className="modal-close"
               onClick={closeNote}
@@ -951,14 +1211,21 @@ function ExploreNotes() {
               ×
             </button>
 
+            {/* CATEGORY */}
+
             <div className="modal-category">
-              {selectedNote.category || "Other"}
+              {selectedNote.category ||
+                "Other"}
             </div>
+
+            {/* TITLE */}
 
             <h2>
               {selectedNote.title ||
                 "Untitled Note"}
             </h2>
+
+            {/* AUTHOR */}
 
             <div className="modal-author">
 
@@ -986,17 +1253,20 @@ function ExploreNotes() {
 
             </div>
 
+            {/* STATS */}
+
             <div className="modal-stats">
 
               <span>
-                👁 {selectedNote.views || 0} views
+                👁{" "}
+                {selectedNote.views || 0} views
               </span>
 
               <span>
                 ♥{" "}
-                {selectedNote.likesCount ??
-                  selectedNote.likes?.length ??
-                  0}{" "}
+                {Number(
+                  selectedNote.likes || 0
+                )}{" "}
                 likes
               </span>
 
@@ -1008,7 +1278,13 @@ function ExploreNotes() {
                 reposts
               </span>
 
+              <span>
+                💬 {comments.length} comments
+              </span>
+
             </div>
+
+            {/* CONTENT */}
 
             <div className="modal-content">
 
@@ -1020,18 +1296,77 @@ function ExploreNotes() {
                   }}
                 />
               ) : (
-                <p>No content available.</p>
+                <p>
+                  No content available.
+                </p>
               )}
 
             </div>
+
+            {/* ATTACHMENTS */}
+
+            {selectedNote.attachments?.length > 0 && (
+              <div className="modal-attachments">
+
+                <h3>
+                  Attachments
+                </h3>
+
+                <div className="attachment-list">
+
+                  {selectedNote.attachments.map(
+                    (attachment, index) => (
+                      <div
+                        className="attachment-item"
+                        key={
+                          attachment._id ||
+                          `${attachment.filename}-${index}`
+                        }
+                      >
+
+                        <div className="attachment-info">
+                          <span className="attachment-icon">
+                            📎
+                          </span>
+
+                          <span className="attachment-name">
+                            {attachment.originalName ||
+                              attachment.filename ||
+                              "Attachment"}
+                          </span>
+                        </div>
+
+                        <button
+                          className="attachment-download"
+                          onClick={() =>
+                            handleDownload(
+                              attachment
+                            )
+                          }
+                        >
+                          Download
+                        </button>
+
+                      </div>
+                    )
+                  )}
+
+                </div>
+
+              </div>
+            )}
 
             {/* MODAL ACTIONS */}
 
             <div className="modal-actions">
 
+              {/* LIKE */}
+
               <button
                 className={
-                  likedNotes[selectedNote._id]
+                  likedNotes[
+                    selectedNote._id
+                  ]
                     ? "modal-action modal-like active"
                     : "modal-action modal-like"
                 }
@@ -1040,15 +1375,10 @@ function ExploreNotes() {
                     selectedNote._id
                   )
                 }
-                disabled={
-                  likedNotes[
-                    selectedNote._id
-                  ] ||
-                  isButtonLoading(
-                    selectedNote._id,
-                    "like"
-                  )
-                }
+                disabled={isButtonLoading(
+                  selectedNote._id,
+                  "like"
+                )}
               >
                 <span className="modal-action-icon">
                   {likedNotes[
@@ -1061,15 +1391,17 @@ function ExploreNotes() {
                 {likedNotes[
                   selectedNote._id
                 ]
-                  ? "Liked"
+                  ? "Unlike"
                   : "Like"}
 
                 <span>
-                  {selectedNote.likesCount ??
-                    selectedNote.likes?.length ??
-                    0}
+                  {Number(
+                    selectedNote.likes || 0
+                  )}
                 </span>
               </button>
+
+              {/* REPOST */}
 
               <button
                 className={
@@ -1105,6 +1437,8 @@ function ExploreNotes() {
                     0}
                 </span>
               </button>
+
+              {/* SAVE */}
 
               <button
                 className={
@@ -1144,6 +1478,173 @@ function ExploreNotes() {
                     0}
                 </span>
               </button>
+
+              {/* SHARE */}
+
+              <button
+                className="modal-action modal-share"
+                onClick={() =>
+                  handleShare(
+                    selectedNote
+                  )
+                }
+              >
+                <span className="modal-action-icon">
+                  ↗
+                </span>
+
+                Share
+              </button>
+
+            </div>
+
+            {/* =================================================
+                COMMENTS
+            ================================================= */}
+
+            <div className="comments-section">
+
+              <div className="comments-header">
+                <h3>
+                  Comments
+                </h3>
+
+                <span>
+                  {comments.length}
+                </span>
+              </div>
+
+              {/* ADD COMMENT */}
+
+              <div className="comment-input-box">
+
+                <textarea
+                  value={commentText}
+                  onChange={(e) =>
+                    setCommentText(
+                      e.target.value
+                    )
+                  }
+                  placeholder={
+                    userId
+                      ? "Write a comment..."
+                      : "Login to write a comment..."
+                  }
+                  maxLength={1000}
+                  disabled={
+                    !userId ||
+                    commentSubmitting
+                  }
+                />
+
+                <div className="comment-input-bottom">
+
+                  <span>
+                    {commentText.length}/1000
+                  </span>
+
+                  <button
+                    onClick={
+                      handleAddComment
+                    }
+                    disabled={
+                      !userId ||
+                      !commentText.trim() ||
+                      commentSubmitting
+                    }
+                  >
+                    {commentSubmitting
+                      ? "Posting..."
+                      : "Post Comment"}
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* COMMENT LIST */}
+
+              <div className="comments-list">
+
+                {commentsLoading ? (
+                  <div className="comments-loading">
+                    Loading comments...
+                  </div>
+                ) : comments.length === 0 ? (
+                  <div className="no-comments">
+                    <span>💬</span>
+                    <p>
+                      No comments yet.
+                    </p>
+                    <small>
+                      Be the first to comment.
+                    </small>
+                  </div>
+                ) : (
+                  comments.map((comment) => {
+
+                    const commentUser =
+                      comment.user?.name ||
+                      "NoteHive User";
+
+                    const isOwnComment =
+                      String(
+                        comment.user?._id
+                      ) === String(userId);
+
+                    return (
+                      <div
+                        className="comment-item"
+                        key={comment._id}
+                      >
+
+                        <div className="comment-avatar">
+                          {commentUser
+                            .charAt(0)
+                            .toUpperCase()}
+                        </div>
+
+                        <div className="comment-body">
+
+                          <div className="comment-top">
+
+                            <strong>
+                              {commentUser}
+                            </strong>
+
+                            <span>
+                              {formatDate(
+                                comment.createdAt
+                              )}
+                            </span>
+
+                          </div>
+
+                          <p>
+                            {comment.text}
+                          </p>
+
+                          {isOwnComment && (
+                            <button
+                              className="delete-comment-btn"
+                              onClick={() =>
+                                handleDeleteComment(
+                                  comment._id
+                                )
+                              }
+                            >
+                              Delete
+                            </button>
+                          )}
+
+                        </div>
+
+                      </div>
+                    );
+                  })
+                )}
+
+              </div>
 
             </div>
 
