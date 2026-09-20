@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AdminHeader from "./AdminHeader";
 import "./AdminDashboard.css";
 
-const SERVER_URL = "http://192.168.1.68:5000";
+const SERVER_URL = "https://notehive-backend-g1pc.onrender.com";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -624,3 +624,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

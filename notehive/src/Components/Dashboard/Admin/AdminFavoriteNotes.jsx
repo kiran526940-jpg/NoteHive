@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AdminHeader from "./AdminHeader";
 import "./AdminFavoriteNotes.css";
 
-const SERVER_URL = "http://192.168.1.68:5000";
+const SERVER_URL = "https://notehive-backend-g1pc.onrender.com";
 
 const AdminFavoriteNotes = () => {
   const navigate = useNavigate();
@@ -733,3 +733,4 @@ const AdminFavoriteNotes = () => {
 };
 
 export default AdminFavoriteNotes;
+

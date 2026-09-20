@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AdminHeader from "./Dashboard/Admin/AdminHeader";
 import "./ManageNotes.css";
 
-const SERVER_URL = "http://192.168.1.68:5000";
+const SERVER_URL = "https://notehive-backend-g1pc.onrender.com";
 
 const ManageNotes = () => {
   const navigate = useNavigate();

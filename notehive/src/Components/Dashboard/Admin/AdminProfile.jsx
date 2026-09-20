@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminProfile.css";
 
-const SERVER_URL = "http://192.168.1.68:5000";
+const SERVER_URL = "https://notehive-backend-g1pc.onrender.com";
 
 function AdminProfile() {
   const navigate = useNavigate();
@@ -1465,3 +1465,4 @@ function AdminProfile() {
 }
 
 export default AdminProfile;
+

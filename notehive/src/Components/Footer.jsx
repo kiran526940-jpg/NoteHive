@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./Footer.css";
 
-const SERVER_URL = "http://192.168.1.68:5000";
+const SERVER_URL = "https://notehive-backend-g1pc.onrender.com";
 function Footer() {
   return (
     <footer className="footer">
@@ -37,3 +37,4 @@ function Footer() {
 }
 
 export default Footer;
+

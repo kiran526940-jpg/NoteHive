@@ -9,7 +9,7 @@ import "./Header.css";
 
 const SERVER_URL =
   import.meta.env.VITE_SERVER_URL ||
-  "http://192.168.1.68:5000";
+  "https://notehive-backend-g1pc.onrender.com";
 
 const API_URL = `${SERVER_URL}/api`;
 
@@ -964,3 +964,4 @@ const Header = () => {
 };
 
 export default Header;
+

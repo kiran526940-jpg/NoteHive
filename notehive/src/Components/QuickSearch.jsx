@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./QuickSearch.css";
-const API_URL = "http://192.168.1.68:5000/api";
+const API_URL = "https://notehive-backend-g1pc.onrender.com/api";
 function QuickSearch() {
   const [search, setSearch] = useState("");
 
