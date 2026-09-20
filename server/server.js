@@ -648,6 +648,12 @@ const noteSchema =
         type: Number,
         default: 0,
       },
+      ikedBy: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+],
 
       savedBy: [
         {
@@ -670,7 +676,35 @@ const noteSchema =
       timestamps: true,
     }
   );
+// ============================================================
+// COMMENT MODEL
+// ============================================================
 
+const commentSchema = new mongoose.Schema(
+  {
+    note: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Note",
+      required: true,
+    },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    text: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 1000,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 // ============================================================
 // ACTIVITY MODEL
 // ============================================================
@@ -779,7 +813,11 @@ const Note =
     "Note",
     noteSchema
   );
-
+const Comment =
+  mongoose.model(
+    "Comment",
+    commentSchema
+  );
 const Activity =
   mongoose.model(
     "Activity",
@@ -5102,8 +5140,338 @@ app.get("/api/explore/:id", async (req, res) => {
     });
   }
 });
+// ============================================================
+// EXPLORE NOTE - LIKE / UNLIKE
+// ============================================================
+
+app.patch("/api/explore/:id/like", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID.",
+      });
+    }
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid userId is required.",
+      });
+    }
+
+    const note = await Note.findOne({
+      _id: id,
+      visibility: "public",
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Public note not found.",
+      });
+    }
+
+    if (!note.likedBy) {
+      note.likedBy = [];
+    }
+
+    const alreadyLiked = note.likedBy.some(
+      (likedUserId) =>
+        likedUserId.toString() === userId.toString()
+    );
+
+    if (alreadyLiked) {
+      note.likedBy = note.likedBy.filter(
+        (likedUserId) =>
+          likedUserId.toString() !== userId.toString()
+      );
+
+      note.likes = Math.max(
+        0,
+        note.likedBy.length
+      );
+
+      await note.save();
+
+      return res.json({
+        success: true,
+        liked: false,
+        likes: note.likes,
+        message: "Note unliked.",
+      });
+    }
+
+    note.likedBy.push(userId);
+
+    note.likes = note.likedBy.length;
+
+    await note.save();
+
+    return res.json({
+      success: true,
+      liked: true,
+      likes: note.likes,
+      message: "Note liked ❤️",
+    });
+
+  } catch (error) {
+    console.error(
+      "Explore like error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to like note.",
+    });
+  }
+});
+// ============================================================
+// EXPLORE NOTE - GET COMMENTS
+// ============================================================
+
+app.get("/api/explore/:id/comments", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID.",
+      });
+    }
+
+    const note = await Note.findOne({
+      _id: id,
+      visibility: "public",
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Public note not found.",
+      });
+    }
+
+    const comments = await Comment.find({
+      note: id,
+    })
+      .populate(
+        "user",
+        "name email profileImage"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+    return res.json({
+      success: true,
+      comments,
+    });
+
+  } catch (error) {
+    console.error(
+      "Get comments error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load comments.",
+    });
+  }
+});
 
 
+// ============================================================
+// EXPLORE NOTE - ADD COMMENT
+// ============================================================
+
+app.post("/api/explore/:id/comments", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, text } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid note ID.",
+      });
+    }
+
+    if (
+      !userId ||
+      !mongoose.Types.ObjectId.isValid(userId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid userId is required.",
+      });
+    }
+
+    if (
+      !text ||
+      !String(text).trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment cannot be empty.",
+      });
+    }
+
+    const note = await Note.findOne({
+      _id: id,
+      visibility: "public",
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Public note not found.",
+      });
+    }
+
+    const user = await User.findById(
+      userId
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    const comment =
+      await Comment.create({
+        note: id,
+
+        user: userId,
+
+        text: String(
+          text
+        ).trim(),
+      });
+
+    const populatedComment =
+      await Comment.findById(
+        comment._id
+      ).populate(
+        "user",
+        "name email profileImage"
+      );
+
+    return res.status(201).json({
+      success: true,
+      message: "Comment added successfully.",
+      comment: populatedComment,
+    });
+
+  } catch (error) {
+    console.error(
+      "Add comment error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to add comment.",
+    });
+  }
+});
+
+
+// ============================================================
+// EXPLORE NOTE - DELETE COMMENT
+// ============================================================
+
+app.delete(
+  "/api/explore/comments/:commentId",
+  async (req, res) => {
+    try {
+      const { commentId } =
+        req.params;
+
+      const { userId } =
+        req.body;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          commentId
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid comment ID.",
+        });
+      }
+
+      if (
+        !userId ||
+        !mongoose.Types.ObjectId.isValid(
+          userId
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Valid userId is required.",
+        });
+      }
+
+      const comment =
+        await Comment.findById(
+          commentId
+        );
+
+      if (!comment) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Comment not found.",
+        });
+      }
+
+      if (
+        comment.user.toString() !==
+        userId.toString()
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You can delete only your own comment.",
+        });
+      }
+
+      await Comment.findByIdAndDelete(
+        commentId
+      );
+
+      return res.json({
+        success: true,
+        message:
+          "Comment deleted successfully.",
+      });
+
+    } catch (error) {
+      console.error(
+        "Delete comment error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to delete comment.",
+      });
+    }
+  }
+);
 // ============================================================
 // ADMIN STATISTICS
 // ============================================================
