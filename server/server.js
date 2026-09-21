@@ -323,56 +323,32 @@ const deleteFileIfExists =
 // PROFILE IMAGE PATH HELPER
 // ============================================================
 
-const getProfileImagePath =
-  (
-    profileImage
-  ) => {
+const getProfileImagePath = (profileImage) => {
+  if (!profileImage) {
+    return "";
+  }
 
-    if (
-      !profileImage
-    ) {
-      return "";
-    }
+  const image = String(profileImage).trim();
 
-    const image =
-      String(
-        profileImage
-      ).trim();
+  if (!image) {
+    return "";
+  }
 
-    if (!image) {
-      return "";
-    }
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://")
+  ) {
+    return image;
+  }
 
-    if (
-      image.startsWith(
-        "http://"
-      ) ||
-      image.startsWith(
-        "https://"
-      )
-    ) {
-      return image;
-    }
+  let imagePath = image;
 
-    if (
-      image.startsWith(
-        "/uploads/"
-      )
-    ) {
-      return image;
-    }
+  if (!imagePath.startsWith("/")) {
+    imagePath = `/${imagePath}`;
+  }
 
-    if (
-      image.startsWith(
-        "uploads/"
-      )
-    ) {
-      return `/${image}`;
-    }
-
-    return `/uploads/${image}`;
-  };
-
+  return `https://notehive-backend-g1pc.onrender.com${imagePath}`;
+};
 // ============================================================
 // DELETE PROFILE IMAGE FILE
 // ============================================================
