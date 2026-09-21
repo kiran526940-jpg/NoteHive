@@ -1326,3 +1326,22 @@ body {
 
   outline-offset: 2px;
 }
+/* =====================================================
+   CLICKABLE NOTIFICATIONS
+   ===================================================== */
+
+.notification-card {
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+}
+
+.notification-card:active {
+  transform: scale(0.99);
+}

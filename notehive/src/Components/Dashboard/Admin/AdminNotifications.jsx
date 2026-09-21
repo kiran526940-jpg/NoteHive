@@ -41,7 +41,78 @@ const AdminNotifications = () => {
       });
     }
   }, [navigate]);
+// =====================================================
+// NOTIFICATION CLICK
+// =====================================================
 
+const handleNotificationClick = async (notification) => {
+  try {
+    const notificationId =
+      notification?._id || notification?.id;
+
+    // -------------------------------------------------
+    // MARK AS READ
+    // -------------------------------------------------
+
+    if (notificationId) {
+      await fetch(
+        `${API_URL}/admin/notifications/${notificationId}/read`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    // -------------------------------------------------
+    // UPDATE UI
+    // -------------------------------------------------
+
+    setNotifications((previous) =>
+      previous.map((item) =>
+        String(item?._id || item?.id) ===
+        String(notificationId)
+          ? {
+              ...item,
+              isRead: true,
+            }
+          : item
+      )
+    );
+
+    // -------------------------------------------------
+    // NOTE NOTIFICATION
+    // -------------------------------------------------
+
+    if (
+      notification?.note ||
+      notification?.type === "note"
+    ) {
+      navigate("/admin-notes");
+      return;
+    }
+
+    // -------------------------------------------------
+    // USER NOTIFICATION
+    // -------------------------------------------------
+
+    if (
+      notification?.user ||
+      notification?.type === "user"
+    ) {
+      navigate("/manage-users");
+      return;
+    }
+
+  } catch (error) {
+    console.error(
+      "Notification click error:",
+      error
+    );
+  }
+};
   // =====================================================
   // FETCH NOTIFICATIONS
   // =====================================================
@@ -874,14 +945,16 @@ const AdminNotifications = () => {
 
                   return (
                     <article
-                      key={notificationId}
-                      className={`notification-card ${
-                        unread
-                          ? "unread"
-                          : ""
-                      }`}
-                    >
-
+  key={notificationId}
+  className={`notification-card ${
+    unread
+      ? "unread"
+      : ""
+  }`}
+  onClick={() =>
+    handleNotificationClick(notification)
+  }
+>
                       <div
                         className={`notification-card-icon ${type}`}
                       >
