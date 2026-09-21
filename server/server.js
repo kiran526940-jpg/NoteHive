@@ -1860,8 +1860,8 @@ app.put(
     await user.save();
 
 await createActivity(
-  "user_password_changed",
-  `${user.name} changed their password.`,
+  "user_profile_updated",
+  `${user.name} updated their profile.`,
   user._id
 );
 
