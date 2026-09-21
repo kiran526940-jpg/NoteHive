@@ -2895,7 +2895,11 @@ app.delete(
           id,
       });
 
-      await Activity.deleteMany({`r`n  userId: id,`r`n});`r`n`r`nawait User.findByIdAndDelete(id);
+      await Activity.deleteMany({
+  userId: id,
+});
+
+await User.findByIdAndDelete(id);
 
 
 return res.json({
@@ -4954,7 +4958,11 @@ console.log("?? NOTE DELETE ROUTE HIT:", id);
         id
       );
 
-      await Activity.deleteMany({`r`n  userId: id,`r`n});`r`n`r`nawait User.findByIdAndDelete(id);
+      await Activity.deleteMany({
+  userId: id,
+});
+
+await User.findByIdAndDelete(id);
 
       await createActivity(
         "note_deleted",
@@ -6951,6 +6959,7 @@ mongoose
 
 
   
+
 
 
 
