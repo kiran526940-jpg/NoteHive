@@ -1,10 +1,10 @@
-﻿// ============================================================
+// ============================================================
 // NOTEHIVE BACKEND SERVER
 // FULL UPDATED VERSION
 // ============================================================
 
 console.log(
-  "🔥🔥🔥 NOTEHIVE SERVER STARTING 🔥🔥🔥"
+  "?????? NOTEHIVE SERVER STARTING ??????"
 );
 
 const express = require("express");
@@ -62,7 +62,7 @@ if (!MONGO_URI) {
   );
 
   console.error(
-    "❌ MONGO_URI is missing in .env"
+    "? MONGO_URI is missing in .env"
   );
 
   console.error(
@@ -829,7 +829,6 @@ const Notification =
     "Notification",
     notificationSchema
   );
-
 // ============================================================
 // OBJECT ID HELPER
 // ============================================================
@@ -853,9 +852,8 @@ const normalizeEmail =
       .trim()
       .toLowerCase();
   };
-
 // ============================================================
-// ACTIVITY HELPER
+// ACTIVITY + ADMIN NOTIFICATION HELPER
 // ============================================================
 
 async function createActivity(
@@ -864,24 +862,167 @@ async function createActivity(
   userId = null,
   noteId = null
 ) {
-
   try {
-
-    await Activity.create({
+    const activity = await Activity.create({
       type,
       message,
       userId,
       noteId,
     });
 
-  } catch (
-    error
-  ) {
+    console.log("========================================");
+    console.log("? ACTIVITY CREATED");
+    console.log("?? Activity ID:", activity._id);
+    console.log("?? Type:", type);
+    console.log("?? Message:", message);
+    console.log("?? User ID:", userId);
+    console.log("?? Note ID:", noteId);
+    console.log("========================================");
 
-    console.error(
-      "Activity creation error:",
-      error.message
+    const adminNotificationTypes = [
+      "user_registered",
+      "user_login",
+      "user_updated",
+      "user_profile_updated",
+      "user_password_changed",
+
+      "note_created",
+      "note_updated",
+      "note_deleted",
+      "note_pinned",
+      "note_unpinned",
+      "note_favorited",
+      "note_unfavorited",
+
+      "comment_created",
+      "comment_added",
+      "comment_deleted",
+    ];
+
+    if (!adminNotificationTypes.includes(type)) {
+      return activity;
+    }
+
+    const admin = await User.findOne({
+      email: "admin@notehive.com",
+      role: "admin",
+    });
+
+    if (!admin) {
+      console.log("?? Admin user not found.");
+      return activity;
+    }
+
+    let title = "NoteHive Activity";
+    let notificationType = "general";
+
+    if (type === "user_registered") {
+      title = "New User Registered";
+      notificationType = "user";
+    } else if (type === "user_login") {
+      title = "User Logged In";
+      notificationType = "user";
+    } else if (
+      type === "user_updated" ||
+      type === "user_profile_updated"
+    ) {
+      title = "User Profile Updated";
+      notificationType = "user";
+    } else if (type === "user_password_changed") {
+      title = "Password Changed";
+      notificationType = "user";
+    } else if (type === "note_created") {
+      title = "New Note Created";
+      notificationType = "note";
+    } else if (type === "note_updated") {
+      title = "Note Updated";
+      notificationType = "note";
+    } else if (type === "note_deleted") {
+      title = "Note Deleted";
+      notificationType = "note";
+    } else if (
+      type === "note_pinned" ||
+      type === "note_unpinned"
+    ) {
+      title = "Note Pin Updated";
+      notificationType = "note";
+    } else if (
+      type === "note_favorited" ||
+      type === "note_unfavorited"
+    ) {
+      title = "Note Favorite Updated";
+      notificationType = "note";
+    } else if (
+      type === "comment_created" ||
+      type === "comment_added"
+    ) {
+      title = "New Comment Added";
+      notificationType = "comment";
+    } else if (type === "comment_deleted") {
+      title = "Comment Deleted";
+      notificationType = "comment";
+    }
+
+    const notification = await Notification.create({
+      user: admin._id,
+      sender: userId || null,
+      note: noteId || null,
+      type: notificationType,
+      title,
+      message,
+      isRead: false,
+    });
+
+    console.log("========================================");
+    console.log("?? ADMIN NOTIFICATION CREATED");
+    console.log("?? Notification ID:", notification._id);
+    console.log("?? Admin ID:", admin._id);
+    console.log("?? Sender ID:", userId);
+    console.log("?? Type:", notificationType);
+    console.log("??? Title:", title);
+    console.log("?? Message:", message);
+    console.log("========================================");
+
+    const populatedNotification =
+      await Notification.findById(
+        notification._id
+      )
+        .populate(
+          "user",
+          "name email profileImage"
+        )
+        .populate(
+          "sender",
+          "name email profileImage"
+        )
+        .populate(
+          "note",
+          "title"
+        )
+        .lean();
+
+    console.log(
+      "?? EMITTING ADMIN NOTIFICATION ? admin-room"
     );
+
+    io.to("admin-room").emit(
+      "admin-notification",
+      populatedNotification
+    );
+
+    console.log(
+      `? Admin notification sent: ${title} - ${message}`
+    );
+
+    return activity;
+
+  } catch (error) {
+    console.error(
+      "? Activity / Admin notification error:",
+      error
+    );
+
+    return null;
   }
 }
 // ============================================================
@@ -889,7 +1030,7 @@ async function createActivity(
 // ============================================================
 
 io.on("connection", (socket) => {
-  console.log("🟢 Socket connected:", socket.id);
+  console.log("?? Socket connected:", socket.id);
 
   // ==========================================================
   // ADMIN NOTIFICATION ROOM
@@ -899,7 +1040,7 @@ io.on("connection", (socket) => {
     socket.join("admin-room");
 
     console.log(
-      `👑 Admin joined notification room: ${socket.id}`
+      `?? Admin joined notification room: ${socket.id}`
     );
   });
 
@@ -917,7 +1058,7 @@ io.on("connection", (socket) => {
     socket.join(roomName);
 
     console.log(
-      `👤 User joined room ${roomName}: ${socket.id}`
+      `?? User joined room ${roomName}: ${socket.id}`
     );
   });
 
@@ -927,7 +1068,7 @@ io.on("connection", (socket) => {
 
   socket.on("send-message", async (data, callback) => {
     try {
-      console.log("📨 send-message received:", data);
+      console.log("?? send-message received:", data);
 
       const {
         sender,
@@ -945,7 +1086,7 @@ io.on("connection", (socket) => {
         !message?.trim()
       ) {
         console.log(
-          "❌ send-message validation failed"
+          "? send-message validation failed"
         );
 
         if (typeof callback === "function") {
@@ -964,7 +1105,7 @@ io.on("connection", (socket) => {
         !mongoose.Types.ObjectId.isValid(receiver)
       ) {
         console.log(
-          "❌ Invalid sender or receiver:",
+          "? Invalid sender or receiver:",
           sender,
           receiver
         );
@@ -993,7 +1134,7 @@ io.on("connection", (socket) => {
         });
 
       console.log(
-        "💾 Message saved:",
+        "?? Message saved:",
         newMessage._id.toString()
       );
 
@@ -1025,12 +1166,12 @@ io.on("connection", (socket) => {
         `user-${sender}`;
 
       console.log(
-        "📤 Sending to receiver room:",
+        "?? Sending to receiver room:",
         receiverRoom
       );
 
       console.log(
-        "📤 Sending to sender room:",
+        "?? Sending to sender room:",
         senderRoom
       );
 
@@ -1066,11 +1207,11 @@ io.on("connection", (socket) => {
       }
 
       console.log(
-        "✅ Real-time message delivered"
+        "? Real-time message delivered"
       );
     } catch (error) {
       console.error(
-        "❌ Socket send message error:",
+        "? Socket send message error:",
         error
       );
 
@@ -1090,7 +1231,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", (reason) => {
     console.log(
-      `🔴 Socket disconnected: ${socket.id} | ${reason}`
+      `?? Socket disconnected: ${socket.id} | ${reason}`
     );
   });
 });
@@ -1110,7 +1251,7 @@ app.get(
       success: true,
 
       message:
-        "NoteHive server is running 🚀",
+        "NoteHive server is running ??",
 
       server:
         "NoteHive Backend",
@@ -1174,11 +1315,20 @@ app.post("/api/users", async (req, res) => {
       status: "pending",
     });
 
-    await createActivity(
-      "user_registered",
-      `${user.name} created a new account.`,
-      user._id
-    );
+    console.log(
+  "?? ABOUT TO CREATE USER REGISTRATION ACTIVITY:",
+  user._id
+);
+
+await createActivity(
+  "user_registered",
+  `${user.name} created a new account.`,
+  user._id
+);
+
+console.log(
+  "? CREATE ACTIVITY FUNCTION FINISHED"
+);
 
     return res.status(201).json({
       success: true,
@@ -1199,7 +1349,7 @@ app.post("/api/users", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Signup Error:", error);
+    console.error("? Signup Error:", error);
 
     return res.status(500).json({
       success: false,
@@ -1346,7 +1496,7 @@ app.post("/api/users/login", async (req, res) => {
 
   } catch (error) {
     console.error(
-      "❌ User Login Error:",
+      "? User Login Error:",
       error
     );
 
@@ -1509,7 +1659,7 @@ app.post("/api/admin/login", async (req, res) => {
 
   } catch (error) {
     console.error(
-      "❌ Admin Login Error:",
+      "? Admin Login Error:",
       error
     );
 
@@ -1551,7 +1701,7 @@ app.put(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -1578,7 +1728,7 @@ app.put(
             success: false,
 
             message:
-              "User not found ❌",
+              "User not found ?",
           });
       }
 
@@ -1606,7 +1756,7 @@ app.put(
               success: false,
 
               message:
-                "Email cannot be empty ❌",
+                "Email cannot be empty ?",
             });
         }
 
@@ -1632,7 +1782,7 @@ app.put(
               success: false,
 
               message:
-                "Email already used by another account ❌",
+                "Email already used by another account ?",
             });
         }
 
@@ -1664,7 +1814,7 @@ app.put(
               success: false,
 
               message:
-                "Name cannot be empty ❌",
+                "Name cannot be empty ?",
             });
         }
 
@@ -1746,7 +1896,7 @@ app.put(
         success: true,
 
         message:
-          "Profile updated successfully ✅",
+          "Profile updated successfully ?",
 
         user: {
 
@@ -1807,7 +1957,7 @@ app.put(
           success: false,
 
           message:
-            "Profile update failed ❌",
+            "Profile update failed ?",
 
           error:
             error.message,
@@ -1848,7 +1998,7 @@ app.post("/api/users/login", async (req, res) => {
   } catch (error) {
 
     console.error(
-      "❌ Login Error:",
+      "? Login Error:",
       error
     );
 
@@ -2142,7 +2292,7 @@ app.get("/api/admin/reports", async (req, res) => {
       success: true,
 
       message:
-        "Admin reports fetched successfully ✅",
+        "Admin reports fetched successfully ?",
 
       overview: {
         totalUsers,
@@ -2178,7 +2328,7 @@ app.get("/api/admin/reports", async (req, res) => {
   } catch (error) {
 
     console.error(
-      "❌ Admin Reports Error:",
+      "? Admin Reports Error:",
       error
     );
 
@@ -2238,7 +2388,7 @@ app.put(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -2253,7 +2403,7 @@ app.put(
             success: false,
 
             message:
-              "Profile image is required ❌",
+              "Profile image is required ?",
           });
       }
 
@@ -2278,7 +2428,7 @@ app.put(
             success: false,
 
             message:
-              "User not found ❌",
+              "User not found ?",
           });
       }
 
@@ -2318,7 +2468,7 @@ app.put(
         success: true,
 
         message:
-          "Profile photo updated successfully ✅",
+          "Profile photo updated successfully ?",
 
         user: {
 
@@ -2379,7 +2529,7 @@ app.put(
           success: false,
 
           message:
-            "Profile photo upload failed ❌",
+            "Profile photo upload failed ?",
 
           error:
             error.message,
@@ -2418,7 +2568,7 @@ app.delete(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -2436,7 +2586,7 @@ app.delete(
             success: false,
 
             message:
-              "User not found ❌",
+              "User not found ?",
           });
       }
 
@@ -2462,7 +2612,7 @@ app.delete(
         success: true,
 
         message:
-          "Profile photo removed successfully ✅",
+          "Profile photo removed successfully ?",
 
         user: {
 
@@ -2509,7 +2659,7 @@ app.delete(
           success: false,
 
           message:
-            "Failed to remove profile photo ❌",
+            "Failed to remove profile photo ?",
 
           error:
             error.message,
@@ -2653,7 +2803,7 @@ app.delete(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -2671,7 +2821,7 @@ app.delete(
             success: false,
 
             message:
-              "User not found ❌",
+              "User not found ?",
           });
       }
 
@@ -2762,7 +2912,7 @@ app.delete(
         success: true,
 
         message:
-          "User account deleted successfully ✅",
+          "User account deleted successfully ?",
       });
 
     } catch (
@@ -2781,7 +2931,7 @@ app.delete(
           success: false,
 
           message:
-            "Failed to delete user ❌",
+            "Failed to delete user ?",
 
           error:
             error.message,
@@ -2820,7 +2970,7 @@ app.get(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -2840,7 +2990,7 @@ app.get(
             success: false,
 
             message:
-              "User not found ❌",
+              "User not found ?",
           });
       }
 
@@ -2909,7 +3059,7 @@ app.put(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -2927,7 +3077,7 @@ app.put(
             success: false,
 
             message:
-              "User not found ❌",
+              "User not found ?",
           });
       }
 
@@ -2949,7 +3099,7 @@ app.put(
         success: true,
 
         message:
-          "Settings updated successfully ✅",
+          "Settings updated successfully ?",
 
         settings: {
 
@@ -3008,7 +3158,7 @@ app.get(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -3107,7 +3257,7 @@ app.put(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -3128,7 +3278,7 @@ app.put(
               success: false,
 
               message:
-                "Invalid notification ID ❌",
+                "Invalid notification ID ?",
             });
         }
 
@@ -3170,7 +3320,7 @@ app.put(
               success: false,
 
               message:
-                "Notification not found ❌",
+                "Notification not found ?",
             });
         }
 
@@ -3179,7 +3329,7 @@ app.put(
           success: true,
 
           message:
-            "Notification updated successfully ✅",
+            "Notification updated successfully ?",
 
           notification,
         });
@@ -3209,7 +3359,7 @@ app.put(
         success: true,
 
         message:
-          "All notifications marked as read ✅",
+          "All notifications marked as read ?",
       });
 
     } catch (
@@ -3267,7 +3417,7 @@ app.get(
             success: false,
 
             message:
-              "Invalid user ID ❌",
+              "Invalid user ID ?",
           });
       }
 
@@ -3330,57 +3480,77 @@ app.get(
     }
   }
 );
-
-/// ============================================================
-// ADMIN NOTIFICATIONS
+// ============================================================
+// MARK ADMIN NOTIFICATION AS READ
 // ============================================================
 
-// GET ALL ADMIN NOTIFICATIONS
-app.get(
-  "/api/admin/notifications",
+app.patch(
+  "/api/admin/notifications/:notificationId/read",
   async (req, res) => {
+
     try {
-      const notifications =
-        await Notification.find({})
-          .populate(
-            "user",
-            "name email profileImage"
-          )
-          .populate(
-            "sender",
-            "name email profileImage"
-          )
-          .populate(
-            "note",
-            "title"
-          )
-          .sort({
-            createdAt: -1,
-          });
+
+      const {
+        notificationId,
+      } = req.params;
+
+      if (
+        !isValidObjectId(
+          notificationId
+        )
+      ) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid notification ID.",
+        });
+      }
+
+      const notification =
+        await Notification.findByIdAndUpdate(
+          notificationId,
+          {
+            isRead: true,
+          },
+          {
+            new: true,
+          }
+        );
+
+      if (!notification) {
+
+        return res.status(404).json({
+          success: false,
+          message:
+            "Notification not found.",
+        });
+      }
 
       return res.status(200).json({
         success: true,
-        notifications,
-        total: notifications.length,
+        message:
+          "Admin notification marked as read.",
+        notification,
       });
 
     } catch (error) {
+
       console.error(
-        "❌ Admin notifications fetch error:",
+        "? Admin notification read error:",
         error
       );
 
       return res.status(500).json({
         success: false,
         message:
-          "Unable to load admin notifications.",
-        error: error.message,
+          "Unable to mark notification as read.",
+        error:
+          error.message,
       });
     }
   }
 );
-
-
 // ============================================================
 // GET USER NOTIFICATIONS
 // ============================================================
@@ -3429,7 +3599,7 @@ app.get(
 
     } catch (error) {
       console.error(
-        "❌ User notifications fetch error:",
+        "? User notifications fetch error:",
         error
       );
 
@@ -3496,7 +3666,7 @@ app.patch(
 
     } catch (error) {
       console.error(
-        "❌ Mark notification read error:",
+        "? Mark notification read error:",
         error
       );
 
@@ -3551,7 +3721,7 @@ app.patch(
 
     } catch (error) {
       console.error(
-        "❌ Mark all notifications read error:",
+        "? Mark all notifications read error:",
         error
       );
 
@@ -3635,7 +3805,7 @@ app.delete(
 
     } catch (error) {
       console.error(
-        "❌ Delete notification error:",
+        "? Delete notification error:",
         error
       );
 
@@ -3682,7 +3852,7 @@ app.delete(
 
     } catch (error) {
       console.error(
-        "❌ Delete all notifications error:",
+        "? Delete all notifications error:",
         error
       );
 
@@ -3723,7 +3893,7 @@ app.get(
             success: false,
 
             message:
-              "userId is required ❌",
+              "userId is required ?",
           });
       }
 
@@ -3740,7 +3910,7 @@ app.get(
             success: false,
 
             message:
-              "Invalid userId ❌",
+              "Invalid userId ?",
           });
       }
 
@@ -3816,7 +3986,7 @@ app.get(
             success: false,
 
             message:
-              "Valid userId is required ❌",
+              "Valid userId is required ?",
           });
       }
 
@@ -3892,7 +4062,7 @@ app.get(
             success: false,
 
             message:
-              "Valid userId is required ❌",
+              "Valid userId is required ?",
           });
       }
 
@@ -3971,7 +4141,7 @@ app.get(
             success: false,
 
             message:
-              "Invalid note ID ❌",
+              "Invalid note ID ?",
           });
       }
 
@@ -3997,7 +4167,7 @@ app.get(
               success: false,
 
               message:
-                "Invalid userId ❌",
+                "Invalid userId ?",
             });
         }
 
@@ -4021,7 +4191,7 @@ app.get(
             success: false,
 
             message:
-              "Note not found ❌",
+              "Note not found ?",
           });
       }
 
@@ -4106,7 +4276,7 @@ app.post(
             success: false,
 
             message:
-              "userId is required ❌",
+              "userId is required ?",
           });
       }
 
@@ -4139,7 +4309,7 @@ app.post(
             success: false,
 
             message:
-              "Invalid userId ❌",
+              "Invalid userId ?",
           });
       }
 
@@ -4157,7 +4327,7 @@ app.post(
             success: false,
 
             message:
-              "Note title is required ❌",
+              "Note title is required ?",
           });
       }
 
@@ -4175,7 +4345,7 @@ app.post(
             success: false,
 
             message:
-              "User not found ❌",
+              "User not found ?",
           });
       }
 
@@ -4253,7 +4423,7 @@ app.post(
           success: true,
 
           message:
-            "Note created successfully ✅",
+            "Note created successfully ?",
 
           note,
         });
@@ -4345,7 +4515,7 @@ app.put(
             success: false,
 
             message:
-              "Invalid note ID ❌",
+              "Invalid note ID ?",
           });
       }
 
@@ -4363,7 +4533,7 @@ app.put(
             success: false,
 
             message:
-              "Valid userId is required ❌",
+              "Valid userId is required ?",
           });
       }
 
@@ -4387,7 +4557,7 @@ app.put(
             success: false,
 
             message:
-              "Note not found ❌",
+              "Note not found ?",
           });
       }
 
@@ -4559,7 +4729,7 @@ app.put(
         success: true,
 
         message:
-          "Note updated successfully ✅",
+          "Note updated successfully ?",
 
         note,
       });
@@ -4639,7 +4809,7 @@ app.delete(
             success: false,
 
             message:
-              "Invalid note ID ❌",
+              "Invalid note ID ?",
           });
       }
 
@@ -4657,7 +4827,7 @@ app.delete(
             success: false,
 
             message:
-              "Valid userId is required ❌",
+              "Valid userId is required ?",
           });
       }
 
@@ -4681,7 +4851,7 @@ app.delete(
             success: false,
 
             message:
-              "Note not found ❌",
+              "Note not found ?",
           });
       }
 
@@ -4741,7 +4911,7 @@ app.delete(
         success: true,
 
         message:
-          "Note deleted successfully ✅",
+          "Note deleted successfully ?",
       });
 
     } catch (
@@ -4804,7 +4974,7 @@ app.patch(
             success: false,
 
             message:
-              "Invalid note ID ❌",
+              "Invalid note ID ?",
           });
       }
 
@@ -4822,7 +4992,7 @@ app.patch(
             success: false,
 
             message:
-              "Valid userId is required ❌",
+              "Valid userId is required ?",
           });
       }
 
@@ -4846,7 +5016,7 @@ app.patch(
             success: false,
 
             message:
-              "Note not found ❌",
+              "Note not found ?",
           });
       }
 
@@ -4881,7 +5051,7 @@ app.patch(
 
         message:
           note.pinned
-            ? "Note pinned successfully 📌"
+            ? "Note pinned successfully ??"
             : "Note unpinned successfully.",
 
         note,
@@ -4947,7 +5117,7 @@ app.patch(
             success: false,
 
             message:
-              "Invalid note ID ❌",
+              "Invalid note ID ?",
           });
       }
 
@@ -4965,7 +5135,7 @@ app.patch(
             success: false,
 
             message:
-              "Valid userId is required ❌",
+              "Valid userId is required ?",
           });
       }
 
@@ -4989,7 +5159,7 @@ app.patch(
             success: false,
 
             message:
-              "Note not found ❌",
+              "Note not found ?",
           });
       }
 
@@ -5024,7 +5194,7 @@ app.patch(
 
         message:
           note.favorite
-            ? "Note added to favorites ⭐"
+            ? "Note added to favorites ?"
             : "Note removed from favorites.",
 
         note,
@@ -5215,7 +5385,7 @@ app.patch("/api/explore/:id/like", async (req, res) => {
       success: true,
       liked: true,
       likes: note.likes,
-      message: "Note liked ❤️",
+      message: "Note liked ??",
     });
 
   } catch (error) {
@@ -5728,7 +5898,7 @@ app.get("/api/admin/stats", async (req, res) => {
 
     res.json({
       success: true,
-      message: "Admin statistics fetched successfully ✅",
+      message: "Admin statistics fetched successfully ?",
       stats: {
         totalUsers,
         totalNotes,
@@ -5790,7 +5960,7 @@ app.delete("/api/admin/activity", async (req, res) => {
 
     res.json({
       success: true,
-      message: "All activity cleared successfully ✅",
+      message: "All activity cleared successfully ?",
     });
   } catch (error) {
     console.error("Delete activity error:", error);
@@ -6065,7 +6235,7 @@ app.put(
 
       res.json({
         success: true,
-        message: "Note updated successfully ✅",
+        message: "Note updated successfully ?",
         note: updatedNote,
       });
     } catch (error) {
@@ -6119,7 +6289,7 @@ app.delete("/api/admin/notes/:id", async (req, res) => {
 
     res.json({
       success: true,
-      message: "Note deleted successfully ✅",
+      message: "Note deleted successfully ?",
     });
   } catch (error) {
     console.error("Admin delete note error:", error);
@@ -6162,7 +6332,7 @@ app.patch("/api/admin/users/:id/approve", async (req, res) => {
 
     await Notification.create({
       user: user._id,
-      title: "Account Approved 🎉",
+      title: "Account Approved ??",
       message:
         "Your NoteHive account has been approved. You can now use all features.",
       type: "account_approved",
@@ -6178,7 +6348,7 @@ app.patch("/api/admin/users/:id/approve", async (req, res) => {
 
     res.json({
       success: true,
-      message: "User approved successfully ✅",
+      message: "User approved successfully ?",
       user: {
         _id: user._id,
         name: user.name,
@@ -6505,7 +6675,7 @@ app.use((error, req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: `Route ${req.method} ${req.originalUrl} not found ❌`,
+    message: `Route ${req.method} ${req.originalUrl} not found ?`,
   });
 });
 
@@ -6518,7 +6688,7 @@ mongoose
   .connect(MONGO_URI)
   .then(() => {
     console.log("====================================");
-    console.log("✅ MongoDB connected successfully");
+    console.log("? MongoDB connected successfully");
     console.log("====================================");
 
     // --------------------------------------------------------
@@ -6527,22 +6697,24 @@ mongoose
 
     httpServer.listen(PORT, "0.0.0.0", () => {
       console.log("====================================");
-      console.log(`🚀 NoteHive server running on port ${PORT}`);
+      console.log(`?? NoteHive server running on port ${PORT}`);
       console.log(
-        `🌐 Local:   http://localhost:${PORT}`
+        `?? Local:   http://localhost:${PORT}`
       );
       console.log(
-        `📱 Network: http://192.168.1.68:${PORT}`
+        `?? Network: http://192.168.1.68:${PORT}`
       );
       console.log("====================================");
     });
   })
   .catch((error) => {
     console.error("====================================");
-    console.error("❌ MongoDB connection failed");
+    console.error("? MongoDB connection failed");
     console.error(error.message);
     console.error("====================================");
   });
 
 
   
+
+
