@@ -1707,6 +1707,236 @@ app.put(
               "User not found ?",
           });
       }
+      // ========================================================
+      // EMAIL
+      // ========================================================
+
+      if (
+        email !== undefined
+      ) {
+
+        const normalizedEmail =
+          normalizeEmail(
+            email
+          );
+
+        if (
+          !normalizedEmail
+        ) {
+
+          return res
+            .status(400)
+            .json({
+
+              success: false,
+
+              message:
+                "Email cannot be empty ?",
+            });
+        }
+
+        const emailUser =
+          await User.findOne({
+
+            email:
+              normalizedEmail,
+
+            _id: {
+              $ne: id,
+            },
+          });
+
+        if (
+          emailUser
+        ) {
+
+          return res
+            .status(409)
+            .json({
+
+              success: false,
+
+              message:
+                "Email already used by another account ?",
+            });
+        }
+
+        user.email =
+          normalizedEmail;
+      }
+
+      // ========================================================
+      // NAME
+      // ========================================================
+
+      if (
+        name !== undefined
+      ) {
+
+        const cleanName =
+          String(
+            name
+          ).trim();
+
+        if (
+          !cleanName
+        ) {
+
+          return res
+            .status(400)
+            .json({
+
+              success: false,
+
+              message:
+                "Name cannot be empty ?",
+            });
+        }
+
+        user.name =
+          cleanName;
+      }
+
+      // ========================================================
+      // BIO
+      // ========================================================
+
+      if (
+        bio !== undefined
+      ) {
+
+        user.bio =
+          String(
+            bio
+          ).trim();
+      }
+
+      // ========================================================
+      // PROFESSION
+      // ========================================================
+
+      if (
+        profession !==
+        undefined
+      ) {
+
+        user.profession =
+          String(
+            profession
+          ).trim();
+      }
+
+      // ========================================================
+      // LOCATION
+      // ========================================================
+
+      if (
+        location !==
+        undefined
+      ) {
+
+        user.location =
+          String(
+            location
+          ).trim();
+      }
+
+      // ========================================================
+      // WEBSITE
+      // ========================================================
+
+      if (
+        website !==
+        undefined
+      ) {
+
+        user.website =
+          String(
+            website
+          ).trim();
+      }
+
+    await user.save();
+
+await createActivity(
+  "user_profile_updated",
+  `${user.name} updated their profile.`,
+  user._id
+);
+
+return res.json({
+        success: true,
+
+        message:
+          "Profile updated successfully ?",
+
+        user: {
+
+          id:
+            user._id,
+
+          _id:
+            user._id,
+
+          name:
+            user.name,
+
+          email:
+            user.email,
+
+          role:
+            user.role,
+
+          status:
+            user.status,
+
+          profileImage:
+            getProfileImagePath(
+              user.profileImage
+            ),
+
+          bio:
+            user.bio ||
+            "",
+
+          profession:
+            user.profession ||
+            "",
+
+          location:
+            user.location ||
+            "",
+
+          website:
+            user.website ||
+            "",
+        },
+      });
+
+    } catch (
+      error
+    ) {
+
+      console.error(
+        "Update profile error:",
+        error
+      );
+
+      return res
+        .status(500)
+        .json({
+
+          success: false,
+
+          message:
+            "Profile update failed ?",
+
+          error:
+            error.message,
+        });
+    }
+  }
+);
 // ============================================================
 // ADMIN PROFILE APIs
 // ============================================================
@@ -2163,236 +2393,7 @@ app.put(
     }
   }
 );
-      // ========================================================
-      // EMAIL
-      // ========================================================
 
-      if (
-        email !== undefined
-      ) {
-
-        const normalizedEmail =
-          normalizeEmail(
-            email
-          );
-
-        if (
-          !normalizedEmail
-        ) {
-
-          return res
-            .status(400)
-            .json({
-
-              success: false,
-
-              message:
-                "Email cannot be empty ?",
-            });
-        }
-
-        const emailUser =
-          await User.findOne({
-
-            email:
-              normalizedEmail,
-
-            _id: {
-              $ne: id,
-            },
-          });
-
-        if (
-          emailUser
-        ) {
-
-          return res
-            .status(409)
-            .json({
-
-              success: false,
-
-              message:
-                "Email already used by another account ?",
-            });
-        }
-
-        user.email =
-          normalizedEmail;
-      }
-
-      // ========================================================
-      // NAME
-      // ========================================================
-
-      if (
-        name !== undefined
-      ) {
-
-        const cleanName =
-          String(
-            name
-          ).trim();
-
-        if (
-          !cleanName
-        ) {
-
-          return res
-            .status(400)
-            .json({
-
-              success: false,
-
-              message:
-                "Name cannot be empty ?",
-            });
-        }
-
-        user.name =
-          cleanName;
-      }
-
-      // ========================================================
-      // BIO
-      // ========================================================
-
-      if (
-        bio !== undefined
-      ) {
-
-        user.bio =
-          String(
-            bio
-          ).trim();
-      }
-
-      // ========================================================
-      // PROFESSION
-      // ========================================================
-
-      if (
-        profession !==
-        undefined
-      ) {
-
-        user.profession =
-          String(
-            profession
-          ).trim();
-      }
-
-      // ========================================================
-      // LOCATION
-      // ========================================================
-
-      if (
-        location !==
-        undefined
-      ) {
-
-        user.location =
-          String(
-            location
-          ).trim();
-      }
-
-      // ========================================================
-      // WEBSITE
-      // ========================================================
-
-      if (
-        website !==
-        undefined
-      ) {
-
-        user.website =
-          String(
-            website
-          ).trim();
-      }
-
-    await user.save();
-
-await createActivity(
-  "user_profile_updated",
-  `${user.name} updated their profile.`,
-  user._id
-);
-
-return res.json({
-        success: true,
-
-        message:
-          "Profile updated successfully ?",
-
-        user: {
-
-          id:
-            user._id,
-
-          _id:
-            user._id,
-
-          name:
-            user.name,
-
-          email:
-            user.email,
-
-          role:
-            user.role,
-
-          status:
-            user.status,
-
-          profileImage:
-            getProfileImagePath(
-              user.profileImage
-            ),
-
-          bio:
-            user.bio ||
-            "",
-
-          profession:
-            user.profession ||
-            "",
-
-          location:
-            user.location ||
-            "",
-
-          website:
-            user.website ||
-            "",
-        },
-      });
-
-    } catch (
-      error
-    ) {
-
-      console.error(
-        "Update profile error:",
-        error
-      );
-
-      return res
-        .status(500)
-        .json({
-
-          success: false,
-
-          message:
-            "Profile update failed ?",
-
-          error:
-            error.message,
-        });
-    }
-  }
-);
 // ============================================================
 // USER LOGIN
 // ============================================================
@@ -7329,6 +7330,7 @@ mongoose
 
 
   
+
 
 
 
