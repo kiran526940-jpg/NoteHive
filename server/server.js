@@ -3481,6 +3481,68 @@ app.get(
   }
 );
 // ============================================================
+// GET ADMIN NOTIFICATIONS
+// ============================================================
+
+app.get(
+  "/api/admin/notifications",
+  async (req, res) => {
+    try {
+      const admin = await User.findOne({
+        email: "admin@notehive.com",
+        role: "admin",
+      });
+
+      if (!admin) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin user not found.",
+        });
+      }
+
+      const notifications =
+        await Notification.find({
+          user: admin._id,
+        })
+          .populate(
+            "user",
+            "name email profileImage"
+          )
+          .populate(
+            "sender",
+            "name email profileImage"
+          )
+          .populate(
+            "note",
+            "title"
+          )
+          .sort({
+            createdAt: -1,
+          })
+          .lean();
+
+      return res.status(200).json({
+        success: true,
+        notifications,
+      });
+
+    } catch (error) {
+      console.error(
+        "? Get Admin Notifications Error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to load admin notifications.",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// ============================================================
+// ============================================================
 // MARK ADMIN NOTIFICATION AS READ
 // ============================================================
 
@@ -6716,5 +6778,6 @@ mongoose
 
 
   
+
 
 
