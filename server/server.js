@@ -1707,7 +1707,462 @@ app.put(
               "User not found ?",
           });
       }
+// ============================================================
+// ADMIN PROFILE APIs
+// ============================================================
 
+
+// ============================================================
+// GET ADMIN PROFILE
+// ============================================================
+
+app.get(
+  "/api/admin/profile/:id",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid admin ID.",
+        });
+      }
+
+      const admin = await User.findOne({
+        _id: id,
+        role: "admin",
+      }).select("-password");
+
+      if (!admin) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin not found.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        admin: {
+          _id: admin._id,
+          name: admin.name || "",
+          email: admin.email || "",
+          role: admin.role || "admin",
+          status: admin.status || "approved",
+
+          profileImage: admin.profileImage
+            ? getProfileImagePath(
+                admin.profileImage
+              )
+            : "",
+
+          bio: admin.bio || "",
+          profession: admin.profession || "",
+          location: admin.location || "",
+          website: admin.website || "",
+
+          createdAt: admin.createdAt || null,
+          updatedAt: admin.updatedAt || null,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "❌ GET ADMIN PROFILE ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to fetch admin profile.",
+        error: error.message,
+      });
+    }
+  }
+);
+
+
+// ============================================================
+// UPDATE ADMIN PROFILE
+// ============================================================
+
+app.put(
+  "/api/admin/profile/:id",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const {
+        name,
+        email,
+        bio,
+        profession,
+        location,
+        website,
+      } = req.body;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid admin ID.",
+        });
+      }
+
+      const admin = await User.findOne({
+        _id: id,
+        role: "admin",
+      });
+
+      if (!admin) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin not found.",
+        });
+      }
+
+      if (!name || !String(name).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Name is required.",
+        });
+      }
+
+      if (!email || !String(email).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is required.",
+        });
+      }
+
+      const existingEmail =
+        await User.findOne({
+          email: String(email)
+            .trim()
+            .toLowerCase(),
+          _id: { $ne: id },
+        });
+
+      if (existingEmail) {
+        return res.status(409).json({
+          success: false,
+          message: "Email is already in use.",
+        });
+      }
+
+      admin.name = String(name).trim();
+
+      admin.email = String(email)
+        .trim()
+        .toLowerCase();
+
+      admin.bio = bio
+        ? String(bio).trim()
+        : "";
+
+      admin.profession = profession
+        ? String(profession).trim()
+        : "";
+
+      admin.location = location
+        ? String(location).trim()
+        : "";
+
+      admin.website = website
+        ? String(website).trim()
+        : "";
+
+      await admin.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Admin profile updated successfully.",
+
+        admin: {
+          _id: admin._id,
+          name: admin.name || "",
+          email: admin.email || "",
+          role: admin.role || "admin",
+          status: admin.status || "approved",
+
+          profileImage: admin.profileImage
+            ? getProfileImagePath(
+                admin.profileImage
+              )
+            : "",
+
+          bio: admin.bio || "",
+          profession: admin.profession || "",
+          location: admin.location || "",
+          website: admin.website || "",
+
+          createdAt: admin.createdAt || null,
+          updatedAt: admin.updatedAt || null,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "❌ UPDATE ADMIN PROFILE ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to update admin profile.",
+        error: error.message,
+      });
+    }
+  }
+);
+
+
+// ============================================================
+// UPLOAD ADMIN PROFILE PHOTO
+// ============================================================
+
+app.put(
+  "/api/admin/profile/:id/photo",
+  profileUpload.single("profileImage"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid admin ID.",
+        });
+      }
+
+      const admin = await User.findOne({
+        _id: id,
+        role: "admin",
+      });
+
+      if (!admin) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin not found.",
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "Please select a profile image.",
+        });
+      }
+
+      const oldProfileImage =
+        admin.profileImage;
+
+      admin.profileImage =
+        `/uploads/${req.file.filename}`;
+
+      await admin.save();
+
+      if (
+        oldProfileImage &&
+        oldProfileImage !== admin.profileImage
+      ) {
+        deleteProfileImageFile(
+          oldProfileImage
+        );
+      }
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Admin profile photo updated successfully.",
+
+        admin: {
+          _id: admin._id,
+          name: admin.name || "",
+          email: admin.email || "",
+
+          profileImage:
+            getProfileImagePath(
+              admin.profileImage
+            ),
+        },
+      });
+    } catch (error) {
+      console.error(
+        "❌ ADMIN PROFILE PHOTO ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to update admin profile photo.",
+        error: error.message,
+      });
+    }
+  }
+);
+
+
+// ============================================================
+// DELETE ADMIN PROFILE PHOTO
+// ============================================================
+
+app.delete(
+  "/api/admin/profile/:id/photo",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid admin ID.",
+        });
+      }
+
+      const admin = await User.findOne({
+        _id: id,
+        role: "admin",
+      });
+
+      if (!admin) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin not found.",
+        });
+      }
+
+      const oldProfileImage =
+        admin.profileImage;
+
+      admin.profileImage = "";
+
+      await admin.save();
+
+      if (oldProfileImage) {
+        deleteProfileImageFile(
+          oldProfileImage
+        );
+      }
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Admin profile photo removed successfully.",
+
+        admin: {
+          _id: admin._id,
+          name: admin.name || "",
+          email: admin.email || "",
+          profileImage: "",
+        },
+      });
+    } catch (error) {
+      console.error(
+        "❌ DELETE ADMIN PROFILE PHOTO ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to remove admin profile photo.",
+        error: error.message,
+      });
+    }
+  }
+);
+
+
+// ============================================================
+// CHANGE ADMIN PASSWORD
+// ============================================================
+
+app.put(
+  "/api/admin/profile/:id/password",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const {
+        currentPassword,
+        newPassword,
+      } = req.body;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid admin ID.",
+        });
+      }
+
+      if (
+        !currentPassword ||
+        !newPassword
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Current password and new password are required.",
+        });
+      }
+
+      const admin = await User.findOne({
+        _id: id,
+        role: "admin",
+      });
+
+      if (!admin) {
+        return res.status(404).json({
+          success: false,
+          message: "Admin not found.",
+        });
+      }
+
+      if (
+        admin.password !==
+        currentPassword
+      ) {
+        return res.status(401).json({
+          success: false,
+          message:
+            "Current password is incorrect.",
+        });
+      }
+
+      if (
+        String(newPassword).length < 6
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "New password must be at least 6 characters.",
+        });
+      }
+
+      admin.password =
+        newPassword;
+
+      await admin.save();
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Admin password changed successfully.",
+      });
+    } catch (error) {
+      console.error(
+        "❌ ADMIN PASSWORD ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Unable to change admin password.",
+        error: error.message,
+      });
+    }
+  }
+);
       // ========================================================
       // EMAIL
       // ========================================================
