@@ -4958,7 +4958,7 @@ app.delete(
           }
         );
       }
-
+console.log("🔥 NOTE DELETE ROUTE HIT:", id);
       await Note.findByIdAndDelete(
         id
       );
