@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // NOTEHIVE BACKEND SERVER
 // FULL UPDATED VERSION
 // ============================================================
@@ -2895,10 +2895,7 @@ app.delete(
           id,
       });
 
-      await Activity.deleteMany({
-  noteId:
-    id,
-});
+      await Activity.deleteMany({`r`n  userId: id,`r`n});`r`n`r`nawait User.findByIdAndDelete(id);
 
 
 return res.json({
@@ -4952,15 +4949,12 @@ app.delete(
           }
         );
       }
-console.log("🔥 NOTE DELETE ROUTE HIT:", id);
+console.log("?? NOTE DELETE ROUTE HIT:", id);
       await Note.findByIdAndDelete(
         id
       );
 
-      await Activity.deleteMany({
-        noteId:
-          id,
-      });
+      await Activity.deleteMany({`r`n  userId: id,`r`n});`r`n`r`nawait User.findByIdAndDelete(id);
 
       await createActivity(
         "note_deleted",
@@ -6398,7 +6392,7 @@ app.get(
       const { id } = req.params;
 
       console.log(
-        "👤 ADMIN USER DETAILS API CALLED:",
+        "?? ADMIN USER DETAILS API CALLED:",
         id
       );
 
@@ -6409,7 +6403,7 @@ app.get(
       if (!isValidObjectId(id)) {
         return res.status(400).json({
           success: false,
-          message: "Invalid user ID ❌",
+          message: "Invalid user ID ?",
         });
       }
 
@@ -6425,7 +6419,7 @@ app.get(
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: "User not found ❌",
+          message: "User not found ?",
         });
       }
 
@@ -6486,7 +6480,7 @@ app.get(
         success: true,
 
         message:
-          "User details fetched successfully ✅",
+          "User details fetched successfully ?",
 
         user: {
           _id: user._id,
@@ -6528,7 +6522,7 @@ app.get(
       });
     } catch (error) {
       console.error(
-        "❌ ADMIN USER DETAILS ERROR:",
+        "? ADMIN USER DETAILS ERROR:",
         error
       );
 
@@ -6536,7 +6530,7 @@ app.get(
         success: false,
 
         message:
-          "Unable to fetch user details ❌",
+          "Unable to fetch user details ?",
 
         error: error.message,
       });
@@ -6957,6 +6951,7 @@ mongoose
 
 
   
+
 
 
 
