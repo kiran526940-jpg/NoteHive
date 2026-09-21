@@ -1,38 +1,42 @@
-
 /* =========================================================
    NOTEHIVE ADMIN HEADER
-   Premium • Clean • Responsive • Glass UI
    ========================================================= */
-
-* {
-  box-sizing: border-box;
-}
 
 .admin-header {
   width: 100%;
-  min-height: 76px;
-  position: relative;
+  height: 70px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+
+  box-shadow:
+    0 4px 20px rgba(15, 23, 42, 0.06);
+
+  position: sticky;
+  top: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.94);
-  border-bottom: 1px solid rgba(99, 102, 241, 0.12);
-  box-shadow: 0 4px 24px rgba(79, 70, 229, 0.07);
+
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
 
+/* =========================================================
+   HEADER INNER
+   ========================================================= */
+
 .admin-header-inner {
   width: 100%;
-  max-width: 1500px;
-  min-height: 76px;
-  margin: 0 auto;
+  height: 100%;
+
   padding: 0 28px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-}
 
+  box-sizing: border-box;
+}
 
 /* =========================================================
    BRAND
@@ -41,74 +45,95 @@
 .admin-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+
+  gap: 11px;
+
   cursor: pointer;
+
   user-select: none;
-  flex-shrink: 0;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
+.admin-brand:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
 .admin-logo {
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
+
+  border-radius: 13px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 14px;
-  font-size: 25px;
-
-  background: linear-gradient(
-    135deg,
-    #eef2ff,
-    #f5f3ff
-  );
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff 0%,
+      #e0e7ff 50%,
+      #f5f3ff 100%
+    );
 
   border: 1px solid rgba(99, 102, 241, 0.15);
 
   box-shadow:
-    0 6px 18px rgba(99, 102, 241, 0.12);
+    0 5px 14px rgba(99, 102, 241, 0.12);
 
-  transition: transform 0.25s ease;
+  font-size: 22px;
+
+  flex-shrink: 0;
 }
 
-.admin-brand:hover .admin-logo {
-  transform: translateY(-2px) rotate(-3deg);
-}
+/* =========================================================
+   BRAND TEXT
+   ========================================================= */
 
 .admin-brand-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+
+  justify-content: center;
+
+  min-width: 0;
 }
 
 .admin-brand-text h1 {
   margin: 0;
 
-  font-size: 21px;
+  font-size: 19px;
+  line-height: 22px;
+
   font-weight: 800;
-  letter-spacing: -0.4px;
 
-  background: linear-gradient(
-    135deg,
-    #4f46e5,
-    #7c3aed
-  );
+  color: #111827;
 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.3px;
 }
 
 .admin-brand-text span {
-  margin-top: 4px;
+  margin-top: 1px;
 
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 14px;
+
   font-weight: 600;
-  color: #8b8fa8;
-  letter-spacing: 0.3px;
-}
 
+  color: #64748b;
+
+  letter-spacing: 0.4px;
+
+  text-transform: uppercase;
+}
 
 /* =========================================================
    HEADER ACTIONS
@@ -117,66 +142,90 @@
 .admin-header-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+
   gap: 10px;
-  position: relative;
+
+  height: 100%;
 }
 
-
 /* =========================================================
-   QUICK ACTIONS BUTTON
+   QUICK ACTIONS WRAPPER
    ========================================================= */
 
 .admin-quick-actions-wrapper {
   position: relative;
 }
 
+/* =========================================================
+   QUICK ACTION BUTTON
+   ========================================================= */
+
 .admin-quick-actions-button {
-  height: 44px;
+  height: 40px;
+
   padding: 0 14px;
 
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 
-  border: 1px solid rgba(99, 102, 241, 0.13);
-  border-radius: 13px;
+  gap: 7px;
 
-  background: rgba(248, 250, 255, 0.9);
-  color: #4f46e5;
+  border: 1px solid #e2e8f0;
+
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #334155;
 
   font-family: inherit;
+
   font-size: 13px;
+
   font-weight: 700;
 
   cursor: pointer;
 
   transition:
-    background 0.25s ease,
-    border-color 0.25s ease,
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-.admin-quick-actions-button:hover,
-.admin-quick-actions-button.active {
-  background: linear-gradient(
-    135deg,
-    #eef2ff,
-    #f5f3ff
-  );
+.admin-quick-actions-button:hover {
+  background: #f8fafc;
 
-  border-color: rgba(99, 102, 241, 0.25);
+  border-color: #cbd5e1;
 
   box-shadow:
-    0 7px 20px rgba(79, 70, 229, 0.10);
+    0 5px 14px rgba(15, 23, 42, 0.07);
 
   transform: translateY(-1px);
 }
 
+.admin-quick-actions-button.active {
+  background: #f8faff;
+
+  border-color: #c7d2fe;
+
+  color: #4f46e5;
+
+  box-shadow:
+    0 5px 16px rgba(79, 70, 229, 0.1);
+}
+
+/* =========================================================
+   QUICK ACTION ICON
+   ========================================================= */
+
 .quick-actions-icon {
   font-size: 16px;
-  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .quick-actions-text {
@@ -184,45 +233,46 @@
 }
 
 .quick-actions-arrow {
-  margin-left: 2px;
   font-size: 9px;
-  opacity: 0.7;
+
+  margin-left: 1px;
+
+  opacity: 0.65;
 }
 
-
 /* =========================================================
-   QUICK ACTIONS DROPDOWN
+   QUICK ACTION MENU
    ========================================================= */
 
 .admin-quick-actions-menu {
   position: absolute;
 
-  top: calc(100% + 12px);
+  top: calc(100% + 10px);
   right: 0;
 
-  width: 330px;
+  width: 285px;
 
-  padding: 15px;
+  background: #ffffff;
 
-  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid #e2e8f0;
 
-  border: 1px solid rgba(99, 102, 241, 0.12);
-  border-radius: 20px;
+  border-radius: 16px;
 
   box-shadow:
-    0 18px 55px rgba(30, 41, 90, 0.16),
-    0 4px 15px rgba(79, 70, 229, 0.08);
+    0 18px 45px rgba(15, 23, 42, 0.14),
+    0 4px 12px rgba(15, 23, 42, 0.05);
 
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  overflow: hidden;
 
-  animation: quickActionsOpen 0.2s ease-out;
+  animation: quickActionsOpen 0.18s ease-out;
+
+  z-index: 1100;
 }
 
 @keyframes quickActionsOpen {
   from {
     opacity: 0;
-    transform: translateY(-7px) scale(0.98);
+    transform: translateY(-6px) scale(0.98);
   }
 
   to {
@@ -231,20 +281,30 @@
   }
 }
 
-
 /* =========================================================
-   QUICK ACTIONS HEADING
+   QUICK ACTION HEADING
    ========================================================= */
 
 .quick-actions-heading {
-  padding: 5px 7px 13px;
+  padding: 17px 18px 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8faff,
+      #ffffff
+    );
+
+  border-bottom: 1px solid #eef2f7;
 }
 
 .quick-actions-heading strong {
   display: block;
 
-  color: #252641;
-  font-size: 15px;
+  color: #111827;
+
+  font-size: 14px;
+
   font-weight: 800;
 }
 
@@ -253,91 +313,86 @@
 
   margin-top: 3px;
 
-  color: #9295aa;
+  color: #64748b;
+
   font-size: 11px;
+
   font-weight: 500;
 }
-
 
 /* =========================================================
    QUICK ACTION LIST
    ========================================================= */
 
 .quick-actions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+  padding: 7px;
 }
+
+/* =========================================================
+   QUICK ACTION ITEM
+   ========================================================= */
 
 .quick-action-item {
   width: 100%;
-  min-height: 62px;
 
-  padding: 9px 10px;
+  min-height: 52px;
+
+  padding: 8px 10px;
 
   display: flex;
   align-items: center;
-  gap: 12px;
 
-  border: 1px solid transparent;
-  border-radius: 14px;
+  gap: 11px;
 
-  background: #fafbff;
+  background: transparent;
 
-  cursor: pointer;
-  text-align: left;
+  border: none;
+
+  border-radius: 11px;
+
+  color: #1e293b;
 
   font-family: inherit;
 
+  text-align: left;
+
+  cursor: pointer;
+
   transition:
-    background 0.22s ease,
-    border-color 0.22s ease,
-    transform 0.22s ease,
-    box-shadow 0.22s ease;
+    background 0.18s ease,
+    transform 0.18s ease;
 }
 
 .quick-action-item:hover {
-  background: linear-gradient(
-    135deg,
-    #f1f3ff,
-    #f8f4ff
-  );
+  background: #f8fafc;
 
-  border-color: rgba(99, 102, 241, 0.13);
-
-  transform: translateX(3px);
-
-  box-shadow:
-    0 6px 18px rgba(79, 70, 229, 0.07);
+  transform: translateX(2px);
 }
 
-
 /* =========================================================
-   QUICK ACTION ICON
+   QUICK ACTION ITEM ICON
    ========================================================= */
 
 .quick-action-icon {
-  width: 43px;
-  height: 43px;
+  width: 36px;
+  height: 36px;
 
-  flex-shrink: 0;
+  border-radius: 10px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 12px;
+  background: #f1f5f9;
 
-  background: white;
+  font-size: 17px;
 
-  border: 1px solid rgba(99, 102, 241, 0.10);
-
-  font-size: 20px;
-
-  box-shadow:
-    0 4px 12px rgba(30, 41, 90, 0.06);
+  flex-shrink: 0;
 }
 
+.quick-action-item:hover .quick-action-icon {
+  background: #eef2ff;
+}
 
 /* =========================================================
    QUICK ACTION CONTENT
@@ -345,267 +400,376 @@
 
 .quick-action-content {
   flex: 1;
+
   min-width: 0;
 }
 
 .quick-action-content strong {
   display: block;
 
-  color: #303247;
+  color: #334155;
 
-  font-size: 13px;
-  font-weight: 750;
+  font-size: 12px;
 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 700;
 }
-
 
 /* =========================================================
    QUICK ACTION ARROW
    ========================================================= */
 
 .quick-action-arrow {
-  width: 28px;
-  height: 28px;
+  color: #94a3b8;
 
-  flex-shrink: 0;
+  font-size: 17px;
+
+  transition:
+    transform 0.18s ease,
+    color 0.18s ease;
+}
+
+.quick-action-item:hover .quick-action-arrow {
+  color: #6366f1;
+
+  transform: translateX(2px);
+}
+
+/* =========================================================
+   COMMON ICON BUTTON
+   ========================================================= */
+
+.admin-icon-button {
+  width: 40px;
+  height: 40px;
+
+  padding: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 9px;
+  position: relative;
 
-  background: white;
+  background: #ffffff;
 
-  color: #6366f1;
+  border: 1px solid #e2e8f0;
 
-  font-size: 17px;
-  font-weight: 700;
+  border-radius: 11px;
+
+  color: #334155;
+
+  cursor: pointer;
+
+  font-family: inherit;
 
   transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-.quick-action-item:hover .quick-action-arrow {
-  transform: translateX(3px);
+.admin-icon-button:hover {
+  background: #f8fafc;
 
-  background: #eef2ff;
+  border-color: #cbd5e1;
+
+  box-shadow:
+    0 5px 14px rgba(15, 23, 42, 0.07);
+
+  transform: translateY(-1px);
 }
 
+.admin-icon-button:active {
+  transform: translateY(0);
+}
 
 /* =========================================================
    NOTIFICATION BUTTON
    ========================================================= */
 
-.admin-icon-button {
-  width: 44px;
-  height: 44px;
-
+.admin-notification-button {
   position: relative;
+
+  overflow: visible;
+}
+
+/* =========================================================
+   BELL
+   ========================================================= */
+
+.admin-bell-icon {
+  width: 100%;
+  height: 100%;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(99, 102, 241, 0.12);
-  border-radius: 13px;
+  font-size: 20px;
 
-  background: rgba(248, 250, 255, 0.9);
-
-  font-size: 18px;
-
-  cursor: pointer;
+  line-height: 1;
 
   transition:
-    background 0.25s ease,
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+    transform 0.2s ease;
 }
 
-.admin-icon-button:hover {
-  background: #f0f2ff;
-
-  transform: translateY(-1px);
-
-  box-shadow:
-    0 7px 18px rgba(79, 70, 229, 0.10);
+.admin-notification-button:hover
+.admin-bell-icon {
+  transform: scale(1.08);
 }
 
-.admin-notification-dot {
+/* =========================================================
+   NOTIFICATION COUNT BADGE
+   ========================================================= */
+
+.admin-notification-count {
   position: absolute;
 
-  top: 8px;
-  right: 8px;
+  top: -6px;
+  right: -6px;
 
-  width: 7px;
-  height: 7px;
+  min-width: 20px;
+  height: 20px;
 
-  border-radius: 50%;
+  padding: 0 5px;
 
-  background: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  border: 2px solid white;
+  box-sizing: border-box;
+
+  background: #ff3b30;
+
+  color: #ffffff;
+
+  border: 2px solid #ffffff;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  white-space: nowrap;
+
+  z-index: 50;
+
+  box-shadow:
+    0 3px 9px rgba(255, 59, 48, 0.35);
+
+  animation:
+    notificationCountPop 0.25s ease-out;
 }
 
+/* =========================================================
+   NOTIFICATION BADGE ANIMATION
+   ========================================================= */
+
+@keyframes notificationCountPop {
+  0% {
+    opacity: 0;
+
+    transform: scale(0.4);
+  }
+
+  65% {
+    opacity: 1;
+
+    transform: scale(1.15);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform: scale(1);
+  }
+}
 
 /* =========================================================
    ADMIN PROFILE BUTTON
    ========================================================= */
 
 .admin-profile-button {
-  min-height: 48px;
+  min-height: 42px;
 
-  padding: 5px 9px 5px 5px;
+  padding: 4px 9px 4px 5px;
 
   display: flex;
   align-items: center;
+
   gap: 9px;
 
-  border: 1px solid rgba(99, 102, 241, 0.10);
-  border-radius: 14px;
+  background: #ffffff;
 
-  background: rgba(248, 250, 255, 0.75);
+  border: 1px solid #e2e8f0;
+
+  border-radius: 12px;
+
+  font-family: inherit;
 
   cursor: pointer;
 
-  font-family: inherit;
-  text-align: left;
-
   transition:
-    background 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .admin-profile-button:hover {
-  background: #f4f5ff;
+  background: #f8fafc;
 
-  border-color: rgba(99, 102, 241, 0.18);
+  border-color: #cbd5e1;
 
   box-shadow:
-    0 6px 18px rgba(79, 70, 229, 0.08);
+    0 5px 14px rgba(15, 23, 42, 0.06);
+
+  transform: translateY(-1px);
 }
 
-.admin-avatar {
-  width: 37px;
-  height: 37px;
+/* =========================================================
+   ADMIN AVATAR
+   ========================================================= */
 
-  flex-shrink: 0;
+.admin-avatar {
+  width: 32px;
+  height: 32px;
+
+  border-radius: 10px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 11px;
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #8b5cf6
+    );
 
-  background: linear-gradient(
-    135deg,
-    #6366f1,
-    #8b5cf6
-  );
+  color: #ffffff;
 
-  color: white;
+  font-size: 13px;
 
-  font-size: 15px;
   font-weight: 800;
 
   box-shadow:
-    0 5px 13px rgba(99, 102, 241, 0.22);
+    0 4px 10px rgba(99, 102, 241, 0.25);
+
+  flex-shrink: 0;
 }
+
+/* =========================================================
+   PROFILE INFO
+   ========================================================= */
 
 .admin-profile-info {
   display: flex;
   flex-direction: column;
 
+  align-items: flex-start;
+
   min-width: 75px;
 }
 
 .admin-profile-info strong {
-  color: #292b40;
+  max-width: 100px;
 
-  font-size: 12px;
-  font-weight: 800;
-
-  white-space: nowrap;
   overflow: hidden;
+
   text-overflow: ellipsis;
 
-  max-width: 120px;
+  white-space: nowrap;
+
+  color: #1e293b;
+
+  font-size: 12px;
+
+  font-weight: 750;
 }
 
 .admin-profile-info span {
-  margin-top: 3px;
+  margin-top: 1px;
 
-  color: #9295aa;
+  color: #94a3b8;
 
-  font-size: 10px;
+  font-size: 9px;
+
   font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.3px;
 }
 
-
 /* =========================================================
-   LOGOUT
+   LOGOUT BUTTON
    ========================================================= */
 
 .admin-logout-button {
-  min-height: 44px;
+  height: 40px;
 
-  padding: 0 13px;
+  padding: 0 12px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
 
-  border: 1px solid rgba(239, 68, 68, 0.12);
-  border-radius: 13px;
+  gap: 6px;
 
-  background: #fff7f7;
+  background: #ffffff;
 
-  color: #dc2626;
+  border: 1px solid #e2e8f0;
+
+  border-radius: 11px;
+
+  color: #475569;
 
   font-family: inherit;
 
   font-size: 12px;
-  font-weight: 750;
+
+  font-weight: 700;
 
   cursor: pointer;
 
   transition:
-    background 0.25s ease,
-    border-color 0.25s ease,
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .admin-logout-button:hover {
-  background: #fff0f0;
+  background: #fff7f7;
 
-  border-color: rgba(239, 68, 68, 0.22);
+  border-color: #fecaca;
 
-  transform: translateY(-1px);
+  color: #dc2626;
 
   box-shadow:
-    0 7px 18px rgba(239, 68, 68, 0.09);
+    0 5px 14px rgba(220, 38, 38, 0.08);
+
+  transform: translateY(-1px);
 }
 
 .admin-logout-button span:first-child {
-  font-size: 16px;
+  font-size: 15px;
 }
-
 
 /* =========================================================
    TABLET
    ========================================================= */
 
-@media (max-width: 1050px) {
-
+@media (max-width: 1000px) {
   .admin-header-inner {
-    padding: 0 20px;
+    padding: 0 18px;
   }
 
   .admin-profile-info {
@@ -613,45 +777,48 @@
   }
 
   .admin-profile-button {
-    padding: 5px;
+    width: 42px;
+
+    padding: 4px;
+
+    justify-content: center;
   }
 
-  .admin-logout-button {
-    width: 44px;
-    padding: 0;
-  }
-
-  .logout-text {
+  .admin-quick-actions-text {
     display: none;
   }
-}
 
+  .quick-actions-text {
+    display: none;
+  }
+
+  .admin-quick-actions-button {
+    width: 40px;
+
+    padding: 0;
+  }
+}
 
 /* =========================================================
    MOBILE
    ========================================================= */
 
 @media (max-width: 700px) {
-
   .admin-header {
-    min-height: 66px;
+    height: 62px;
   }
 
   .admin-header-inner {
-    min-height: 66px;
-
-    padding: 0 13px;
-
-    gap: 8px;
+    padding: 0 12px;
   }
 
   .admin-logo {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
 
-    border-radius: 12px;
+    border-radius: 10px;
 
-    font-size: 22px;
+    font-size: 19px;
   }
 
   .admin-brand {
@@ -659,124 +826,103 @@
   }
 
   .admin-brand-text h1 {
-    font-size: 18px;
+    font-size: 16px;
+
+    line-height: 19px;
   }
 
   .admin-brand-text span {
-    font-size: 9px;
+    font-size: 8px;
+
+    line-height: 11px;
   }
 
   .admin-header-actions {
     gap: 6px;
   }
 
-  .admin-quick-actions-button {
-    width: 42px;
-    height: 42px;
+  .admin-quick-actions-button,
+  .admin-icon-button,
+  .admin-logout-button {
+    width: 36px;
+    height: 36px;
 
     padding: 0;
-
-    justify-content: center;
-
-    border-radius: 12px;
-  }
-
-  .quick-actions-text,
-  .admin-quick-actions-button .quick-actions-arrow {
-    display: none;
-  }
-
-  .quick-actions-icon {
-    font-size: 17px;
-  }
-
-  .admin-icon-button {
-    width: 42px;
-    height: 42px;
-
-    border-radius: 12px;
-  }
-
-  .admin-profile-button {
-    width: 42px;
-    height: 42px;
-
-    min-height: 42px;
-
-    border-radius: 12px;
-  }
-
-  .admin-avatar {
-    width: 34px;
-    height: 34px;
 
     border-radius: 10px;
   }
 
-  .admin-logout-button {
-    width: 42px;
-    height: 42px;
-
-    min-height: 42px;
-
-    border-radius: 12px;
+  .quick-actions-icon {
+    font-size: 15px;
   }
 
-  /* Mobile Quick Actions */
+  .admin-bell-icon {
+    font-size: 18px;
+  }
+
+  .admin-notification-count {
+    top: -5px;
+    right: -5px;
+
+    min-width: 18px;
+    height: 18px;
+
+    padding: 0 4px;
+
+    font-size: 9px;
+
+    border-width: 2px;
+  }
+
+  .admin-profile-button {
+    width: 36px;
+    height: 36px;
+
+    min-height: 36px;
+
+    padding: 2px;
+
+    border-radius: 10px;
+  }
+
+  .admin-avatar {
+    width: 30px;
+    height: 30px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+  }
+
+  .logout-text {
+    display: none;
+  }
+
+  .admin-logout-button span:first-child {
+    font-size: 14px;
+  }
+
+  /* QUICK ACTION MENU */
 
   .admin-quick-actions-menu {
     position: fixed;
 
-    top: 72px;
-    left: 12px;
-    right: 12px;
+    top: 68px;
 
-    width: auto;
+    right: 10px;
 
-    padding: 13px;
-
-    border-radius: 18px;
-  }
-
-  .quick-actions-heading {
-    padding: 4px 6px 11px;
-  }
-
-  .quick-actions-heading strong {
-    font-size: 14px;
-  }
-
-  .quick-actions-heading span {
-    font-size: 10px;
-  }
-
-  .quick-action-item {
-    min-height: 58px;
-
-    border-radius: 13px;
-  }
-
-  .quick-action-icon {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 11px;
-
-    font-size: 18px;
-  }
-
-  .quick-action-content strong {
-    font-size: 12px;
+    width: min(
+      285px,
+      calc(100vw - 20px)
+    );
   }
 }
 
-
 /* =========================================================
-   SMALL PHONES
+   VERY SMALL MOBILE
    ========================================================= */
 
 @media (max-width: 430px) {
-
   .admin-header-inner {
     padding: 0 9px;
   }
@@ -791,87 +937,51 @@
 
   .admin-quick-actions-button,
   .admin-icon-button,
-  .admin-profile-button,
   .admin-logout-button {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .admin-profile-button {
+    width: 34px;
+    height: 34px;
   }
 
   .admin-avatar {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
 
-  .admin-notification-dot {
-    top: 7px;
-    right: 7px;
-  }
+  .admin-notification-count {
+    top: -5px;
+    right: -5px;
 
-  .admin-quick-actions-menu {
-    top: 67px;
-    left: 9px;
-    right: 9px;
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 3px;
+
+    font-size: 8px;
   }
 }
 
-
 /* =========================================================
-   VERY SMALL PHONES
+   ACCESSIBILITY / REDUCED MOTION
    ========================================================= */
 
-@media (max-width: 350px) {
-
-  .admin-header-inner {
-    padding: 0 7px;
-  }
-
-  .admin-header-actions {
-    gap: 3px;
-  }
-
-  .admin-quick-actions-button,
+@media (prefers-reduced-motion: reduce) {
+  .admin-brand,
   .admin-icon-button,
   .admin-profile-button,
-  .admin-logout-button {
-    width: 37px;
-    height: 37px;
+  .admin-logout-button,
+  .admin-quick-actions-button,
+  .quick-action-item,
+  .admin-bell-icon {
+    transition: none;
   }
 
-  .admin-logo {
-    width: 37px;
-    height: 37px;
-
-    font-size: 20px;
+  .admin-quick-actions-menu,
+  .admin-notification-count {
+    animation: none;
   }
-
-  .admin-avatar {
-    width: 29px;
-    height: 29px;
-  }
-}
-
-
-/* =========================================================
-   ACCESSIBILITY
-   ========================================================= */
-
-.admin-quick-actions-button:focus-visible,
-.admin-icon-button:focus-visible,
-.admin-profile-button:focus-visible,
-.admin-logout-button:focus-visible,
-.quick-action-item:focus-visible {
-  outline: 3px solid rgba(99, 102, 241, 0.20);
-  outline-offset: 2px;
-}
-
-
-/* =========================================================
-   NO HORIZONTAL SCROLL
-   ========================================================= */
-
-html,
-body,
-#root {
-  max-width: 100%;
-  overflow-x: hidden;
 }

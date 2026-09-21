@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import "./AdminHeader.css";
@@ -24,7 +23,7 @@ const AdminHeader = () => {
   // FETCH UNREAD NOTIFICATION COUNT
   // =====================================================
 
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     try {
       const response = await fetch(
         `${API_URL}/admin/notifications`
@@ -53,19 +52,51 @@ const AdminHeader = () => {
       setUnreadCount(unread);
     } catch (error) {
       console.error(
-        "❌ Unable to fetch notification count:",
+        "❌ Notification count error:",
         error
       );
     }
-  };
+  }, []);
 
   // =====================================================
-  // INITIAL COUNT + REAL-TIME SOCKET
+  // INITIAL COUNT
   // =====================================================
 
   useEffect(() => {
     fetchUnreadCount();
+  }, [fetchUnreadCount]);
 
+  // =====================================================
+  // NOTIFICATION READ EVENT
+  // =====================================================
+
+  useEffect(() => {
+    const handleNotificationUpdate = () => {
+      console.log(
+        "🔄 Notification count update received"
+      );
+
+      fetchUnreadCount();
+    };
+
+    window.addEventListener(
+      "notehive-notifications-updated",
+      handleNotificationUpdate
+    );
+
+    return () => {
+      window.removeEventListener(
+        "notehive-notifications-updated",
+        handleNotificationUpdate
+      );
+    };
+  }, [fetchUnreadCount]);
+
+  // =====================================================
+  // REAL-TIME SOCKET
+  // =====================================================
+
+  useEffect(() => {
     console.log(
       "🟡 Starting admin header notification socket..."
     );
@@ -85,17 +116,17 @@ const AdminHeader = () => {
       );
 
       socket.emit("join-admin");
-    });
 
-    // ===================================================
-    // NEW NOTIFICATION
-    // ===================================================
+      console.log(
+        "👑 Admin header joined admin-room"
+      );
+    });
 
     socket.on(
       "admin-notification",
       (newNotification) => {
         console.log(
-          "🔔 Header received new notification:",
+          "🔔 New admin notification:",
           newNotification
         );
 
@@ -108,18 +139,31 @@ const AdminHeader = () => {
           newNotification?.isRead === false;
 
         if (isUnread) {
-          setUnreadCount((previous) => previous + 1);
+          setUnreadCount(
+            (previousCount) =>
+              previousCount + 1
+          );
         }
       }
     );
 
-    // ===================================================
-    // CLEANUP
-    // ===================================================
+    socket.on("disconnect", (reason) => {
+      console.log(
+        "🔴 Admin header socket disconnected:",
+        reason
+      );
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error(
+        "❌ Admin header socket error:",
+        error.message
+      );
+    });
 
     return () => {
       console.log(
-        "🧹 Cleaning up admin header notification socket..."
+        "🧹 Cleaning admin header socket..."
       );
 
       socket.removeAllListeners();
@@ -170,14 +214,6 @@ const AdminHeader = () => {
   const handleQuickAction = (path) => {
     setShowQuickActions(false);
     navigate(path);
-  };
-
-  // =====================================================
-  // NOTIFICATIONS
-  // =====================================================
-
-  const handleNotifications = () => {
-    navigate("/admin/notifications");
   };
 
   // =====================================================
@@ -300,14 +336,16 @@ const AdminHeader = () => {
           <button
             type="button"
             className="admin-icon-button admin-notification-button"
-            onClick={handleNotifications}
+            onClick={() =>
+              navigate("/admin/notifications")
+            }
             aria-label="Notifications"
           >
             <span className="admin-bell-icon">
               🔔
             </span>
 
-            {/* ================= UNREAD COUNT ================= */}
+            {/* RED COUNT BADGE */}
 
             {unreadCount > 0 && (
               <span className="admin-notification-count">
