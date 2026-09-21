@@ -1,4 +1,4 @@
-const SERVER_URL =
+export const SERVER_URL =
   "https://notehive-backend-g1pc.onrender.com";
 
 export const API_URL =
