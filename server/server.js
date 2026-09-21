@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // NOTEHIVE BACKEND SERVER
 // FULL UPDATED VERSION
 // ============================================================
@@ -1881,18 +1881,15 @@ app.put(
           ).trim();
       }
 
-      await user.save();
+    await user.save();
 
-      await createActivity(
-        "user_updated",
+await createActivity(
+  "user_password_changed",
+  `${user.name} changed their password.`,
+  user._id
+);
 
-        `${user.name} updated profile.`,
-
-        user._id
-      );
-
-      return res.json({
-
+return res.json({
         success: true,
 
         message:
@@ -2899,15 +2896,18 @@ app.delete(
       });
 
       await Activity.deleteMany({
-        userId:
-          id,
-      });
+  noteId:
+    id,
+});
 
-      await User.findByIdAndDelete(
-        id
-      );
+await createActivity(
+  "note_deleted",
+  `${note.title} was deleted.`,
+  userId,
+  id
+);
 
-      return res.json({
+return res.json({
 
         success: true,
 
@@ -5794,7 +5794,18 @@ app.post("/api/explore/:id/comments", async (req, res) => {
           text
         ).trim(),
       });
-
+    await createActivity(
+      "comment_created",
+      `${user.name} added a comment on "${note.title}".`,
+      userId,
+      id
+    );
+await createActivity(
+  "comment_created",
+  `${user.name} added a comment on "${note.title}".`,
+  userId,
+  id
+);
     const populatedComment =
       await Comment.findById(
         comment._id
@@ -5886,11 +5897,23 @@ app.delete(
         });
       }
 
-      await Comment.findByIdAndDelete(
-        commentId
-      );
+     await Comment.findByIdAndDelete(
+  commentId
+);
+await createActivity(
+  "comment_deleted",
+  `A user deleted their comment.`,
+  userId,
+  comment.note
+);
+await createActivity(
+  "comment_deleted",
+  `${userId} deleted a comment.`,
+  userId,
+  comment.note
+);
 
-      return res.json({
+return res.json({
         success: true,
         message:
           "Comment deleted successfully.",
@@ -6778,6 +6801,10 @@ mongoose
 
 
   
+
+
+
+
 
 
 
