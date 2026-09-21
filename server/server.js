@@ -2900,12 +2900,6 @@ app.delete(
     id,
 });
 
-await createActivity(
-  "note_deleted",
-  `${note.title} was deleted.`,
-  userId,
-  id
-);
 
 return res.json({
 
@@ -4967,6 +4961,13 @@ console.log("🔥 NOTE DELETE ROUTE HIT:", id);
         noteId:
           id,
       });
+
+      await createActivity(
+        "note_deleted",
+        `${note.title} was deleted.`,
+        userId,
+        id
+      );
 
       return res.json({
 
