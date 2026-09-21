@@ -6387,7 +6387,162 @@ app.delete("/api/admin/notes/:id", async (req, res) => {
   }
 });
 
+// ============================================================
+// ADMIN - GET SINGLE USER FULL DETAILS
+// ============================================================
 
+app.get(
+  "/api/admin/users/:id/details",
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      console.log(
+        "👤 ADMIN USER DETAILS API CALLED:",
+        id
+      );
+
+      // --------------------------------------------------------
+      // VALIDATE USER ID
+      // --------------------------------------------------------
+
+      if (!isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid user ID ❌",
+        });
+      }
+
+      // --------------------------------------------------------
+      // FIND USER
+      // --------------------------------------------------------
+
+      const user = await User.findOne({
+        _id: id,
+        role: "user",
+      }).select("-password");
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found ❌",
+        });
+      }
+
+      // --------------------------------------------------------
+      // USER NOTE STATISTICS
+      // --------------------------------------------------------
+
+      const [
+        totalNotes,
+        pinnedNotes,
+        favoriteNotes,
+        completedNotes,
+      ] = await Promise.all([
+        Note.countDocuments({
+          user: user._id,
+        }),
+
+        Note.countDocuments({
+          user: user._id,
+          pinned: true,
+        }),
+
+        Note.countDocuments({
+          user: user._id,
+          favorite: true,
+        }),
+
+        Note.countDocuments({
+          user: user._id,
+          completed: true,
+        }),
+      ]);
+
+      // --------------------------------------------------------
+      // PROFILE IMAGE
+      // --------------------------------------------------------
+
+      let profileImage = user.profileImage || "";
+
+      if (
+        profileImage &&
+        !profileImage.startsWith("http://") &&
+        !profileImage.startsWith("https://") &&
+        !profileImage.startsWith("data:image")
+      ) {
+        if (!profileImage.startsWith("/")) {
+          profileImage = `/${profileImage}`;
+        }
+
+        profileImage = `${SERVER_URL}${profileImage}`;
+      }
+
+      // --------------------------------------------------------
+      // RESPONSE
+      // --------------------------------------------------------
+
+      return res.status(200).json({
+        success: true,
+
+        message:
+          "User details fetched successfully ✅",
+
+        user: {
+          _id: user._id,
+          name: user.name || "",
+          email: user.email || "",
+
+          profileImage,
+
+          bio: user.bio || "",
+
+          profession:
+            user.profession || "",
+
+          location:
+            user.location || "",
+
+          website:
+            user.website || "",
+
+          role:
+            user.role || "user",
+
+          status:
+            user.status || "approved",
+
+          createdAt:
+            user.createdAt || null,
+
+          updatedAt:
+            user.updatedAt || null,
+        },
+
+        stats: {
+          totalNotes,
+          pinnedNotes,
+          favoriteNotes,
+          completedNotes,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "❌ ADMIN USER DETAILS ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+
+        message:
+          "Unable to fetch user details ❌",
+
+        error: error.message,
+      });
+    }
+  }
+);
 // ============================================================
 // ADMIN - APPROVE USER
 // ============================================================
