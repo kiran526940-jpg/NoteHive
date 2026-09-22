@@ -1601,7 +1601,30 @@ const Chat = () => {
                     const value =
                       event.target.value;
 
-                    setMessageText(value);
+  
+  setMessageText(value);
+
+  console.log("⌨️ TYPING EMIT", {
+    sender: currentUserId,
+    receiver: selectedUser?._id,
+    connected: socketRef.current?.connected,
+  });
+
+  if (
+    !selectedUser?._id ||
+    !currentUserId ||
+    !socketRef.current ||
+    !socketRef.current.connected
+  ) {
+    return;
+  }
+
+  socketRef.current.emit("typing-start", {
+    sender: currentUserId,
+    receiver: selectedUser._id,
+  });
+
+  // baaki tumhara existing code...
 
                     if (
                       !selectedUser?._id ||
