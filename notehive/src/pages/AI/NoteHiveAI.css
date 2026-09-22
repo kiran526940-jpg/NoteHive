@@ -1,0 +1,454 @@
+/* ============================================================
+   NOTEHIVE AI
+   ============================================================ */
+
+.notehive-ai-page {
+  min-height: calc(100vh - 70px);
+  padding: 24px;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(99, 102, 241, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(236, 72, 153, 0.14),
+      transparent 30%
+    ),
+    #f5f7ff;
+  box-sizing: border-box;
+}
+
+.notehive-ai-container {
+  width: min(1100px, 100%);
+  height: calc(100vh - 118px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 26px;
+  box-shadow:
+    0 20px 60px rgba(60, 72, 120, 0.14),
+    0 4px 18px rgba(60, 72, 120, 0.08);
+  backdrop-filter: blur(20px);
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.notehive-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(79, 70, 229, 0.95),
+    rgba(124, 58, 237, 0.94),
+    rgba(219, 39, 119, 0.9)
+  );
+  color: white;
+}
+
+.notehive-ai-icon {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  font-size: 28px;
+  backdrop-filter: blur(10px);
+}
+
+.notehive-ai-header h1 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+}
+
+.notehive-ai-header p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  opacity: 0.86;
+}
+
+/* ============================================================
+   CHAT AREA
+   ============================================================ */
+
+.notehive-ai-chat {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 28px;
+  scroll-behavior: smooth;
+}
+
+.notehive-ai-chat::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notehive-ai-chat::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.25);
+  border-radius: 10px;
+}
+
+/* ============================================================
+   WELCOME
+   ============================================================ */
+
+.notehive-ai-welcome {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.welcome-bee {
+  width: 78px;
+  height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.2),
+    rgba(245, 158, 11, 0.12)
+  );
+  font-size: 43px;
+  box-shadow: 0 12px 35px rgba(245, 158, 11, 0.14);
+}
+
+.notehive-ai-welcome h2 {
+  margin: 0;
+  color: #20233a;
+  font-size: 27px;
+  font-weight: 750;
+}
+
+.notehive-ai-welcome p {
+  max-width: 560px;
+  margin: 10px auto 24px;
+  color: #747991;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* ============================================================
+   SUGGESTIONS
+   ============================================================ */
+
+.ai-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 720px;
+}
+
+.ai-suggestions button {
+  padding: 11px 16px;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.75);
+  color: #555a77;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.ai-suggestions button:hover {
+  transform: translateY(-2px);
+  background: white;
+  box-shadow: 0 8px 24px rgba(70, 80, 130, 0.12);
+}
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
+
+.ai-message {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  animation: aiMessageIn 0.25s ease;
+}
+
+.ai-user-message {
+  justify-content: flex-end;
+}
+
+.ai-assistant-message {
+  justify-content: flex-start;
+}
+
+.message-avatar {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  font-size: 20px;
+}
+
+.message-bubble {
+  max-width: min(720px, 78%);
+  padding: 12px 15px;
+  border-radius: 17px;
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ai-user-message .message-bubble {
+  color: white;
+  background: linear-gradient(
+    135deg,
+    #4f46e5,
+    #7c3aed
+  );
+  border-bottom-right-radius: 5px;
+  box-shadow: 0 7px 22px rgba(79, 70, 229, 0.2);
+}
+
+.ai-assistant-message .message-bubble {
+  color: #42465e;
+  background: white;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-bottom-left-radius: 5px;
+  box-shadow: 0 6px 20px rgba(60, 72, 120, 0.07);
+}
+
+/* ============================================================
+   TYPING
+   ============================================================ */
+
+.ai-typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 52px;
+}
+
+.ai-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  animation: typingDot 1.2s infinite ease-in-out;
+}
+
+.ai-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.ai-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+
+.notehive-ai-input-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 15px 18px;
+  margin: 0 18px;
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 25px rgba(60, 72, 120, 0.08);
+}
+
+.notehive-ai-input-area textarea {
+  flex: 1;
+  min-height: 24px;
+  max-height: 120px;
+  resize: none;
+  padding: 5px 3px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #30334a;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.notehive-ai-input-area textarea::placeholder {
+  color: #a1a5b8;
+}
+
+.ai-send-button {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 13px;
+  background: linear-gradient(
+    135deg,
+    #4f46e5,
+    #7c3aed
+  );
+  color: white;
+  font-size: 19px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.ai-send-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+
+.ai-send-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   DISCLAIMER
+   ============================================================ */
+
+.ai-disclaimer {
+  padding: 9px 20px 13px;
+  text-align: center;
+  color: #a1a5b8;
+  font-size: 10px;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes aiMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typingDot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .notehive-ai-page {
+    min-height: calc(100vh - 60px);
+    padding: 10px;
+  }
+
+  .notehive-ai-container {
+    height: calc(100vh - 80px);
+    border-radius: 20px;
+  }
+
+  .notehive-ai-header {
+    padding: 15px;
+  }
+
+  .notehive-ai-icon {
+    width: 43px;
+    height: 43px;
+    border-radius: 13px;
+    font-size: 24px;
+  }
+
+  .notehive-ai-header h1 {
+    font-size: 18px;
+  }
+
+  .notehive-ai-header p {
+    font-size: 11px;
+  }
+
+  .notehive-ai-chat {
+    padding: 18px 13px;
+  }
+
+  .notehive-ai-welcome h2 {
+    font-size: 22px;
+  }
+
+  .notehive-ai-welcome p {
+    font-size: 13px;
+  }
+
+  .welcome-bee {
+    width: 65px;
+    height: 65px;
+    font-size: 36px;
+  }
+
+  .ai-suggestions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ai-suggestions button {
+    width: 100%;
+  }
+
+  .message-bubble {
+    max-width: 82%;
+    font-size: 13px;
+  }
+
+  .notehive-ai-input-area {
+    margin: 0 10px;
+    padding: 11px 12px;
+    border-radius: 17px;
+  }
+
+  .ai-send-button {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    border-radius: 11px;
+  }
+}

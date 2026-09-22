@@ -200,34 +200,44 @@ const Settings = () => {
   // ============================================================
 
   const applyTheme = (selectedTheme) => {
-    setTheme(selectedTheme);
+  setTheme(selectedTheme);
 
-    try {
-      const oldSettings = JSON.parse(
-        localStorage.getItem("notehive_settings") || "{}"
-      );
-
-      localStorage.setItem(
-        "notehive_settings",
-        JSON.stringify({
-          ...oldSettings,
-          theme: selectedTheme,
-        })
-      );
-    } catch (error) {
-      console.error("Theme storage error:", error);
-    }
-
-    document.body.classList.remove(
-      "theme-light",
-      "theme-dark",
-      "theme-system"
+  try {
+    const oldSettings = JSON.parse(
+      localStorage.getItem("notehive_settings") || "{}"
     );
 
-    document.body.classList.add(
-      `theme-${selectedTheme}`
+    const updatedSettings = {
+      ...oldSettings,
+      theme: selectedTheme,
+    };
+
+    localStorage.setItem(
+      "notehive_settings",
+      JSON.stringify(updatedSettings)
     );
-  };
+
+    // Tell ThemeManager immediately
+    window.dispatchEvent(
+      new Event("notehive-theme-change")
+    );
+  } catch (error) {
+    console.error(
+      "Theme storage error:",
+      error
+    );
+  }
+
+  document.body.classList.remove(
+    "theme-light",
+    "theme-dark",
+    "theme-system"
+  );
+
+  document.body.classList.add(
+    `theme-${selectedTheme}`
+  );
+};
 
   const loadTheme = () => {
     try {
