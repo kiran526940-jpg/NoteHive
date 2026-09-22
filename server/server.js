@@ -1094,7 +1094,51 @@ io.on("connection", (socket) => {
       );
     }
   });
+// ==========================================================
+// CHAT - TYPING INDICATOR
+// ==========================================================
 
+socket.on("typing-start", (data) => {
+  try {
+    const { sender, receiver } = data || {};
+
+    if (!sender || !receiver) {
+      return;
+    }
+
+    io.to(`user-${receiver}`).emit("user-typing", {
+      sender,
+      receiver,
+      isTyping: true,
+    });
+  } catch (error) {
+    console.error(
+      "❌ Typing start error:",
+      error
+    );
+  }
+});
+
+socket.on("typing-stop", (data) => {
+  try {
+    const { sender, receiver } = data || {};
+
+    if (!sender || !receiver) {
+      return;
+    }
+
+    io.to(`user-${receiver}`).emit("user-typing", {
+      sender,
+      receiver,
+      isTyping: false,
+    });
+  } catch (error) {
+    console.error(
+      "❌ Typing stop error:",
+      error
+    );
+  }
+});
   // ==========================================================
   // CHAT - REAL-TIME MESSAGE
   // ==========================================================

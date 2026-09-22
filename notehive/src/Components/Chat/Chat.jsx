@@ -1,4 +1,3 @@
-
 import React, {
   useEffect,
   useMemo,
@@ -28,9 +27,7 @@ const Chat = () => {
   // ============================================================
 
   const [selectedUser, setSelectedUser] = useState(null);
-
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
-
   const [messages, setMessages] = useState([]);
 
   // ============================================================
@@ -44,7 +41,6 @@ const Chat = () => {
   // ============================================================
 
   const [loadingUsers, setLoadingUsers] = useState(true);
-
   const [loadingMessages, setLoadingMessages] = useState(false);
 
   // ============================================================
@@ -56,6 +52,21 @@ const Chat = () => {
   const socketRef = useRef(null);
 
   const messagesEndRef = useRef(null);
+
+  // ============================================================
+  // ONLINE / OFFLINE STATUS
+  // ============================================================
+
+  const [onlineUsers, setOnlineUsers] = useState({});
+
+  // ============================================================
+  // TYPING INDICATOR
+  // ============================================================
+
+  const [isOtherUserTyping, setIsOtherUserTyping] =
+    useState(false);
+
+  const typingTimeoutRef = useRef(null);
 
   // ============================================================
   // UNREAD COUNTS
@@ -86,7 +97,8 @@ const Chat = () => {
   // ============================================================
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem("notehive_userId");
+    const storedUserId =
+      localStorage.getItem("notehive_userId");
 
     if (storedUserId) {
       setCurrentUserId(storedUserId);
@@ -152,7 +164,8 @@ const Chat = () => {
 
   const totalUnreadCount = useMemo(() => {
     return Object.values(unreadCounts).reduce(
-      (total, count) => total + Number(count || 0),
+      (total, count) =>
+        total + Number(count || 0),
       0
     );
   }, [unreadCounts]);
@@ -163,13 +176,103 @@ const Chat = () => {
 
   useEffect(() => {
     window.dispatchEvent(
-      new CustomEvent("notehive-chat-unread-change", {
-        detail: {
-          count: totalUnreadCount,
-        },
-      })
+      new CustomEvent(
+        "notehive-chat-unread-change",
+        {
+          detail: {
+            count: totalUnreadCount,
+          },
+        }
+      )
     );
   }, [totalUnreadCount]);
+
+  // ============================================================
+  // FORMAT LAST SEEN
+  // ============================================================
+
+  const formatLastSeen = (date) => {
+    if (!date) {
+      return "Offline";
+    }
+
+    const lastSeenDate = new Date(date);
+
+    if (Number.isNaN(lastSeenDate.getTime())) {
+      return "Offline";
+    }
+
+    const now = new Date();
+
+    const difference =
+      now.getTime() -
+      lastSeenDate.getTime();
+
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+
+    if (difference < minute) {
+      return "Last seen just now";
+    }
+
+    if (difference < hour) {
+      const minutes = Math.floor(
+        difference / minute
+      );
+
+      return `Last seen ${minutes} ${
+        minutes === 1
+          ? "minute"
+          : "minutes"
+      } ago`;
+    }
+
+    if (difference < day) {
+      const hours = Math.floor(
+        difference / hour
+      );
+
+      return `Last seen ${hours} ${
+        hours === 1
+          ? "hour"
+          : "hours"
+      } ago`;
+    }
+
+    return `Last seen ${lastSeenDate.toLocaleDateString(
+      [],
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    )}`;
+  };
+
+  // ============================================================
+  // GET USER STATUS
+  // ============================================================
+
+  const getUserStatus = (user) => {
+    if (!user?._id) {
+      return {
+        isOnline: false,
+        lastSeen: null,
+      };
+    }
+
+    const userId = String(user._id);
+
+    if (onlineUsers[userId]) {
+      return onlineUsers[userId];
+    }
+
+    return {
+      isOnline: Boolean(user.isOnline),
+      lastSeen: user.lastSeen || null,
+    };
+  };
 
   // ============================================================
   // SHOW MESSAGE POPUP
@@ -180,7 +283,8 @@ const Chat = () => {
       return;
     }
 
-    const sender = newMessage.sender || {};
+    const sender =
+      newMessage.sender || {};
 
     const senderId = String(
       sender._id ||
@@ -205,12 +309,15 @@ const Chat = () => {
     });
 
     if (popupTimerRef.current) {
-      clearTimeout(popupTimerRef.current);
+      clearTimeout(
+        popupTimerRef.current
+      );
     }
 
-    popupTimerRef.current = setTimeout(() => {
-      setMessagePopup(null);
-    }, 4500);
+    popupTimerRef.current =
+      setTimeout(() => {
+        setMessagePopup(null);
+      }, 4500);
   };
 
   // ============================================================
@@ -221,7 +328,10 @@ const Chat = () => {
     setMessagePopup(null);
 
     if (popupTimerRef.current) {
-      clearTimeout(popupTimerRef.current);
+      clearTimeout(
+        popupTimerRef.current
+      );
+
       popupTimerRef.current = null;
     }
   };
@@ -244,19 +354,19 @@ const Chat = () => {
 
     if (sender) {
       setSelectedUser(sender);
-
-      // Mobile popup se chat open
       setMobileChatOpen(true);
 
-      setUnreadCounts((previousCounts) => {
-        const updated = {
-          ...previousCounts,
-        };
+      setUnreadCounts(
+        (previousCounts) => {
+          const updated = {
+            ...previousCounts,
+          };
 
-        delete updated[sender._id];
+          delete updated[sender._id];
 
-        return updated;
-      });
+          return updated;
+        }
+      );
     }
 
     closeMessagePopup();
@@ -272,7 +382,10 @@ const Chat = () => {
     }
 
     const socket = io(SERVER_URL, {
-      transports: ["polling", "websocket"],
+      transports: [
+        "polling",
+        "websocket",
+      ],
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
@@ -297,40 +410,120 @@ const Chat = () => {
         "join-user",
         currentUserId
       );
+
+      console.log(
+        "👤 Chat joined user room:",
+        `user-${currentUserId}`
+      );
     });
 
     // ==========================================================
     // DISCONNECT
     // ==========================================================
 
-    socket.on("disconnect", (reason) => {
-      console.log(
-        "🔴 Chat socket disconnected:",
-        reason
-      );
+    socket.on(
+      "disconnect",
+      (reason) => {
+        console.log(
+          "🔴 Chat socket disconnected:",
+          reason
+        );
 
-      setSocketConnected(false);
-    });
+        setSocketConnected(false);
+      }
+    );
+
+    // ==========================================================
+    // USER ONLINE / OFFLINE STATUS
+    // ==========================================================
+
+    const handleUserStatusChanged =
+      (data) => {
+        console.log(
+          "📡 USER STATUS EVENT:",
+          data
+        );
+
+        if (!data?.userId) {
+          return;
+        }
+
+        const userId = String(
+          data.userId
+        );
+
+        setOnlineUsers(
+          (previousUsers) => ({
+            ...previousUsers,
+            [userId]: {
+              isOnline: Boolean(
+                data.isOnline
+              ),
+              lastSeen:
+                data.lastSeen ||
+                null,
+            },
+          })
+        );
+      };
+
+    socket.on(
+      "user-status-changed",
+      handleUserStatusChanged
+    );
+
+    // ==========================================================
+    // USER TYPING
+    // ==========================================================
+
+    const handleUserTyping = (data) => {
+      if (!data?.sender) {
+        return;
+      }
+
+      const openUser =
+        selectedUserRef.current;
+
+      if (!openUser?._id) {
+        return;
+      }
+
+      if (
+        String(data.sender) ===
+        String(openUser._id)
+      ) {
+        setIsOtherUserTyping(
+          Boolean(data.isTyping)
+        );
+      }
+    };
+
+    socket.on(
+      "user-typing",
+      handleUserTyping
+    );
 
     // ==========================================================
     // CONNECTION ERROR
     // ==========================================================
 
-    socket.on("connect_error", (error) => {
-      console.error(
-        "❌ Chat socket error:",
-        error.message
-      );
+    socket.on(
+      "connect_error",
+      (error) => {
+        console.error(
+          "❌ Chat socket error:",
+          error.message
+        );
 
-      setSocketConnected(false);
-    });
+        setSocketConnected(false);
+      }
+    );
 
     // ==========================================================
     // RECEIVE MESSAGE
     // ==========================================================
 
-    socket.on(
-      "receive-message",
+    const handleReceiveMessage =
       (newMessage) => {
         if (!newMessage) {
           return;
@@ -365,7 +558,9 @@ const Chat = () => {
                 previousMessages.some(
                   (item) =>
                     String(item._id) ===
-                    String(newMessage._id)
+                    String(
+                      newMessage._id
+                    )
                 );
 
               if (exists) {
@@ -378,6 +573,9 @@ const Chat = () => {
               ];
             }
           );
+
+          // Stop typing indicator
+          setIsOtherUserTyping(false);
 
           fetch(
             `${SERVER_URL}/api/messages/${currentUserId}/${senderId}/read`,
@@ -402,8 +600,9 @@ const Chat = () => {
           (previousCounts) => {
             const currentCount =
               Number(
-                previousCounts[senderId] ||
-                  0
+                previousCounts[
+                  senderId
+                ] || 0
               );
 
             return {
@@ -434,15 +633,18 @@ const Chat = () => {
             }
           )
         );
-      }
+      };
+
+    socket.on(
+      "receive-message",
+      handleReceiveMessage
     );
 
     // ==========================================================
     // MESSAGE SENT
     // ==========================================================
 
-    socket.on(
-      "message-sent",
+    const handleMessageSent =
       (newMessage) => {
         if (!newMessage) {
           return;
@@ -454,7 +656,9 @@ const Chat = () => {
               previousMessages.some(
                 (item) =>
                   String(item._id) ===
-                  String(newMessage._id)
+                  String(
+                    newMessage._id
+                  )
               );
 
             if (exists) {
@@ -467,7 +671,11 @@ const Chat = () => {
             ];
           }
         );
-      }
+      };
+
+    socket.on(
+      "message-sent",
+      handleMessageSent
     );
 
     // ==========================================================
@@ -479,7 +687,47 @@ const Chat = () => {
         clearTimeout(
           popupTimerRef.current
         );
+
+        popupTimerRef.current = null;
       }
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(
+          typingTimeoutRef.current
+        );
+
+        typingTimeoutRef.current = null;
+      }
+
+      // Stop typing before disconnect
+      socket.emit(
+        "typing-stop",
+        {
+          sender: currentUserId,
+          receiver:
+            selectedUserRef.current?._id,
+        }
+      );
+
+      socket.off(
+        "user-status-changed",
+        handleUserStatusChanged
+      );
+
+      socket.off(
+        "user-typing",
+        handleUserTyping
+      );
+
+      socket.off(
+        "receive-message",
+        handleReceiveMessage
+      );
+
+      socket.off(
+        "message-sent",
+        handleMessageSent
+      );
 
       socket.disconnect();
 
@@ -500,9 +748,10 @@ const Chat = () => {
       try {
         setLoadingUsers(true);
 
-        const response = await fetch(
-          `${SERVER_URL}/api/users/chat-list`
-        );
+        const response =
+          await fetch(
+            `${SERVER_URL}/api/users/chat-list`
+          );
 
         const data =
           await response.json();
@@ -525,11 +774,41 @@ const Chat = () => {
             String(currentUserId)
         );
 
+        // ------------------------------------------------------
+        // INITIAL ONLINE STATUS
+        // ------------------------------------------------------
+
+        const initialStatuses = {};
+
+        otherUsers.forEach(
+          (user) => {
+            if (!user?._id) {
+              return;
+            }
+
+            initialStatuses[
+              String(user._id)
+            ] = {
+              isOnline: Boolean(
+                user.isOnline
+              ),
+              lastSeen:
+                user.lastSeen ||
+                null,
+            };
+          }
+        );
+
+        setOnlineUsers(
+          (previousUsers) => ({
+            ...previousUsers,
+            ...initialStatuses,
+          })
+        );
+
         setUsers(otherUsers);
 
-        // IMPORTANT:
-        // No automatic first-user selection.
-        // User must click a person.
+        // No automatic first-user selection
         setSelectedUser(null);
         setMobileChatOpen(false);
       } catch (error) {
@@ -555,6 +834,7 @@ const Chat = () => {
       !selectedUser?._id
     ) {
       setMessages([]);
+      setIsOtherUserTyping(false);
       return;
     }
 
@@ -562,9 +842,12 @@ const Chat = () => {
       try {
         setLoadingMessages(true);
 
-        const response = await fetch(
-          `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}`
-        );
+        setIsOtherUserTyping(false);
+
+        const response =
+          await fetch(
+            `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}`
+          );
 
         const data =
           await response.json();
@@ -583,9 +866,9 @@ const Chat = () => {
           data.messages || []
         );
 
-        // ----------------------------------------------------
+        // ------------------------------------------------------
         // CLEAR UNREAD
-        // ----------------------------------------------------
+        // ------------------------------------------------------
 
         setUnreadCounts(
           (previousCounts) => {
@@ -609,9 +892,9 @@ const Chat = () => {
           }
         );
 
-        // ----------------------------------------------------
+        // ------------------------------------------------------
         // MARK READ
-        // ----------------------------------------------------
+        // ------------------------------------------------------
 
         await fetch(
           `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}/read`,
@@ -699,6 +982,27 @@ const Chat = () => {
       return;
     }
 
+    // Stop typing immediately
+    if (typingTimeoutRef.current) {
+      clearTimeout(
+        typingTimeoutRef.current
+      );
+
+      typingTimeoutRef.current = null;
+    }
+
+    socketRef.current.emit(
+      "typing-stop",
+      {
+        sender: currentUserId,
+        receiver:
+          selectedUser._id,
+      }
+    );
+
+    setIsOtherUserTyping(false);
+
+    // Send actual message
     socketRef.current.emit(
       "send-message",
       {
@@ -722,13 +1026,39 @@ const Chat = () => {
   const handleSelectUser = (
     user
   ) => {
+    // Stop previous typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(
+        typingTimeoutRef.current
+      );
+
+      typingTimeoutRef.current = null;
+    }
+
+    const previousUser =
+      selectedUserRef.current;
+
+    if (
+      previousUser?._id &&
+      currentUserId &&
+      socketRef.current
+    ) {
+      socketRef.current.emit(
+        "typing-stop",
+        {
+          sender: currentUserId,
+          receiver:
+            previousUser._id,
+        }
+      );
+    }
+
+    setIsOtherUserTyping(false);
+
     setSelectedUser(user);
 
-    // IMPORTANT:
-    // On mobile, open the selected conversation.
     setMobileChatOpen(true);
 
-    // Clear unread
     setUnreadCounts(
       (previousCounts) => {
         if (
@@ -749,7 +1079,6 @@ const Chat = () => {
       }
     );
 
-    // Close popup when opening same user
     if (
       messagePopup?.senderId &&
       String(
@@ -765,6 +1094,30 @@ const Chat = () => {
   // ============================================================
 
   const handleMobileBack = () => {
+    if (
+      selectedUser?._id &&
+      currentUserId &&
+      socketRef.current
+    ) {
+      socketRef.current.emit(
+        "typing-stop",
+        {
+          sender: currentUserId,
+          receiver:
+            selectedUser._id,
+        }
+      );
+    }
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(
+        typingTimeoutRef.current
+      );
+
+      typingTimeoutRef.current = null;
+    }
+
+    setIsOtherUserTyping(false);
     setMobileChatOpen(false);
   };
 
@@ -967,6 +1320,9 @@ const Chat = () => {
                   ] || 0
                 );
 
+              const userStatus =
+                getUserStatus(user);
+
               return (
                 <button
                   key={user._id}
@@ -999,7 +1355,13 @@ const Chat = () => {
                       )
                     )}
 
-                    <span className="user-online-dot"></span>
+                    <span
+                      className={`user-online-dot ${
+                        userStatus.isOnline
+                          ? "online"
+                          : "offline"
+                      }`}
+                    ></span>
                   </div>
 
                   <div className="chat-user-info">
@@ -1009,9 +1371,15 @@ const Chat = () => {
                     </strong>
 
                     <span>
-                      {user.profession ||
-                        user.email ||
-                        "NoteHive member"}
+                      {userStatus.isOnline
+                        ? "Online"
+                        : userStatus.lastSeen
+                        ? formatLastSeen(
+                            userStatus.lastSeen
+                          )
+                        : user.profession ||
+                          user.email ||
+                          "NoteHive member"}
                     </span>
                   </div>
 
@@ -1082,7 +1450,15 @@ const Chat = () => {
                     )
                   )}
 
-                  <span></span>
+                  <span
+                    className={
+                      getUserStatus(
+                        selectedUser
+                      ).isOnline
+                        ? "online"
+                        : "offline"
+                    }
+                  ></span>
                 </div>
 
                 <div>
@@ -1092,18 +1468,44 @@ const Chat = () => {
                   </h2>
 
                   <p>
-                    {selectedUser.profession ||
-                      "NoteHive member"}
+                    {isOtherUserTyping
+                      ? "typing..."
+                      : getUserStatus(
+                          selectedUser
+                        ).isOnline
+                      ? "Online"
+                      : getUserStatus(
+                          selectedUser
+                        ).lastSeen
+                      ? formatLastSeen(
+                          getUserStatus(
+                            selectedUser
+                          ).lastSeen
+                        )
+                      : selectedUser.profession ||
+                        "NoteHive member"}
                   </p>
                 </div>
               </div>
 
               <div className="chat-header-status">
-                <span></span>
+                <span
+                  className={
+                    getUserStatus(
+                      selectedUser
+                    ).isOnline
+                      ? "online"
+                      : "offline"
+                  }
+                ></span>
 
-                {socketConnected
-                  ? "Connected"
-                  : "Connecting..."}
+                {isOtherUserTyping
+                  ? "typing..."
+                  : getUserStatus(
+                      selectedUser
+                    ).isOnline
+                  ? "Online"
+                  : "Offline"}
               </div>
             </header>
 
@@ -1195,12 +1597,58 @@ const Chat = () => {
                   }...`}
                   value={messageText}
                   maxLength={2000}
-                  onChange={(event) =>
-                    setMessageText(
-                      event.target
-                        .value
-                    )
-                  }
+                  onChange={(event) => {
+                    const value =
+                      event.target.value;
+
+                    setMessageText(value);
+
+                    if (
+                      !selectedUser?._id ||
+                      !currentUserId ||
+                      !socketRef.current ||
+                      !socketRef.current.connected
+                    ) {
+                      return;
+                    }
+
+                    // Start typing
+                    socketRef.current.emit(
+                      "typing-start",
+                      {
+                        sender:
+                          currentUserId,
+                        receiver:
+                          selectedUser._id,
+                      }
+                    );
+
+                    // Reset previous timer
+                    if (
+                      typingTimeoutRef.current
+                    ) {
+                      clearTimeout(
+                        typingTimeoutRef.current
+                      );
+                    }
+
+                    // Stop typing after 1 second
+                    typingTimeoutRef.current =
+                      setTimeout(() => {
+                        socketRef.current?.emit(
+                          "typing-stop",
+                          {
+                            sender:
+                              currentUserId,
+                            receiver:
+                              selectedUser._id,
+                          }
+                        );
+
+                        typingTimeoutRef.current =
+                          null;
+                      }, 1000);
+                  }}
                 />
 
                 <span className="character-count">
