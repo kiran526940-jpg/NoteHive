@@ -542,6 +542,15 @@ const userSchema =
         type: Boolean,
         default: true,
       },
+      isOnline: {
+  type: Boolean,
+  default: false,
+},
+
+lastSeen: {
+  type: Date,
+  default: null,
+},
     },
 
     {
@@ -1025,6 +1034,8 @@ async function createActivity(
 // SOCKET.IO - REAL-TIME FEATURES
 // ============================================================
 
+const onlineUsers = new Map();
+
 io.on("connection", (socket) => {
   console.log("?? Socket connected:", socket.id);
 
@@ -1041,21 +1052,47 @@ io.on("connection", (socket) => {
   });
 
   // ==========================================================
-  // USER REAL-TIME ROOM
+  // USER REAL-TIME ROOM + ONLINE STATUS
   // ==========================================================
 
-  socket.on("join-user", (userId) => {
-    if (!userId) {
-      return;
+  socket.on("join-user", async (userId) => {
+    try {
+      if (!userId) {
+        return;
+      }
+
+      const roomName = `user-${userId}`;
+
+      socket.join(roomName);
+
+      // Store socket for this user
+      if (!onlineUsers.has(userId)) {
+        onlineUsers.set(userId, new Set());
+      }
+
+      onlineUsers.get(userId).add(socket.id);
+
+      // Update online status
+      await User.findByIdAndUpdate(userId, {
+        isOnline: true,
+      });
+
+      console.log(
+        `🟢 User ONLINE: ${userId} | Socket: ${socket.id}`
+      );
+
+      // Notify all connected users
+      io.emit("user-status-changed", {
+        userId,
+        isOnline: true,
+        lastSeen: null,
+      });
+    } catch (error) {
+      console.error(
+        "❌ User online status error:",
+        error
+      );
     }
-
-    const roomName = `user-${userId}`;
-
-    socket.join(roomName);
-
-    console.log(
-      `?? User joined room ${roomName}: ${socket.id}`
-    );
   });
 
   // ==========================================================
@@ -1064,7 +1101,10 @@ io.on("connection", (socket) => {
 
   socket.on("send-message", async (data, callback) => {
     try {
-      console.log("?? send-message received:", data);
+      console.log(
+        "?? send-message received:",
+        data
+      );
 
       const {
         sender,
@@ -1072,10 +1112,7 @@ io.on("connection", (socket) => {
         message,
       } = data || {};
 
-      // --------------------------------------------------------
-      // VALIDATION
-      // --------------------------------------------------------
-
+      // Validation
       if (
         !sender ||
         !receiver ||
@@ -1096,6 +1133,7 @@ io.on("connection", (socket) => {
         return;
       }
 
+      // Validate ObjectIds
       if (
         !mongoose.Types.ObjectId.isValid(sender) ||
         !mongoose.Types.ObjectId.isValid(receiver)
@@ -1117,10 +1155,7 @@ io.on("connection", (socket) => {
         return;
       }
 
-      // --------------------------------------------------------
-      // SAVE MESSAGE IN MONGODB
-      // --------------------------------------------------------
-
+      // Save message
       const newMessage =
         await Message.create({
           sender,
@@ -1134,10 +1169,7 @@ io.on("connection", (socket) => {
         newMessage._id.toString()
       );
 
-      // --------------------------------------------------------
-      // POPULATE USER DETAILS
-      // --------------------------------------------------------
-
+      // Populate sender + receiver
       const populatedMessage =
         await Message.findById(
           newMessage._id
@@ -1150,10 +1182,6 @@ io.on("connection", (socket) => {
             "receiver",
             "name email profileImage"
           );
-
-      // --------------------------------------------------------
-      // ROOM NAMES
-      // --------------------------------------------------------
 
       const receiverRoom =
         `user-${receiver}`;
@@ -1171,28 +1199,19 @@ io.on("connection", (socket) => {
         senderRoom
       );
 
-      // --------------------------------------------------------
-      // SEND TO RECEIVER
-      // --------------------------------------------------------
-
+      // Send to receiver
       io.to(receiverRoom).emit(
         "receive-message",
         populatedMessage
       );
 
-      // --------------------------------------------------------
-      // SEND BACK TO SENDER
-      // --------------------------------------------------------
-
+      // Send back to sender
       io.to(senderRoom).emit(
         "message-sent",
         populatedMessage
       );
 
-      // --------------------------------------------------------
-      // ACKNOWLEDGEMENT
-      // --------------------------------------------------------
-
+      // Acknowledgement
       if (typeof callback === "function") {
         callback({
           success: true,
@@ -1225,10 +1244,69 @@ io.on("connection", (socket) => {
   // DISCONNECT
   // ==========================================================
 
-  socket.on("disconnect", (reason) => {
-    console.log(
-      `?? Socket disconnected: ${socket.id} | ${reason}`
-    );
+  socket.on("disconnect", async (reason) => {
+    try {
+      console.log(
+        `🔌 Socket disconnected: ${socket.id} | ${reason}`
+      );
+
+      let disconnectedUserId = null;
+
+      // Find user belonging to this socket
+      for (
+        const [userId, sockets]
+        of onlineUsers.entries()
+      ) {
+        if (sockets.has(socket.id)) {
+          disconnectedUserId = userId;
+
+          sockets.delete(socket.id);
+
+          // User still connected from another tab/device
+          if (sockets.size > 0) {
+            return;
+          }
+
+          onlineUsers.delete(userId);
+          break;
+        }
+      }
+
+      if (!disconnectedUserId) {
+        return;
+      }
+
+      const lastSeen = new Date();
+
+      // Update offline status
+      await User.findByIdAndUpdate(
+        disconnectedUserId,
+        {
+          isOnline: false,
+          lastSeen,
+        }
+      );
+
+      console.log(
+        `⚪ User OFFLINE: ${disconnectedUserId}`
+      );
+
+      console.log(
+        `🕐 Last seen: ${lastSeen.toISOString()}`
+      );
+
+      // Notify all connected users
+      io.emit("user-status-changed", {
+        userId: disconnectedUserId,
+        isOnline: false,
+        lastSeen,
+      });
+    } catch (error) {
+      console.error(
+        "❌ User disconnect status error:",
+        error
+      );
+    }
   });
 });
 // ============================================================
@@ -7393,14 +7471,5 @@ mongoose
     console.error(error.message);
     console.error("====================================");
   });
-
-
-  
-
-
-
-
-
-
 
 
