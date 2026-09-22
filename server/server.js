@@ -18,6 +18,7 @@ const bcrypt = require("bcryptjs");
 const http = require("http");
 const { Server } = require("socket.io");
 const Message = require("./models/Message");
+const OpenAI = require("openai");
 
 // ============================================================
 // ENV
@@ -52,6 +53,11 @@ const PORT =
 const MONGO_URI =
   process.env.MONGO_URI;
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
 // ============================================================
 // ENV CHECK
 // ============================================================
@@ -71,7 +77,21 @@ if (!MONGO_URI) {
 
   process.exit(1);
 }
+if (!OPENAI_API_KEY) {
+  console.error(
+    "===================================="
+  );
 
+  console.error(
+    "❌ OPENAI_API_KEY is missing in .env"
+  );
+
+  console.error(
+    "===================================="
+  );
+
+  process.exit(1);
+}
 // ============================================================
 // MIDDLEWARE
 // ============================================================
@@ -7240,6 +7260,52 @@ app.get("/api/users/chat-list", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Unable to load chat users.",
+    });
+  }
+});
+// ============================================================
+// NOTEHIVE AI CHAT
+// ============================================================
+
+app.post("/api/ai/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Message is required.",
+      });
+    }
+
+    const response = await openai.responses.create({
+      model: "gpt-5.6-luna",
+      input: [
+        {
+          role: "system",
+          content:
+            "You are NoteHive AI, a helpful assistant inside the NoteHive application. Answer clearly and helpfully. You can communicate in English, Hindi, or Hinglish depending on the user's language.",
+        },
+        {
+          role: "user",
+          content: message.trim(),
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      reply: response.output_text,
+    });
+  } catch (error) {
+    console.error("====================================");
+    console.error("NOTEHIVE AI ERROR");
+    console.error(error);
+    console.error("====================================");
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to get AI response.",
     });
   }
 });
