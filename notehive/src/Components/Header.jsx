@@ -1,10 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import {
   Link,
   useNavigate,
   useLocation,
 } from "react-router-dom";
+
 import { io } from "socket.io-client";
+
 import "./Header.css";
 
 const SERVER_URL =
@@ -667,17 +674,19 @@ const Header = () => {
             </span>
           </Link>
 
-          {/* DESKTOP NAVIGATION */}
+          {/* ==================================================
+              DESKTOP NAVIGATION
+          ================================================== */}
 
           {isLoggedIn && (
             <nav className="nav">
 
+              {/* DASHBOARD */}
+
               <Link
                 to="/dashboard"
                 className={`nav-link ${
-                  isActive(
-                    "/dashboard"
-                  )
+                  isActive("/dashboard")
                     ? "active"
                     : ""
                 }`}
@@ -685,12 +694,12 @@ const Header = () => {
                 Dashboard
               </Link>
 
+              {/* MY NOTES */}
+
               <Link
                 to="/my-notes"
                 className={`nav-link ${
-                  isActive(
-                    "/my-notes"
-                  )
+                  isActive("/my-notes")
                     ? "active"
                     : ""
                 }`}
@@ -698,17 +707,17 @@ const Header = () => {
                 My Notes
               </Link>
 
+              {/* NOTEHIVE AI */}
+
               <Link
-                to="/pinned-notes"
+                to="/ai"
                 className={`nav-link ${
-                  isActive(
-                    "/pinned-notes"
-                  )
+                  isActive("/ai")
                     ? "active"
                     : ""
                 }`}
               >
-                Pinned
+                🤖 NoteHive AI
               </Link>
 
               {/* CHAT */}
@@ -725,23 +734,21 @@ const Header = () => {
                   Chat
                 </span>
 
-                {chatUnreadCount >
-                  0 && (
+                {chatUnreadCount > 0 && (
                   <span className="header-chat-badge">
-                    {chatUnreadCount >
-                    99
+                    {chatUnreadCount > 99
                       ? "99+"
                       : chatUnreadCount}
                   </span>
                 )}
               </Link>
 
+              {/* SETTINGS */}
+
               <Link
                 to="/settings"
                 className={`nav-link ${
-                  isActive(
-                    "/settings"
-                  )
+                  isActive("/settings")
                     ? "active"
                     : ""
                 }`}
@@ -752,7 +759,9 @@ const Header = () => {
             </nav>
           )}
 
-          {/* RIGHT SIDE */}
+          {/* ==================================================
+              RIGHT SIDE
+          ================================================== */}
 
           <div className="header-actions">
 
@@ -774,11 +783,9 @@ const Header = () => {
                     🔔
                   </span>
 
-                  {unreadNotifications >
-                    0 && (
+                  {unreadNotifications > 0 && (
                     <span className="notification-dot">
-                      {unreadNotifications >
-                      99
+                      {unreadNotifications > 99
                         ? "99+"
                         : unreadNotifications}
                     </span>
@@ -802,6 +809,9 @@ const Header = () => {
 
             {!isLoggedIn && (
               <>
+
+                {/* LOGIN */}
+
                 <Link
                   to="/login"
                   className="header-login-btn"
@@ -809,12 +819,15 @@ const Header = () => {
                   Login
                 </Link>
 
+                {/* SIGN UP */}
+
                 <Link
                   to="/signup"
                   className="header-signup-btn"
                 >
                   Sign Up
                 </Link>
+
               </>
             )}
 
@@ -834,9 +847,7 @@ const Header = () => {
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive(
-                "/dashboard"
-              )
+              isActive("/dashboard")
                 ? "mobile-nav-active"
                 : ""
             }`}
@@ -858,9 +869,7 @@ const Header = () => {
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive(
-                "/my-notes"
-              )
+              isActive("/my-notes")
                 ? "mobile-nav-active"
                 : ""
             }`}
@@ -877,29 +886,25 @@ const Header = () => {
             </span>
           </button>
 
-          {/* PINNED */}
+          {/* NOTEHIVE AI */}
 
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive(
-                "/pinned-notes"
-              )
+              isActive("/ai")
                 ? "mobile-nav-active"
                 : ""
             }`}
             onClick={() =>
-              navigate(
-                "/pinned-notes"
-              )
+              navigate("/ai")
             }
           >
             <span className="mobile-nav-icon">
-              📌
+              🤖
             </span>
 
             <span className="mobile-nav-label">
-              Pinned
+              AI
             </span>
           </button>
 
@@ -918,11 +923,9 @@ const Header = () => {
               💬
             </span>
 
-            {chatUnreadCount >
-              0 && (
+            {chatUnreadCount > 0 && (
               <span className="mobile-chat-badge">
-                {chatUnreadCount >
-                99
+                {chatUnreadCount > 99
                   ? "99+"
                   : chatUnreadCount}
               </span>
@@ -938,9 +941,7 @@ const Header = () => {
           <button
             type="button"
             className={`mobile-nav-item ${
-              isActive(
-                "/settings"
-              )
+              isActive("/settings")
                 ? "mobile-nav-active"
                 : ""
             }`}
@@ -964,4 +965,3 @@ const Header = () => {
 };
 
 export default Header;
-

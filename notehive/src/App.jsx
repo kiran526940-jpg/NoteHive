@@ -55,7 +55,7 @@ import Terms from "./Components/Terms";
 import Settings from "./Components/Settings";
 import Notifications from "./Components/Notifications";
 import Chat from "./Components/Chat/Chat";
-
+import NoteHiveAI from "./pages/AI/NoteHiveAI";
 // ======================================================
 // ADMIN
 // ======================================================
@@ -704,7 +704,20 @@ function App() {
             </UserLayout>
           }
         />
+        {/* ==================================================
+            NOTEHIVE AI
+        ================================================== */}
 
+        <Route
+          path="/ai"
+          element={
+            <UserProtectedRoute>
+              <UserLayout>
+                <NoteHiveAI />
+              </UserLayout>
+            </UserProtectedRoute>
+          }
+        />
         {/* ==================================================
             SETTINGS
         ================================================== */}
