@@ -608,11 +608,17 @@ const Header = () => {
 
       {isLoggedIn &&
         chatPopup && (
-          <button
-            type="button"
-            className="global-chat-popup"
-            onClick={handleChatPopupClick}
-          >
+          <div
+  className="global-chat-popup"
+  onClick={handleChatPopupClick}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      handleChatPopupClick();
+    }
+  }}
+>
             <div className="global-chat-popup-avatar">
               {chatPopup.senderImage ? (
                 <img
@@ -646,7 +652,7 @@ const Header = () => {
             >
               ×
             </button>
-          </button>
+          </div>
         )}
 
       {/* ==================================================

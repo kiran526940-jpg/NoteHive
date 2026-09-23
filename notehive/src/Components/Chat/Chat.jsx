@@ -477,6 +477,11 @@ const Chat = () => {
     // ==========================================================
 
     const handleUserTyping = (data) => {
+      console.log(
+        "🔥 RECEIVED USER TYPING EVENT:",
+        data
+      );
+
       if (!data?.sender) {
         return;
       }
@@ -492,6 +497,11 @@ const Chat = () => {
         String(data.sender) ===
         String(openUser._id)
       ) {
+        console.log(
+          "✅ TYPING EVENT MATCHED CURRENT CHAT:",
+          data
+        );
+
         setIsOtherUserTyping(
           Boolean(data.isTyping)
         );
@@ -520,6 +530,50 @@ const Chat = () => {
     );
 
     // ==========================================================
+    // MESSAGE DELIVERED
+    // ==========================================================
+
+    const handleMessageDelivered =
+      (updatedMessage) => {
+        if (!updatedMessage?._id) {
+          return;
+        }
+
+        console.log(
+          "📬 MESSAGE DELIVERED:",
+          updatedMessage
+        );
+
+        setMessages(
+          (previousMessages) =>
+            previousMessages.map(
+              (item) =>
+                String(item._id) ===
+                String(
+                  updatedMessage._id
+                )
+                  ? {
+                      ...item,
+                      delivered:
+                        updatedMessage.delivered,
+                      deliveredAt:
+                        updatedMessage.deliveredAt,
+                      read:
+                        updatedMessage.read,
+                      readAt:
+                        updatedMessage.readAt,
+                    }
+                  : item
+            )
+        );
+      };
+
+    socket.on(
+      "message-delivered",
+      handleMessageDelivered
+    );
+
+    // ==========================================================
     // RECEIVE MESSAGE
     // ==========================================================
 
@@ -535,8 +589,50 @@ const Chat = () => {
             ""
         );
 
+        const receiverId = String(
+          newMessage.receiver?._id ||
+            newMessage.receiver ||
+            ""
+        );
+
         if (!senderId) {
           return;
+        }
+
+        // ======================================================
+        // MESSAGE DELIVERED ACK
+        // ======================================================
+
+        if (
+          newMessage._id &&
+          senderId &&
+          receiverId
+        ) {
+          socket.emit(
+            "message-delivered",
+            {
+              messageId:
+                newMessage._id,
+
+              sender:
+                senderId,
+
+              receiver:
+                receiverId,
+            }
+          );
+
+          console.log(
+            "📬 DELIVERY ACK SENT:",
+            {
+              messageId:
+                newMessage._id,
+              sender:
+                senderId,
+              receiver:
+                receiverId,
+            }
+          );
         }
 
         const openUser =
@@ -547,9 +643,9 @@ const Chat = () => {
           String(openUser._id) ===
             senderId;
 
-        // ------------------------------------------------------
+        // ======================================================
         // MESSAGE FROM CURRENT OPEN CHAT
-        // ------------------------------------------------------
+        // ======================================================
 
         if (isCurrentChat) {
           setMessages(
@@ -574,7 +670,6 @@ const Chat = () => {
             }
           );
 
-          // Stop typing indicator
           setIsOtherUserTyping(false);
 
           fetch(
@@ -592,9 +687,9 @@ const Chat = () => {
           return;
         }
 
-        // ------------------------------------------------------
+        // ======================================================
         // INCREMENT UNREAD
-        // ------------------------------------------------------
+        // ======================================================
 
         setUnreadCounts(
           (previousCounts) => {
@@ -613,22 +708,25 @@ const Chat = () => {
           }
         );
 
-        // ------------------------------------------------------
+        // ======================================================
         // POPUP
-        // ------------------------------------------------------
+        // ======================================================
 
-        showMessagePopup(newMessage);
+        showMessagePopup(
+          newMessage
+        );
 
-        // ------------------------------------------------------
+        // ======================================================
         // HEADER EVENT
-        // ------------------------------------------------------
+        // ======================================================
 
         window.dispatchEvent(
           new CustomEvent(
             "notehive-chat-message",
             {
               detail: {
-                message: newMessage,
+                message:
+                  newMessage,
               },
             }
           )
@@ -677,7 +775,43 @@ const Chat = () => {
       "message-sent",
       handleMessageSent
     );
+// ==========================================================
+// MESSAGE READ / SEEN
+// ==========================================================
 
+const handleMessageRead =
+  (readData) => {
+    if (!readData?.messageId) {
+      return;
+    }
+
+    console.log(
+      "🔵 MESSAGE SEEN:",
+      readData
+    );
+
+    setMessages(
+      (previousMessages) =>
+        previousMessages.map(
+          (item) =>
+            String(item._id) ===
+            String(readData.messageId)
+              ? {
+                  ...item,
+                  read: true,
+                  readAt:
+                    readData.readAt ||
+                    new Date(),
+                }
+              : item
+        )
+    );
+  };
+
+socket.on(
+  "message-read",
+  handleMessageRead
+);
     // ==========================================================
     // CLEANUP
     // ==========================================================
@@ -699,7 +833,6 @@ const Chat = () => {
         typingTimeoutRef.current = null;
       }
 
-      // Stop typing before disconnect
       socket.emit(
         "typing-stop",
         {
@@ -729,6 +862,14 @@ const Chat = () => {
         handleMessageSent
       );
 
+      socket.off(
+        "message-delivered",
+        handleMessageDelivered
+      );
+socket.off(
+  "message-read",
+  handleMessageRead
+);
       socket.disconnect();
 
       socketRef.current = null;
@@ -774,9 +915,9 @@ const Chat = () => {
             String(currentUserId)
         );
 
-        // ------------------------------------------------------
+        // ======================================================
         // INITIAL ONLINE STATUS
-        // ------------------------------------------------------
+        // ======================================================
 
         const initialStatuses = {};
 
@@ -808,7 +949,6 @@ const Chat = () => {
 
         setUsers(otherUsers);
 
-        // No automatic first-user selection
         setSelectedUser(null);
         setMobileChatOpen(false);
       } catch (error) {
@@ -866,9 +1006,9 @@ const Chat = () => {
           data.messages || []
         );
 
-        // ------------------------------------------------------
+        // ======================================================
         // CLEAR UNREAD
-        // ------------------------------------------------------
+        // ======================================================
 
         setUnreadCounts(
           (previousCounts) => {
@@ -892,16 +1032,39 @@ const Chat = () => {
           }
         );
 
-        // ------------------------------------------------------
-        // MARK READ
-        // ------------------------------------------------------
+        // ======================================================
+// MARK READ
+// ======================================================
 
-        await fetch(
-          `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}/read`,
-          {
-            method: "PATCH",
-          }
-        );
+console.log(
+  "🔵 MARK READ REQUEST:",
+  {
+    currentUserId,
+    selectedUserId:
+      selectedUser._id,
+  }
+);
+
+const readResponse =
+  await fetch(
+    `${SERVER_URL}/api/messages/${currentUserId}/${selectedUser._id}/read`,
+    {
+      method: "PATCH",
+    }
+  );
+
+console.log(
+  "🔵 MARK READ RESPONSE:",
+  readResponse.status
+);
+
+const readData =
+  await readResponse.json();
+
+console.log(
+  "🔵 MARK READ DATA:",
+  readData
+);
       } catch (error) {
         console.error(
           "Load messages error:",
@@ -982,7 +1145,10 @@ const Chat = () => {
       return;
     }
 
-    // Stop typing immediately
+    // ==========================================================
+    // STOP TYPING IMMEDIATELY
+    // ==========================================================
+
     if (typingTimeoutRef.current) {
       clearTimeout(
         typingTimeoutRef.current
@@ -1002,7 +1168,10 @@ const Chat = () => {
 
     setIsOtherUserTyping(false);
 
-    // Send actual message
+    // ==========================================================
+    // SEND ACTUAL MESSAGE
+    // ==========================================================
+
     socketRef.current.emit(
       "send-message",
       {
@@ -1026,7 +1195,10 @@ const Chat = () => {
   const handleSelectUser = (
     user
   ) => {
-    // Stop previous typing indicator
+    // ==========================================================
+    // STOP PREVIOUS TYPING INDICATOR
+    // ==========================================================
+
     if (typingTimeoutRef.current) {
       clearTimeout(
         typingTimeoutRef.current
@@ -1130,12 +1302,86 @@ const Chat = () => {
       return "";
     }
 
-    return new Date(
-      date
-    ).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const messageDate = new Date(date);
+
+    if (
+      Number.isNaN(
+        messageDate.getTime()
+      )
+    ) {
+      return "";
+    }
+
+    return messageDate.toLocaleTimeString(
+      [],
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
+  };
+
+  // ============================================================
+  // FORMAT MESSAGE DATE
+  // ============================================================
+
+  const formatMessageDate = (date) => {
+    if (!date) {
+      return "";
+    }
+
+    const messageDate = new Date(date);
+
+    if (
+      Number.isNaN(
+        messageDate.getTime()
+      )
+    ) {
+      return "";
+    }
+
+    const today = new Date();
+
+    const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+
+    const yesterdayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 1
+    );
+
+    const messageDayStart = new Date(
+      messageDate.getFullYear(),
+      messageDate.getMonth(),
+      messageDate.getDate()
+    );
+
+    if (
+      messageDayStart.getTime() ===
+      todayStart.getTime()
+    ) {
+      return "TODAY";
+    }
+
+    if (
+      messageDayStart.getTime() ===
+      yesterdayStart.getTime()
+    ) {
+      return "YESTERDAY";
+    }
+
+    return messageDate.toLocaleDateString(
+      [],
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
   };
 
   // ============================================================
@@ -1540,39 +1786,88 @@ const Chat = () => {
                   </span>
                 </div>
               ) : (
-                messages.map((item) => {
-                  const isMine =
-                    String(
-                      item.sender?._id ||
-                        item.sender
-                    ) ===
-                    String(
-                      currentUserId
+                messages.map(
+                  (item, index) => {
+                    const isMine =
+                      String(
+                        item.sender?._id ||
+                          item.sender
+                      ) ===
+                      String(
+                        currentUserId
+                      );
+
+                    const currentDate =
+                      formatMessageDate(
+                        item.createdAt
+                      );
+
+                    const previousDate =
+                      index > 0
+                        ? formatMessageDate(
+                            messages[
+                              index - 1
+                            ]?.createdAt
+                          )
+                        : null;
+
+                    const showDateSeparator =
+                      currentDate !==
+                      previousDate;
+
+                    return (
+                      <React.Fragment
+                        key={item._id}
+                      >
+                        {/* DATE SEPARATOR */}
+
+                        {showDateSeparator && (
+                          <div className="message-date-separator">
+                            <span>
+                              {currentDate}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* MESSAGE */}
+
+                        <div
+                          className={`message-row ${
+                            isMine
+                              ? "mine"
+                              : "theirs"
+                          }`}
+                        >
+                          <div className="message-bubble">
+                            <p>
+                              {item.message}
+                            </p>
+
+                            <span className="message-meta">
+                              {formatTime(
+                                item.createdAt
+                              )}
+
+                              {isMine && (
+                                <span
+                                  className={`message-status ${
+                                    item.read
+                                      ? "read"
+                                      : ""
+                                  }`}
+                                >
+                                  {item.delivered
+                                    ? "✓✓"
+                                    : "✓"}
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </React.Fragment>
                     );
-
-                  return (
-                    <div
-                      key={item._id}
-                      className={`message-row ${
-                        isMine
-                          ? "mine"
-                          : "theirs"
-                      }`}
-                    >
-                      <div className="message-bubble">
-                        <p>
-                          {item.message}
-                        </p>
-
-                        <span>
-                          {formatTime(
-                            item.createdAt
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })
+                  }
+                )
               )}
 
               <div
@@ -1601,30 +1896,11 @@ const Chat = () => {
                     const value =
                       event.target.value;
 
-  
-  setMessageText(value);
+                    setMessageText(value);
 
-  console.log("⌨️ TYPING EMIT", {
-    sender: currentUserId,
-    receiver: selectedUser?._id,
-    connected: socketRef.current?.connected,
-  });
-
-  if (
-    !selectedUser?._id ||
-    !currentUserId ||
-    !socketRef.current ||
-    !socketRef.current.connected
-  ) {
-    return;
-  }
-
-  socketRef.current.emit("typing-start", {
-    sender: currentUserId,
-    receiver: selectedUser._id,
-  });
-
-  // baaki tumhara existing code...
+                    // ==================================================
+                    // SOCKET / TYPING VALIDATION
+                    // ==================================================
 
                     if (
                       !selectedUser?._id ||
@@ -1635,7 +1911,52 @@ const Chat = () => {
                       return;
                     }
 
-                    // Start typing
+                    // ==================================================
+                    // EMPTY MESSAGE = STOP TYPING
+                    // ==================================================
+
+                    if (!value.trim()) {
+                      socketRef.current.emit(
+                        "typing-stop",
+                        {
+                          sender:
+                            currentUserId,
+                          receiver:
+                            selectedUser._id,
+                        }
+                      );
+
+                      if (
+                        typingTimeoutRef.current
+                      ) {
+                        clearTimeout(
+                          typingTimeoutRef.current
+                        );
+
+                        typingTimeoutRef.current =
+                          null;
+                      }
+
+                      return;
+                    }
+
+                    // ==================================================
+                    // START TYPING
+                    // ==================================================
+
+                    console.log(
+                      "⌨️ TYPING EMIT:",
+                      {
+                        sender:
+                          currentUserId,
+                        receiver:
+                          selectedUser._id,
+                        connected:
+                          socketRef.current
+                            .connected,
+                      }
+                    );
+
                     socketRef.current.emit(
                       "typing-start",
                       {
@@ -1646,7 +1967,10 @@ const Chat = () => {
                       }
                     );
 
-                    // Reset previous timer
+                    // ==================================================
+                    // RESET OLD TIMER
+                    // ==================================================
+
                     if (
                       typingTimeoutRef.current
                     ) {
@@ -1655,7 +1979,10 @@ const Chat = () => {
                       );
                     }
 
-                    // Stop typing after 1 second
+                    // ==================================================
+                    // STOP AFTER 1 SECOND
+                    // ==================================================
+
                     typingTimeoutRef.current =
                       setTimeout(() => {
                         socketRef.current?.emit(
