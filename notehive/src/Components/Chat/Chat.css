@@ -2311,3 +2311,31 @@ body:has(.chat-page) footer {
   color: #2196f3;
   transform: scale(1.05);
 }
+/* ============================================================
+   WHATSAPP STYLE MESSAGE TICKS
+============================================================ */
+
+.message-meta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.message-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -2px;
+  color: inherit;
+}
+
+/* READ / SEEN */
+.message-status.read {
+  color: #2196f3 !important;
+}
