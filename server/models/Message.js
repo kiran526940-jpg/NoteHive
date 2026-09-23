@@ -21,9 +21,30 @@ const messageSchema = new mongoose.Schema(
       maxlength: 2000,
     },
 
+    // ============================================================
+    // MESSAGE STATUS
+    // ============================================================
+
+    // Message recipient ke socket/server tak successfully pahunch gaya
+    delivered: {
+      type: Boolean,
+      default: false,
+    },
+
+    deliveredAt: {
+      type: Date,
+      default: null,
+    },
+
+    // Recipient ne chat open karke message read kar liya
     read: {
       type: Boolean,
       default: false,
+    },
+
+    readAt: {
+      type: Date,
+      default: null,
     },
   },
   {
@@ -31,7 +52,19 @@ const messageSchema = new mongoose.Schema(
   }
 );
 
-messageSchema.index({ sender: 1, receiver: 1, createdAt: 1 });
-messageSchema.index({ receiver: 1, sender: 1, createdAt: 1 });
+messageSchema.index({
+  sender: 1,
+  receiver: 1,
+  createdAt: 1,
+});
 
-module.exports = mongoose.model("Message", messageSchema);
+messageSchema.index({
+  receiver: 1,
+  sender: 1,
+  createdAt: 1,
+});
+
+module.exports = mongoose.model(
+  "Message",
+  messageSchema
+);

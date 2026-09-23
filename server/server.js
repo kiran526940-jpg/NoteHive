@@ -1144,79 +1144,197 @@ socket.on("typing-stop", (data) => {
   // ==========================================================
 
   socket.on("send-message", async (data, callback) => {
-    try {
-      console.log(
-        "?? send-message received:",
-        data
-      );
+  try {
+    console.log("📨 send-message received:", data);
 
-      const {
+    const {
+      sender,
+      receiver,
+      message,
+    } = data || {};
+
+    // ==========================================================
+    // VALIDATION
+    // ==========================================================
+
+    if (
+      !sender ||
+      !receiver ||
+      !message?.trim()
+    ) {
+      if (typeof callback === "function") {
+        callback({
+          success: false,
+          message:
+            "Sender, receiver and message are required.",
+        });
+      }
+
+      return;
+    }
+
+    if (
+      !mongoose.Types.ObjectId.isValid(sender) ||
+      !mongoose.Types.ObjectId.isValid(receiver)
+    ) {
+      if (typeof callback === "function") {
+        callback({
+          success: false,
+          message:
+            "Invalid sender or receiver ID.",
+        });
+      }
+
+      return;
+    }
+
+    // ==========================================================
+    // SAVE MESSAGE
+    // ==========================================================
+
+    const newMessage =
+      await Message.create({
         sender,
         receiver,
-        message,
+        message: message.trim(),
+
+        delivered: false,
+        deliveredAt: null,
+
+        read: false,
+        readAt: null,
+      });
+
+    console.log(
+      "💾 Message saved:",
+      newMessage._id.toString()
+    );
+
+    // ==========================================================
+    // POPULATE MESSAGE
+    // ==========================================================
+
+    const populatedMessage =
+      await Message.findById(
+        newMessage._id
+      )
+        .populate(
+          "sender",
+          "name email profileImage"
+        )
+        .populate(
+          "receiver",
+          "name email profileImage"
+        );
+
+    const receiverRoom =
+      `user-${receiver}`;
+
+    const senderRoom =
+      `user-${sender}`;
+
+    // ==========================================================
+    // SEND TO RECEIVER
+    // ==========================================================
+
+    console.log(
+      "📤 Sending message to receiver:",
+      receiverRoom
+    );
+
+    io.to(receiverRoom).emit(
+      "receive-message",
+      populatedMessage
+    );
+
+    // ==========================================================
+    // SEND TO SENDER
+    // ==========================================================
+
+    console.log(
+      "📤 Sending message confirmation to sender:",
+      senderRoom
+    );
+
+    io.to(senderRoom).emit(
+      "message-sent",
+      populatedMessage
+    );
+
+    // ==========================================================
+    // SOCKET ACK
+    // ==========================================================
+
+    if (typeof callback === "function") {
+      callback({
+        success: true,
+        message:
+          "Message sent successfully.",
+        data: populatedMessage,
+      });
+    }
+
+    console.log(
+      "✅ Message saved and emitted successfully:",
+      newMessage._id.toString()
+    );
+  } catch (error) {
+    console.error(
+      "❌ Socket send message error:",
+      error
+    );
+
+    if (typeof callback === "function") {
+      callback({
+        success: false,
+        message:
+          "Unable to send message.",
+      });
+    }
+  }
+});
+// ==========================================================
+// CHAT - MESSAGE DELIVERED
+// ==========================================================
+
+socket.on(
+  "message-delivered",
+  async (data) => {
+    try {
+      const {
+        messageId,
+        sender,
+        receiver,
       } = data || {};
 
-      // Validation
       if (
+        !messageId ||
         !sender ||
-        !receiver ||
-        !message?.trim()
+        !receiver
       ) {
-        console.log(
-          "? send-message validation failed"
-        );
-
-        if (typeof callback === "function") {
-          callback({
-            success: false,
-            message:
-              "Sender, receiver and message are required.",
-          });
-        }
-
         return;
       }
 
-      // Validate ObjectIds
       if (
-        !mongoose.Types.ObjectId.isValid(sender) ||
-        !mongoose.Types.ObjectId.isValid(receiver)
+        !mongoose.Types.ObjectId.isValid(
+          messageId
+        )
       ) {
-        console.log(
-          "? Invalid sender or receiver:",
-          sender,
-          receiver
-        );
-
-        if (typeof callback === "function") {
-          callback({
-            success: false,
-            message:
-              "Invalid sender or receiver ID.",
-          });
-        }
-
         return;
       }
 
-      // Save message
-      const newMessage =
-        await Message.create({
-          sender,
-          receiver,
-          message: message.trim(),
-          read: false,
-        });
-
-      console.log(
-        "?? Message saved:",
-        newMessage._id.toString()
-      );
-
-      // Populate sender + receiver
-      const populatedMessage =
-        await Message.findById(
-          newMessage._id
+      const updatedMessage =
+        await Message.findByIdAndUpdate(
+          messageId,
+          {
+            $set: {
+              delivered: true,
+              deliveredAt: new Date(),
+            },
+          },
+          {
+            new: true,
+          }
         )
           .populate(
             "sender",
@@ -1227,62 +1345,67 @@ socket.on("typing-stop", (data) => {
             "name email profileImage"
           );
 
-      const receiverRoom =
-        `user-${receiver}`;
-
-      const senderRoom =
-        `user-${sender}`;
-
-      console.log(
-        "?? Sending to receiver room:",
-        receiverRoom
-      );
-
-      console.log(
-        "?? Sending to sender room:",
-        senderRoom
-      );
-
-      // Send to receiver
-      io.to(receiverRoom).emit(
-        "receive-message",
-        populatedMessage
-      );
-
-      // Send back to sender
-      io.to(senderRoom).emit(
-        "message-sent",
-        populatedMessage
-      );
-
-      // Acknowledgement
-      if (typeof callback === "function") {
-        callback({
-          success: true,
-          message:
-            "Message sent successfully.",
-          data: populatedMessage,
-        });
+      if (!updatedMessage) {
+        return;
       }
 
       console.log(
-        "? Real-time message delivered"
+        "📬 Message delivered:",
+        messageId
+      );
+
+      // Tell sender that receiver got the message
+      io.to(`user-${sender}`).emit(
+        "message-delivered",
+        updatedMessage
       );
     } catch (error) {
       console.error(
-        "? Socket send message error:",
+        "❌ Message delivered error:",
         error
       );
-
-      if (typeof callback === "function") {
-        callback({
-          success: false,
-          message:
-            "Unable to send message.",
-        });
-      }
     }
-  });
+  }
+);
+// ==========================================================
+// MESSAGE READ / SEEN
+// ==========================================================
+
+const handleMessageRead =
+  (readData) => {
+    if (!readData?.messageId) {
+      return;
+    }
+
+    console.log(
+      "🔵 MESSAGE SEEN:",
+      readData
+    );
+
+    setMessages(
+      (previousMessages) =>
+        previousMessages.map(
+          (item) =>
+            String(item._id) ===
+            String(
+              readData.messageId
+            )
+              ? {
+                  ...item,
+                  read: true,
+                  readAt:
+                    readData.readAt ||
+                    new Date(),
+                }
+              : item
+        )
+    );
+  };
+
+socket.on(
+  "message-read",
+  handleMessageRead
+);
 
   // ==========================================================
   // DISCONNECT
@@ -7288,12 +7411,16 @@ app.post("/api/messages", async (req, res) => {
       });
     }
 
-    const newMessage = await Message.create({
-      sender,
-      receiver,
-      message: message.trim(),
-      read: false,
-    });
+    const newMessage =
+  await Message.create({
+    sender,
+    receiver,
+    message: message.trim(),
+    delivered: false,
+    deliveredAt: null,
+    read: false,
+    readAt: null,
+  });
 
     const populatedMessage = await Message.findById(newMessage._id)
       .populate("sender", "name email profileImage")
@@ -7315,16 +7442,25 @@ app.post("/api/messages", async (req, res) => {
 });
 
 
-// MARK CHAT MESSAGES AS READ
 app.patch(
   "/api/messages/:userId/:otherUserId/read",
   async (req, res) => {
-    try {
-      const { userId, otherUserId } = req.params;
+  try {
+    console.log(
+      "📥 READ ROUTE HIT:",
+      req.params
+    );
+
+    const { userId, otherUserId } =
+      req.params;
 
       if (
-        !mongoose.Types.ObjectId.isValid(userId) ||
-        !mongoose.Types.ObjectId.isValid(otherUserId)
+        !mongoose.Types.ObjectId.isValid(
+          userId
+        ) ||
+        !mongoose.Types.ObjectId.isValid(
+          otherUserId
+        )
       ) {
         return res.status(400).json({
           success: false,
@@ -7332,29 +7468,97 @@ app.patch(
         });
       }
 
-      await Message.updateMany(
-        {
+      // ======================================================
+      // FIND UNREAD MESSAGES
+      // ======================================================
+
+      const unreadMessages =
+        await Message.find({
           sender: otherUserId,
           receiver: userId,
           read: false,
-        },
-        {
-          $set: {
-            read: true,
-          },
-        }
-      );
+        }).select("_id");
+console.log(
+  "🔎 READ CHECK:",
+  {
+    userId,
+    otherUserId,
+    unreadCount:
+      unreadMessages.length,
+  }
+);
+      // ======================================================
+      // MARK AS READ
+      // ======================================================
 
-      res.json({
+      if (unreadMessages.length > 0) {
+        await Message.updateMany(
+          {
+            sender: otherUserId,
+            receiver: userId,
+            read: false,
+          },
+          {
+            $set: {
+              read: true,
+              readAt: new Date(),
+            },
+          }
+        );
+
+        // ====================================================
+        // SEND READ STATUS TO ORIGINAL SENDER
+        // ====================================================
+
+        unreadMessages.forEach(
+          (message) => {
+            io.to(
+              `user-${otherUserId}`
+            ).emit(
+              "message-read",
+              {
+                messageId:
+                  message._id,
+
+                reader:
+                  userId,
+
+                sender:
+                  otherUserId,
+
+                receiver:
+                  userId,
+
+                read: true,
+
+                readAt:
+                  new Date(),
+              }
+            );
+          }
+        );
+
+        console.log(
+          "🔵 MESSAGE READ EVENTS SENT:",
+          unreadMessages.length
+        );
+      }
+
+      return res.json({
         success: true,
-        message: "Messages marked as read.",
+        message:
+          "Messages marked as read.",
       });
     } catch (error) {
-      console.error("Mark messages read error:", error);
+      console.error(
+        "❌ Mark messages read error:",
+        error
+      );
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
-        message: "Unable to mark messages as read.",
+        message:
+          "Unable to mark messages as read.",
       });
     }
   }
