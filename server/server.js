@@ -249,7 +249,59 @@ const upload =
         1024,
     },
   });
+// ==========================================================
+// CHAT - FILE / IMAGE UPLOAD
+// ==========================================================
 
+app.post(
+  "/api/messages/upload",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "File is required.",
+        });
+      }
+
+      const messageType =
+        req.file.mimetype.startsWith("image/")
+          ? "image"
+          : "file";
+
+      const fileUrl =
+        `/uploads/${req.file.filename}`;
+
+      console.log(
+        "📎 Chat file uploaded:",
+        req.file.originalname
+      );
+
+      return res.status(201).json({
+        success: true,
+
+        file: {
+          url: fileUrl,
+          name: req.file.originalname,
+          size: req.file.size,
+          mimeType: req.file.mimetype,
+          messageType,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "❌ Chat file upload error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to upload file.",
+      });
+    }
+  }
+);
 // ============================================================
 // PROFILE IMAGE FILTER
 // ============================================================
@@ -1139,160 +1191,197 @@ socket.on("typing-stop", (data) => {
     );
   }
 });
+
   // ==========================================================
-  // CHAT - REAL-TIME MESSAGE
-  // ==========================================================
+// CHAT - SEND MESSAGE
+// ==========================================================
 
-  socket.on("send-message", async (data, callback) => {
-  try {
-    console.log("📨 send-message received:", data);
+socket.on(
+  "send-message",
+  async (data, callback) => {
+    try {
+      console.log(
+        "📨 send-message received:",
+        data
+      );
 
-    const {
-      sender,
-      receiver,
-      message,
-    } = data || {};
-
-    // ==========================================================
-    // VALIDATION
-    // ==========================================================
-
-    if (
-      !sender ||
-      !receiver ||
-      !message?.trim()
-    ) {
-      if (typeof callback === "function") {
-        callback({
-          success: false,
-          message:
-            "Sender, receiver and message are required.",
-        });
-      }
-
-      return;
-    }
-
-    if (
-      !mongoose.Types.ObjectId.isValid(sender) ||
-      !mongoose.Types.ObjectId.isValid(receiver)
-    ) {
-      if (typeof callback === "function") {
-        callback({
-          success: false,
-          message:
-            "Invalid sender or receiver ID.",
-        });
-      }
-
-      return;
-    }
-
-    // ==========================================================
-    // SAVE MESSAGE
-    // ==========================================================
-
-    const newMessage =
-      await Message.create({
+      const {
         sender,
         receiver,
-        message: message.trim(),
+        message,
+        messageType,
+        fileUrl,
+        fileName,
+        fileSize,
+        mimeType,
+      } = data || {};
 
-        delivered: false,
-        deliveredAt: null,
+      const trimmedMessage =
+        message?.trim() || "";
 
-        read: false,
-        readAt: null,
-      });
+      // ==========================================================
+      // VALIDATION
+      // ==========================================================
 
-    console.log(
-      "💾 Message saved:",
-      newMessage._id.toString()
-    );
+      if (
+        !sender ||
+        !receiver ||
+        (!trimmedMessage && !fileUrl)
+      ) {
+        if (typeof callback === "function") {
+          callback({
+            success: false,
+            message:
+              "Message or file is required.",
+          });
+        }
 
-    // ==========================================================
-    // POPULATE MESSAGE
-    // ==========================================================
+        return;
+      }
 
-    const populatedMessage =
-      await Message.findById(
-        newMessage._id
-      )
-        .populate(
-          "sender",
-          "name email profileImage"
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          sender
+        ) ||
+        !mongoose.Types.ObjectId.isValid(
+          receiver
         )
-        .populate(
-          "receiver",
-          "name email profileImage"
-        );
+      ) {
+        if (typeof callback === "function") {
+          callback({
+            success: false,
+            message:
+              "Invalid sender or receiver ID.",
+          });
+        }
 
-    const receiverRoom =
-      `user-${receiver}`;
+        return;
+      }
 
-    const senderRoom =
-      `user-${sender}`;
+      // ==========================================================
+      // MESSAGE TYPE
+      // ==========================================================
 
-    // ==========================================================
-    // SEND TO RECEIVER
-    // ==========================================================
+      const finalMessageType =
+        messageType === "image" ||
+        messageType === "file"
+          ? messageType
+          : "text";
 
-    console.log(
-      "📤 Sending message to receiver:",
-      receiverRoom
-    );
+      // ==========================================================
+      // SAVE MESSAGE
+      // ==========================================================
 
-    io.to(receiverRoom).emit(
-      "receive-message",
-      populatedMessage
-    );
+      const newMessage =
+        await Message.create({
+          sender,
+          receiver,
 
-    // ==========================================================
-    // SEND TO SENDER
-    // ==========================================================
+          message:
+            trimmedMessage,
 
-    console.log(
-      "📤 Sending message confirmation to sender:",
-      senderRoom
-    );
+          messageType:
+            finalMessageType,
 
-    io.to(senderRoom).emit(
-      "message-sent",
-      populatedMessage
-    );
+          fileUrl:
+            fileUrl || "",
 
-    // ==========================================================
-    // SOCKET ACK
-    // ==========================================================
+          fileName:
+            fileName || "",
 
-    if (typeof callback === "function") {
-      callback({
-        success: true,
-        message:
-          "Message sent successfully.",
-        data: populatedMessage,
-      });
-    }
+          fileSize:
+            Number(fileSize) || 0,
 
-    console.log(
-      "✅ Message saved and emitted successfully:",
-      newMessage._id.toString()
-    );
-  } catch (error) {
-    console.error(
-      "❌ Socket send message error:",
-      error
-    );
+          mimeType:
+            mimeType || "",
 
-    if (typeof callback === "function") {
-      callback({
-        success: false,
-        message:
-          "Unable to send message.",
-      });
+          delivered: false,
+          deliveredAt: null,
+
+          read: false,
+          readAt: null,
+        });
+
+      console.log(
+        "💾 Message saved:",
+        newMessage._id.toString()
+      );
+
+      // ==========================================================
+      // POPULATE MESSAGE
+      // ==========================================================
+
+      const populatedMessage =
+        await Message.findById(
+          newMessage._id
+        )
+          .populate(
+            "sender",
+            "name email profileImage"
+          )
+          .populate(
+            "receiver",
+            "name email profileImage"
+          );
+
+      const receiverRoom =
+        `user-${receiver}`;
+
+      const senderRoom =
+        `user-${sender}`;
+
+      // ==========================================================
+      // SEND TO RECEIVER
+      // ==========================================================
+
+      io.to(receiverRoom).emit(
+        "receive-message",
+        populatedMessage
+      );
+
+      // ==========================================================
+      // SEND BACK TO SENDER
+      // ==========================================================
+
+      io.to(senderRoom).emit(
+        "message-sent",
+        populatedMessage
+      );
+
+      // ==========================================================
+      // CALLBACK
+      // ==========================================================
+
+      if (typeof callback === "function") {
+        callback({
+          success: true,
+          message:
+            "Message sent successfully.",
+          data:
+            populatedMessage,
+        });
+      }
+
+      console.log(
+        "✅ Message saved and emitted successfully:",
+        newMessage._id.toString()
+      );
+    } catch (error) {
+      console.error(
+        "❌ Socket send message error:",
+        error
+      );
+
+      if (typeof callback === "function") {
+        callback({
+          success: false,
+          message:
+            "Unable to send message.",
+        });
+      }
     }
   }
-});
+);
 // ==========================================================
 // CHAT - MESSAGE DELIVERED
 // ==========================================================
@@ -1368,44 +1457,7 @@ socket.on(
   }
 );
 // ==========================================================
-// MESSAGE READ / SEEN
-// ==========================================================
 
-const handleMessageRead =
-  (readData) => {
-    if (!readData?.messageId) {
-      return;
-    }
-
-    console.log(
-      "🔵 MESSAGE SEEN:",
-      readData
-    );
-
-    setMessages(
-      (previousMessages) =>
-        previousMessages.map(
-          (item) =>
-            String(item._id) ===
-            String(
-              readData.messageId
-            )
-              ? {
-                  ...item,
-                  read: true,
-                  readAt:
-                    readData.readAt ||
-                    new Date(),
-                }
-              : item
-        )
-    );
-  };
-
-socket.on(
-  "message-read",
-  handleMessageRead
-);
 
   // ==========================================================
   // DISCONNECT
