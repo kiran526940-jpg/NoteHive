@@ -14,12 +14,13 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
 
-    message: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 2000,
-    },
+   message: {
+  type: String,
+  required: false,
+  trim: true,
+  default: "",
+  maxlength: 2000,
+},
 
     // ============================================================
     // MESSAGE STATUS
