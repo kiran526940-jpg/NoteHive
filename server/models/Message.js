@@ -21,7 +21,31 @@ const messageSchema = new mongoose.Schema(
   default: "",
   maxlength: 2000,
 },
+messageType: {
+  type: String,
+  enum: ["text", "image", "file"],
+  default: "text",
+},
 
+fileUrl: {
+  type: String,
+  default: "",
+},
+
+fileName: {
+  type: String,
+  default: "",
+},
+
+fileSize: {
+  type: Number,
+  default: 0,
+},
+
+mimeType: {
+  type: String,
+  default: "",
+},
     // ============================================================
     // MESSAGE STATUS
     // ============================================================
