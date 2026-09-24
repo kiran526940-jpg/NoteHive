@@ -82,6 +82,22 @@ const Chat = () => {
 
   const popupTimerRef = useRef(null);
 
+  const fileInputRef = useRef(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imageViewer, setImageViewer] = useState(null);
+  const [showWallpaperMenu, setShowWallpaperMenu] = useState(false);
+  const [chatWallpaper, setChatWallpaper] = useState("default");
+
+  const wallpaperOptions = [
+    { id: "default", name: "Default", value: "" },
+    { id: "sky", name: "Sky", value: "linear-gradient(135deg,#eaf4ff,#f7fbff 45%,#eef0ff)" },
+    { id: "lavender", name: "Lavender", value: "linear-gradient(135deg,#f5efff,#eee7ff 50%,#fdf5ff)" },
+    { id: "mint", name: "Mint", value: "linear-gradient(135deg,#ecfff8,#e9f8ff 55%,#f7fffb)" },
+    { id: "peach", name: "Peach", value: "linear-gradient(135deg,#fff2eb,#fff7ef 50%,#fff0f7)" },
+    { id: "night", name: "Night", value: "linear-gradient(135deg,#172033,#20283d 55%,#151827)" },
+  ];
+
   // ============================================================
   // SELECTED USER REF
   // ============================================================
@@ -302,7 +318,10 @@ const Chat = () => {
       name: senderName,
       message:
         newMessage.message ||
-        "New message",
+        newMessage.fileName ||
+        (newMessage.messageType === "image"
+          ? "📷 Photo"
+          : "📎 File"),
       profileImage:
         sender.profileImage ||
         "",
@@ -1116,18 +1135,86 @@ console.log(
     );
   }, [users, search]);
 
+
+  const getFileUrl = (fileUrl) => {
+    if (!fileUrl) return "";
+    if (/^https?:\/\//i.test(fileUrl)) return fileUrl;
+    return `${SERVER_URL}${fileUrl.startsWith("/") ? "" : "/"}${fileUrl}`;
+  };
+
+  const getWallpaperStorageKey = (userId) => `notehive_chat_wallpaper_${currentUserId}_${userId}`;
+
+  const handleWallpaperChange = (wallpaperId) => {
+    if (!selectedUser?._id || !currentUserId) return;
+    setChatWallpaper(wallpaperId);
+    setShowWallpaperMenu(false);
+    localStorage.setItem(getWallpaperStorageKey(selectedUser._id), wallpaperId);
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File size must be 10 MB or less.");
+      return;
+    }
+
+    const allowedTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert("Only PDF, JPG, JPEG, PNG, WEBP, DOC and DOCX files are allowed.");
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const clearSelectedFile = () => {
+    if (uploadingFile) {
+      return;
+    }
+
+    setSelectedFile(null);
+  };
+
+  const formatFileSize = (size) => {
+    const bytes = Number(size || 0);
+
+    if (!bytes) {
+      return "0 KB";
+    }
+
+    if (bytes < 1024 * 1024) {
+      return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+    }
+
+    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+  };
+
   // ============================================================
   // SEND MESSAGE
   // ============================================================
 
-  const sendMessage = (event) => {
+  const sendMessage = async (event) => {
     event.preventDefault();
 
-    const text =
-      messageText.trim();
+    const text = messageText.trim();
 
     if (
-      !text ||
+      (!text && !selectedFile) ||
       !currentUserId ||
       !selectedUser?._id ||
       !socketRef.current
@@ -1135,57 +1222,82 @@ console.log(
       return;
     }
 
-    if (
-      !socketRef.current.connected
-    ) {
-      console.warn(
-        "Socket is not connected."
-      );
-
+    if (!socketRef.current.connected) {
+      console.warn("Socket is not connected.");
       return;
     }
 
-    // ==========================================================
-    // STOP TYPING IMMEDIATELY
-    // ==========================================================
-
     if (typingTimeoutRef.current) {
-      clearTimeout(
-        typingTimeoutRef.current
-      );
-
+      clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = null;
     }
 
-    socketRef.current.emit(
-      "typing-stop",
-      {
-        sender: currentUserId,
-        receiver:
-          selectedUser._id,
-      }
-    );
+    socketRef.current.emit("typing-stop", {
+      sender: currentUserId,
+      receiver: selectedUser._id,
+    });
 
     setIsOtherUserTyping(false);
 
-    // ==========================================================
-    // SEND ACTUAL MESSAGE
-    // ==========================================================
+    try {
+      let attachment = null;
 
-    socketRef.current.emit(
-      "send-message",
-      {
-        sender:
-          currentUserId,
+      if (selectedFile) {
+        setUploadingFile(true);
 
-        receiver:
-          selectedUser._id,
+        const formData = new FormData();
+        formData.append("file", selectedFile);
 
-        message: text,
+        const response = await fetch(
+          `${SERVER_URL}/api/messages/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.success || !data.file?.url) {
+          throw new Error(
+            data.message || "Unable to upload file."
+          );
+        }
+
+        attachment = data.file;
       }
-    );
 
-    setMessageText("");
+      socketRef.current.emit(
+        "send-message",
+        {
+          sender: currentUserId,
+          receiver: selectedUser._id,
+          message: text,
+          messageType: attachment?.messageType || "text",
+          fileUrl: attachment?.url || "",
+          fileName: attachment?.name || "",
+          fileSize: attachment?.size || 0,
+          mimeType: attachment?.mimeType || "",
+        },
+        (result) => {
+          if (!result?.success) {
+            console.error(
+              "❌ Message send failed:",
+              result?.message
+            );
+            alert(result?.message || "Unable to send message.");
+          }
+        }
+      );
+
+      setMessageText("");
+      setSelectedFile(null);
+    } catch (error) {
+      console.error("❌ Send message error:", error);
+      alert(error.message || "Unable to send message.");
+    } finally {
+      setUploadingFile(false);
+    }
   };
 
   // ============================================================
@@ -1230,6 +1342,9 @@ console.log(
     setSelectedUser(user);
 
     setMobileChatOpen(true);
+    setShowWallpaperMenu(false);
+    const savedWallpaper = localStorage.getItem(getWallpaperStorageKey(user._id));
+    setChatWallpaper(savedWallpaper || "default");
 
     setUnreadCounts(
       (previousCounts) => {
@@ -1753,13 +1868,28 @@ console.log(
                   ? "Online"
                   : "Offline"}
               </div>
+              <div className="chat-header-actions">
+                <button type="button" className="chat-wallpaper-button" onClick={() => setShowWallpaperMenu((v) => !v)} title="Change chat wallpaper">🎨</button>
+                {showWallpaperMenu && (
+                  <div className="chat-wallpaper-menu">
+                    <div className="chat-wallpaper-title">Chat wallpaper</div>
+                    <div className="chat-wallpaper-grid">
+                      {wallpaperOptions.map((option) => (
+                        <button key={option.id} type="button" className={`chat-wallpaper-option ${chatWallpaper === option.id ? "active" : ""}`} style={option.value ? { background: option.value } : undefined} onClick={() => handleWallpaperChange(option.id)} title={option.name}>
+                          {option.id === "default" ? "✦" : ""}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </header>
 
             {/* ==================================================
                 MESSAGES
             ================================================== */}
 
-            <section className="chat-messages">
+            <section className={`chat-messages ${chatWallpaper !== "default" ? "has-wallpaper" : ""}`} style={{ background: wallpaperOptions.find((item) => item.id === chatWallpaper)?.value || undefined }}>
               <div className="chat-welcome">
                 <div className="chat-welcome-avatar">
                   {getInitial(
@@ -1838,10 +1968,18 @@ console.log(
                               : "theirs"
                           }`}
                         >
-                          <div className="message-bubble">
-                            <p>
-                              {item.message}
-                            </p>
+                          <div className={`message-bubble ${item.messageType === "image" ? "image-message-bubble" : ""}`}>
+                            {(item.messageType || "text") === "image" && item.fileUrl ? (
+                              <button type="button" className="chat-image-button" onClick={() => setImageViewer({ url: getFileUrl(item.fileUrl), name: item.fileName || "Image" })}>
+                                <img src={getFileUrl(item.fileUrl)} alt={item.fileName || "Chat image"} className="chat-message-image" loading="lazy" />
+                              </button>
+                            ) : (item.messageType || "text") === "file" && item.fileUrl ? (
+                              <div className="chat-file-card">
+                                <div className="chat-file-icon">📎</div>
+                                <div className="chat-file-info"><strong title={item.fileName || "File"}>{item.fileName || "File"}</strong><span>{item.fileSize ? formatFileSize(item.fileSize) : "File"}</span></div>
+                                <a className="chat-file-download" href={getFileUrl(item.fileUrl)} download={item.fileName || "download"} target="_blank" rel="noreferrer" title="Download file">⬇</a>
+                              </div>
+                            ) : (<p>{item.message}</p>)}
 
                             <span className="message-meta">
                               {formatTime(
@@ -1858,7 +1996,7 @@ console.log(
                                 >
                                   {item.delivered
                                     ? "✓✓"
-                                    : "✓"}
+                                    : "✓✓"}
                                 </span>
                               )}
                             </span>
@@ -1879,10 +2017,64 @@ console.log(
                 MESSAGE INPUT
             ================================================== */}
 
-            <form
-              className="chat-input-area"
-              onSubmit={sendMessage}
-            >
+            <form className="chat-input-area" onSubmit={sendMessage}>
+              <input ref={fileInputRef} type="file" className="chat-hidden-file-input" onChange={handleFileSelect} accept="image/jpeg,image/jpg,image/png,image/webp,.pdf,.doc,.docx" />
+              <button type="button" className="chat-attach-button" onClick={() => fileInputRef.current?.click()} disabled={uploadingFile} title="Send image or file">{uploadingFile ? "⏳" : "📎"}</button>
+
+              {selectedFile && (
+                <div
+                  className="chat-selected-file"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "7px 10px",
+                    borderRadius: "12px",
+                    background: "rgba(255,255,255,0.9)",
+                    border: "1px solid rgba(120,120,180,0.18)",
+                    maxWidth: "220px",
+                    minWidth: 0,
+                  }}
+                >
+                  <span style={{ fontSize: "18px" }}>
+                    {selectedFile.type.startsWith("image/") ? "🖼️" : "📎"}
+                  </span>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <strong
+                      title={selectedFile.name}
+                      style={{
+                        display: "block",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {selectedFile.name}
+                    </strong>
+                    <span style={{ fontSize: "10px", opacity: 0.65 }}>
+                      {formatFileSize(selectedFile.size)}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearSelectedFile}
+                    disabled={uploadingFile}
+                    style={{
+                      border: 0,
+                      background: "transparent",
+                      cursor: uploadingFile ? "not-allowed" : "pointer",
+                      fontSize: "17px",
+                      lineHeight: 1,
+                      padding: "2px 4px",
+                    }}
+                    title="Remove file"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
               <div className="chat-input-box">
                 <input
                   type="text"
@@ -2011,8 +2203,9 @@ console.log(
                 type="submit"
                 className="chat-send-button"
                 disabled={
-                  !messageText.trim() ||
-                  !socketConnected
+                  (!messageText.trim() && !selectedFile) ||
+                  !socketConnected ||
+                  uploadingFile
                 }
                 title={
                   socketConnected
@@ -2026,6 +2219,12 @@ console.log(
           </>
         )}
       </main>
+      {imageViewer && (
+        <div className="chat-image-viewer" role="dialog" aria-modal="true" onClick={() => setImageViewer(null)}>
+          <button type="button" className="chat-image-viewer-close" onClick={() => setImageViewer(null)}>×</button>
+          <img src={imageViewer.url} alt={imageViewer.name || "Chat image"} onClick={(event) => event.stopPropagation()} />
+        </div>
+      )}
     </div>
   );
 };
